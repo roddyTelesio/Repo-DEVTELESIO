@@ -2,7 +2,7 @@ name: DeployToUAT
 
 on:
   pull_request:
-    types: [opened, synchronize, closed]
+    types: [closed]
     branches: DEV
 jobs:
     deploy-uat:
