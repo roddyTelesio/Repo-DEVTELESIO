@@ -1,0 +1,295 @@
+<!--
+  @description       : 
+  @author            : Patrick Randrianarisoa
+  @group             : 
+  @last modified on  : 31-10-2023
+  @last modified by  : Patrick Randrianarisoa 
+  Modifications Log
+  Ver   Date         Author                   Modification
+  1.0   31-10-2023   Patrick Randrianarisoa   Initial Version
+-->
+<template>
+    <template if:true={answerPagesSection}>
+        <lightning-card title="My Documents" icon-name="standard:account">
+            <template if:false={disableDocBtns}>
+                <lightning-button-group slot="actions">
+                    <lightning-button label="New" onclick={handleOpenNewDocumentModal} disabled={disableDocNewButton}></lightning-button> <!-- disabled={disableDocNewButton}-->
+                    <lightning-button label="Delete" onclick={handleDeleteDocument} disabled={disableDeleteBtn}></lightning-button>
+                </lightning-button-group>
+            </template>
+
+            <lightning-layout>
+                <!-- Add Table SRA - 1046--> 
+                <table class="slds-table slds-table_bordered" style='width: 100%;height: 100%;'>
+                    <tr>
+                        <th></th>
+                        <th>Name</th>
+                        <th>Broker Name</th>
+                        <th>Reinsurer Name</th>
+                        <th>Phase</th>
+                        <th>Date</th>                        
+                    </tr>
+
+                    <template if:true={spinner}>
+                        <lightning-spinner variant="brand" size="medium"></lightning-spinner>
+                    </template>
+
+
+                        <!--<template for:each={lstInitDocuments} for:item="docInit">
+                            <tr key={docInit.Id} id={docInit.Id} class="slds-p-aroundxxx-small">
+                                <td><lightning-input label="" name={docInit.Id} type="checkbox" checked={docInit.Checked} onchange={handleChangeDocInitCheckbox}></lightning-input></td>
+                                <td>
+                                    <template if:true={docInit.Viewable}>
+                                        <a href={docInit.DocumentUrl} target="_blank">{docInit.Name}</a>
+                                    </template>
+                                    <template if:false={docInit.Viewable}>
+                                        {docInit.Name}
+                                    </template>
+                                </td>
+                                <td>
+                                    {docInit.NameBroker}
+                                </td>
+                                <td>
+                                    {docInit.NameReinsurer}
+                                </td>
+                                <td>
+                                    {docInit.Phase}
+                                </td>
+                                <td>
+                                    {docInit.CreatedDate}
+                                </td>
+                            </tr>
+                        </template>-->
+
+                        <!--Retrieve New Document in database - 1046 -->
+                        <template for:each={lstDocuments} for:item="docAnswer">
+                            <tr key={docAnswer.Id} id={docAnswer.Id} class="slds-p-around--xxx-small">
+                                <td><lightning-input label="" name={docAnswer.Id} type="checkbox" disabled="true" checked={docAnswer.Checked} onchange={handleChangeDocCheckbox}></lightning-input></td>
+                                <td>
+                                    <template if:true={docAnswer.Viewable}>
+                                        <a href={docAnswer.DocumentUrl} target="_blank">{docAnswer.Name}</a>
+                                    </template>
+                                    <template if:false={docAnswer.Viewable}>
+                                        {docAnswer.Name}
+                                    </template>
+                                </td>
+                                <td>
+                                    {docAnswer.BrokerName}
+                                </td>
+                                <td>
+                                    {docAnswer.ReinsurerName}
+                                </td>
+                                <td>
+                                    {docAnswer.PhaseLabel}
+                                </td>
+                                <td>
+                                    {docAnswer.CreatedDate}
+                                </td>
+                            </tr>
+                        </template>
+
+                        <!--Retrieve Old Document in database - 1046 -->
+                        <!--<template for:each={lstDocumentsOld} for:item="OldDoc">
+                            <tr key={OldDoc.Id} id={OldDoc.Id} class="slds-p-around--xxx-small">
+                                <td><lightning-input label="" name={OldDoc.Id} type="checkbox" disabled={OldDoc.readOnlyCheckbox} checked={OldDoc.Checked} onchange={handleChangeDocOldCheckbox}></lightning-input></td>
+                                <td>
+                                    <template if:true={OldDoc.Viewable}>
+                                        <a href={OldDoc.DocumentUrl} target="_blank">{OldDoc.Name}</a>
+                                    </template>
+                                    <template if:false={OldDoc.Viewable}>
+                                        {OldDoc.Name}
+                                    </template>
+                                </td>
+                                <td>
+                                    {OldDoc.BrokerName}
+                                </td>
+                                <td>
+                                    {OldDoc.ReinsurerName}
+                                </td>
+                                <td>
+                                    {OldDoc.PhaseLabel}
+                                </td>
+                                <td>
+                                    {OldDoc.CreatedDate}
+                                </td>
+                            </tr>
+                        </template>-->
+
+                    <!--SRA ticket 1045-->
+                    <template for:each={lstDocumentVisibility} for:item="docVisibility">
+                        <tr key={docVisibility.Id} id={docVisibility.Id} class="slds-p-around--xxx-small">
+                            <td><lightning-input label="" name={docVisibility.Id} type="checkbox" disabled={docVisibility.readOnlyCheckbox} checked={docVisibility.Checked} onchange={handleChangeDocVsibilityCheckbox}></lightning-input></td>
+                            <td>
+                                <template if:true={docVisibility.Viewable}>
+                                    <a href={docVisibility.DocumentUrl} target="_blank">{docVisibility.Name}</a>
+                                </template>
+                                <template if:false={docVisibility.Viewable}>
+                                    {docVisibility.Name}
+                                </template>
+                            </td>
+                            <td>
+                                {docVisibility.BrokerName}
+                            </td>
+                            <td>
+                                {docVisibility.ReinsurerName}
+                            </td>
+                            <td>
+                                {docVisibility.PhaseLabel}
+                            </td>
+                            <td>
+                                {docVisibility.CreatedDate}
+                            </td>
+                        </tr>
+                    </template>
+
+                    <template for:each={lstDocumentVisibilityOld} for:item="docVisibilityOld">
+                        <tr key={docVisibilityOld.Id} id={docVisibilityOld.Id} class="slds-p-around--xxx-small">
+                            <td><lightning-input label="" name={docVisibilityOld.Id} type="checkbox" disabled={docVisibilityOld.readOnlyCheckbox} checked={docVisibilityOld.Checked} onchange={handleChangeDocVsibilityCheckboxOld}></lightning-input></td>
+                            <td>
+                                <template if:true={docVisibilityOld.Viewable}>
+                                    <a href={docVisibilityOld.DocumentUrl} target="_blank">{docVisibilityOld.Name}</a>
+                                </template>
+                                <template if:false={docVisibilityOld.Viewable}>
+                                    {docVisibilityOld.Name}
+                                </template>
+                            </td>
+                            <td>
+                            </td>
+                            <td>
+                            </td>
+                            <td>
+                                {docVisibilityOld.PhaseLabel}
+                            </td>
+                            <td>
+                                {docVisibilityOld.CreatedDate}
+                            </td>
+                        </tr>
+                    </template>
+
+                </table>
+            </lightning-layout>
+        </lightning-card>
+    </template>
+
+    <template if:false={answerPagesSection}>
+        <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small">
+            <lightning-card title="AXA Documents" icon-name="standard:account">
+                <!-- AMI 180722: W-0951 Portail - transversal - Possibilité de télécharger tous les documents AXA à la fois -->
+                <lightning-button label="Download All AXA Documents" slot="actions" onclick={downlaodAllAxaDocs} variant="brand" disabled={disableDownloadAll}></lightning-button>
+                <lightning-layout>
+                    <!-- Add Table -->
+                    <table style="width:100%; table-layout:fixed;" class="slds-table slds-table_bordered">
+                        <tr>
+                            <th>Last updated date</th>
+                            <th>Name</th>
+                            <th>Phase</th>
+                        </tr>
+                        <template for:each={lstAXADocuments} for:item="doc1">
+                            <tr key={doc1.Id} id={doc1.Id} class="slds-p-around--xxx-small">
+                                <td width="30%">
+                                    {doc1.LastUpdatedDate}
+                                </td>
+                                <td width="50%">  
+                                    <template if:true={doc1.Viewable}>
+                                        <a href={doc1.DocumentUrl} target="_blank">{doc1.Name}</a>
+                                    </template>
+                                    <template if:false={doc1.Viewable}>
+                                        {doc1.Name}
+                                    </template>
+                                </td>
+                                <td width="20%">
+                                    {doc1.Phase}
+                                </td>
+                            </tr>
+                        </template>
+                    </table>
+                </lightning-layout>
+            </lightning-card>
+        </div>
+        <br/>
+
+        <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small">
+            <lightning-card title="My Documents" icon-name="standard:account">
+                <lightning-layout>
+                    <!-- Add Table -->
+                    <table class="slds-table slds-table_bordered">
+                        <tr>
+                            <th>Name</th>
+                            <th>Phase</th>
+                        </tr>
+                        <template for:each={lstDocumentVisibility} for:item="doc">
+                            <tr key={doc.Id} id={doc.Id} class="slds-p-around--xxx-small">
+                                <td>
+                                    <template if:true={doc.Viewable}>
+                                        <a href={doc.DocumentUrl} target="_blank">{doc.Name}</a>
+                                    </template>
+                                    <template if:false={doc.Viewable}>
+                                        {doc.Name}
+                                    </template>
+                                </td>
+                                <td>
+                                    {doc.PhaseLabel}
+                                </td>
+                            </tr>
+                        </template>
+
+                        <template for:each={lstDocumentVisibilityOld} for:item="docOld">
+                            <tr key={docOld.Id} id={docOld.Id} class="slds-p-around--xxx-small">
+                                <td>
+                                    <template if:true={docOld.Viewable}>
+                                        <a href={docOld.DocumentUrl} target="_blank">{docOld.Name}</a>
+                                    </template>
+                                    <template if:false={docOld.Viewable}>
+                                        {docOld.Name}
+                                    </template>
+                                </td>
+                                <td>
+                                    {docOld.PhaseLabel}
+                                </td>
+                            </tr>
+                        </template>
+                    </table>
+                </lightning-layout>
+            </lightning-card>
+        </div>
+
+        <div style="float: right;" class="slds-p-top--large">
+            <lightning-button class="slds-p-around--xxx-small" label="Close" slot="actions" onclick={handleCloseDocumentModal}></lightning-button>
+        </div>
+    </template>
+
+    <template if:true={isOpenDocModal}>
+        <div class="demo-only">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseUploadModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">New Documents</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <div style="margin-top: 0.5rem;" class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-around--medium">
+                            <lightning-file-upload name="documentUpload"
+                                                   label="Drag & Drop or select your new files in the file selector below"
+                                                   onuploadfinished={handleUploadFinished}
+                                                   record-id={valueProgram}
+                                                   multiple>
+                            </lightning-file-upload>
+                            <lightning-formatted-text value={documentNames}></lightning-formatted-text>
+                        </div>
+
+                        <div style="float: right;" class="slds-p-top--small">
+                            <lightning-button class="slds-p-around--xxx-small" label="Cancel" slot="actions" onclick={handleCloseUploadModal}></lightning-button>
+                            <lightning-button class="slds-p-around--xxx-small" variant="brand" label="Save" slot="actions" onclick={handleSaveUploadDoc}></lightning-button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+</template>

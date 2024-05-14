@@ -1,0 +1,54 @@
+.twitter-frame {   
+    border: 0px;
+}
+
+.wrap {
+    padding: 0;
+    margin-bottom :-100px;
+  }
+  .scaled-frame {    
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: none;
+    margin-bottom :-100px;
+  }
+  .scaled-frame {
+    zoom: 0.75;
+    -moz-transform: scale(0.60);
+    -moz-transform-origin: 0 0;
+    -o-transform: scale(0.60);
+    -o-transform-origin: 0 0;
+    -webkit-transform: scale(0.75);
+    -webkit-transform-origin: 0 0;
+  }
+  
+  @media screen and (-webkit-min-device-pixel-ratio:0) {
+    .scaled-frame {
+      zoom: 1;
+    }
+  }
+/* RRA - ticket 1549 - 27022024 - Large devices (laptops/desktops, 992px and up) */
+  @media only screen and (min-width : 992px) {
+    .scaled-frame {
+        width: 135%;
+        height: 900px;
+      }
+  }
+  
+  /* RRA - ticket 1549 - 27022024 - Extra small devices (phones, 600px and down) */
+  @media only screen and (max-width: 600px) {
+    .scaled-frame {
+        width: 135%;
+        height: 900px;
+      }
+  }
+  
+  /* RRA - ticket 1549 - 27022024 - Small devices (portrait tablets and large phones, 600px and up) */
+  @media only screen and (min-width: 600px) {
+    .scaled-frame {
+        width: 135%;
+        height: 900px;
+      }
+  }

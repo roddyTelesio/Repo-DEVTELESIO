@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>52.0</apiVersion>
+    <isExposed>true</isExposed>
+
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+
+            <property 
+                name="isDebug" 
+                type="Boolean" 
+                label="Debug logs ?" 
+                default="false"
+                role="inputOnly"
+            />
+
+            <property 
+                name="disablePrevious" 
+                type="Boolean" 
+                label="Disable Previous" 
+                default="False"
+                role="inputOnly"
+            />
+
+            <property 
+                name="disableNext" 
+                type="Boolean" 
+                label="Disable Next" 
+                default="False"
+                role="inputOnly"
+            />
+
+            <property 
+                name="hideNextBtn" 
+                type="Boolean" 
+                label="Hide Next" 
+                default="False"
+                role="inputOnly"
+            />
+
+            <property 
+                name="hidePreviousBtn" 
+                type="Boolean" 
+                label="Hide Previous" 
+                default="False"
+                role="inputOnly"
+            />
+
+            <property 
+                name="nextLabel" 
+                type="String" 
+                label="Next Label" 
+                default="Suivant"
+                role="inputOnly"
+            />
+
+            <property 
+                name="previousLabel" 
+                type="String" 
+                label="Previous Label" 
+                default="Précédent"
+                role="inputOnly"
+            />
+
+            <property 
+                name="finishLabel" 
+                type="String" 
+                label="Finish Label" 
+                default="Finish"
+                role="inputOnly"
+            />
+
+            <property 
+                name="hideFinishBtn" 
+                type="Boolean" 
+                label="Hide Finish btn" 
+                default="false"
+                role="inputOnly"
+            />
+
+            <property 
+                name="disableFinish" 
+                type="Boolean" 
+                label="Disable Finish" 
+                default="False"
+                role="inputOnly"
+            />
+
+            <propertyType name="PT" 
+                extends="SObject" 
+                label="Select a SubSection" 
+                description="Select a sObject" 
+            />
+            <property name="lstSubSection" 
+                type="{PT[]}" 
+                label="Input Records SubSections" 
+                description="Record List Variable"  
+                role="inputOnly" />
+
+            
+            <propertyType name="REINS" 
+                extends="SObject" 
+                label="Select a Reinstatement" 
+                description="Select a sObject" 
+            />
+            <property name="lstReinstatement" 
+                type="{REINS[]}" 
+                label="Input Records Reinstatements" 
+                description="Record List Variable"  
+                role="inputOnly" />
+
+            <property name="recordId" 
+                type="String" 
+                label="Id Section" 
+                description="record Id of Section"  
+                role="inputOnly" />
+
+        </targetConfig>
+    </targetConfigs>
+
+</LightningComponentBundle>

@@ -1,0 +1,11 @@
+.THIS .marginTop{
+    margin-top:-10px;
+}
+
+ .wrap-text {
+    white-space: normal !important;
+    /* max-width: 5.6em; */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+}

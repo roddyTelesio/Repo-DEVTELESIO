@@ -1,0 +1,653 @@
+<template>
+    <!-- <template  if:true={access}> -->
+    <template if:true={portalAccess}>
+        <lightning-card>
+            <div style="padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;" >
+                <lightning-tile type="media">
+                    <div class="slds-text-heading_small"><b>{label.WorkingScope}</b></div>
+                </lightning-tile>
+            </div>
+            <lightning-layout>
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-combobox name="year"
+                                        label={label.UWYear}
+                                        value={uwYear}
+                                        options={uwYearOpt}
+                                        disabled>
+                    </lightning-combobox>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-combobox name="company"
+                                        label={label.PrincipalCedingCompany}
+                                        value={cedCompany}
+                                        options={cedingAccOpt}
+                                        disabled>
+                    </lightning-combobox>
+                </lightning-layout-item>
+            </lightning-layout>          
+        </lightning-card>
+        <br/>
+        <lightning-card>
+            <div style="padding-top: 0.5rem;padding-bottom: 0.25rem;margin-top: 0.5rem;" >
+                <lightning-tile type="media">
+                    <div class="slds-text-heading_small"><b>Program</b></div>
+                </lightning-tile>
+            </div>
+            <lightning-layout>
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-combobox name="program"
+                                        label="Program"
+                                        value={programName}
+                                        options={programOptions}
+                                        disabled>
+                    </lightning-combobox>
+                </lightning-layout-item>
+            </lightning-layout>
+            <template if:true={portalAccess}>
+                <br/>
+                <div style="float: right;margin-top: -137px;margin-right: 10px;" class="slds-p-top--small">
+                    <lightning-button class="slds-p-around--xxx-small" label="Documents" variant="brand" slot="actions" onclick={handleOpenDocuments}></lightning-button>
+                </div>
+            </template>
+        </lightning-card>
+    </template>
+    <template if:false={portalAccess}>
+        <lightning-card>
+            <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom ">
+                <div style="padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;" >
+                    <lightning-tile type="media">
+                        <div class="slds-text-heading_small"><b>{label.WorkingScope}</b></div>
+                    </lightning-tile>
+                </div>
+                <lightning-layout>
+                    <lightning-layout-item padding="around-small" size="6">
+                        <lightning-combobox name="year"
+                                            label={label.UWYear}
+                                            value={uwYear}
+                                            options={uwYearOpt}
+                                            disabled>
+                        </lightning-combobox>
+                    </lightning-layout-item>
+                    <lightning-layout-item padding="around-small" size="6">
+                        <lightning-combobox name="company"
+                                            label={label.PrincipalCedingCompany}
+                                            value={cedCompany}
+                                            options={cedingAccOpt}
+                                            disabled>
+                        </lightning-combobox>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </div>
+          
+        </lightning-card>
+        <br/>
+        <lightning-card>
+            <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom ">
+                <div style="padding-top: 0.5rem;padding-bottom: 0.25rem;margin-top: 0.5rem;" >
+                    <lightning-tile type="media">
+                        <div class="slds-text-heading_small"><b>Program</b></div>
+                    </lightning-tile>
+                </div>
+                <lightning-layout>
+                    <lightning-layout-item padding="around-small" size="6">
+                        <lightning-combobox name="program"
+                                            label="Program"
+                                            value={programName}
+                                            options={programOptions}
+                                            disabled>
+                        </lightning-combobox>
+                    </lightning-layout-item>
+                </lightning-layout>
+                <template if:true={portalAccess}>
+                    <br/>
+                    <div style="float: right;margin-top: -137px;margin-right: 10px;" class="slds-p-top--small">
+                        <lightning-button class="slds-p-around--xxx-small" label="Documents" variant="brand" slot="actions" onclick={handleOpenDocuments}></lightning-button>
+                    </div>
+                </template>
+            </div> 
+        </lightning-card>
+    </template>
+    
+    <br/>
+    <div style="padding-top: 0.5rem;padding-bottom: 0.25rem;margin-top: 0.5rem;padding-left: 1rem;" >
+        <table>
+            <tr>
+               <td style="padding-right: 1rem;">
+                   <lightning-input type="text" 
+                                    name="reinsurerStatus" 
+                                    label="Reinsurer Status" 
+                                    value={reinsurerStatusValue} disabled>
+                    </lightning-input>
+                </td>
+            </tr>
+        </table>
+        <br/>
+        <table>
+            <tr>
+                <td style="padding-right: 1rem;">
+                    <lightning-input type="Text" 
+                                     name="broker" 
+                                     label="Broker" 
+                                     value={brokerName}
+                                     disabled>
+                    </lightning-input>
+                </td>
+                <td style="padding-right: 1rem;">
+                    <lightning-input type="text" 
+                                     name="reinsurer" 
+                                     label="Reinsurer" 
+                                     value={reinsurerName}
+                                     disabled>
+                    </lightning-input>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-right: 1rem;">
+                    <lightning-combobox name="brokerStatus"
+                                        data-id="brokerStatus"
+                                        label="Broker Status"
+                                        value={brokerStatusValue}
+                                        options={brokerStatusOpt}
+                                        placeholder="--None--"
+                                        disabled={disableBroker}
+                                        required={isRequiredField}>
+                    </lightning-combobox>
+                </td>
+                <td style="padding-right: 1rem;">
+                    <div class="slds-form-element">
+                        <div class="slds-form-element__control">
+                            <div class="slds-combobox_container">
+                                <div class={txtRiskCarrierLookupClassName} data-id="resultBox" aria-expanded="false" aria-haspopup="listbox" role="combobox">
+                                    <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon slds-input-has-icon--right" role="none" style="padding-bottom: 8.5px;">
+                                        <lightning-input label="Risk Carrier" data-id="userinput" value={selectedRequest.RiskCarrierName} disabled={isStatusTimeout} name="selectedBrokerText" id={selectedRequest.Id} onchange={searchRiskCarrierLookUpField} required={isRequiredField}></lightning-input>
+                                        <span class="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_right iconheight">
+                                            <lightning-icon class="slds-icon slds-icon slds-icon_small slds-icon-text-default slds-align-middle slds-m-top_xx-small" icon-name="utility:search" size="x-small" alternative-text="icon" ></lightning-icon>
+                                        </span>
+                                    </div>
+
+                                    <template if:true={selectedRequest.displayRiskCarrierInfo}>
+                                        <div id={selectedRequest.divId} class="slds-dropdown slds-dropdown_length-with-icon-7 slds-dropdown_fluid" role="listbox">
+                                            <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                <template for:each={selectedRequest.searchLookupRecordsRisk} for:item="record">
+                                                    <li role="presentation" class="slds-listbox__item" key={record.recId}>
+                                                        <div data-id={record.recId} title={selectedRequest.Id} data-name={record.recName} onclick={setSelectedRiskCarrierLookupRecord} class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                                                        <span class="slds-media__figure">
+                                                            <span class="slds-icon_container slds-icon-standard-account slds-align-middle">
+                                                                <lightning-icon icon-name="standard:account" class="slds-icon slds-icon slds-icon_small slds-icon-text-default" size="small"></lightning-icon>
+                                                            </span>
+                                                        </span>
+                                                            <span class="slds-media__body">
+                                                            <span class="slds-listbox__option-text slds-listbox__option-text_entity">{record.recName}</span>
+                                                            <span class="slds-listbox__option-meta slds-listbox__option-meta_entity">{objectName} • {record.recName}</span>
+                                                        </span>
+                                                        </div>
+                                                    </li>
+                                                </template>
+                                            </ul>
+                                        </div>
+                                    </template>
+                                    <div if:true={selectedRequest.messageFlagRisk}>
+                                        No result found.
+                                    </div>
+                                    <div if:true={selectedRequest.loadingTextRisk}>
+                                        Loading...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-right: 1rem;">
+                </td>
+                <td style="padding-right: 1rem;">
+                    <div class="slds-form-element">
+                        <div class="slds-form-element__control">
+                            <div class="slds-combobox_container">
+                                <div class={txtFinancialEntityLookupClassName} data-id="resultBox" aria-expanded="false" aria-haspopup="listbox" role="combobox">
+                                    <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon slds-input-has-icon--right" role="none" style="padding-bottom: 8.5px;">
+                                        <lightning-input data-id="userinput" label="Financial Entity" value={selectedRequest.FinancialName} disabled={isStatusTimeout} name="selectedBrokerText" id={selectedRequest.Id} onchange={searchFinancialEntityLookUpField}></lightning-input>
+                                        <span class="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_right iconheight">
+                                            <lightning-icon class="slds-icon slds-icon slds-icon_small slds-icon-text-default slds-align-middle slds-m-top_xx-small" icon-name="utility:search" size="x-small" alternative-text="icon" ></lightning-icon>
+                                        </span>
+                                    </div>
+
+                                    <!-- Second part display result -->
+                                    <template if:true={selectedRequest.displayFinancialInfo}>
+                                        <div id={selectedRequest.divId2} class="slds-dropdown slds-dropdown_length-with-icon-7 slds-dropdown_fluid" role="listbox">
+                                            <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                <template for:each={selectedRequest.searchLookupRecordsFinancial} for:item="record">
+                                                    <li role="presentation" class="slds-listbox__item" key={record.recId}>
+                                                        <div data-id={record.recId} title={selectedRequest.Id} data-name={record.recName} onclick={setSelectedFinancialEntityLookupRecord} class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                                                        <span class="slds-media__figure">
+                                                            <span class="slds-icon_container slds-icon-standard-account slds-align-middle">
+                                                                <lightning-icon icon-name="standard:account" class="slds-icon slds-icon slds-icon_small slds-icon-text-default" size="small"></lightning-icon>
+                                                            </span>
+                                                        </span>
+                                                            <span class="slds-media__body">
+                                                            <span class="slds-listbox__option-text slds-listbox__option-text_entity">{record.recName}</span>
+                                                            <span class="slds-listbox__option-meta slds-listbox__option-meta_entity">{objectName} • {record.recName}</span>
+                                                        </span>
+                                                        </div>
+                                                    </li>
+                                                </template>
+                                            </ul>
+                                        </div>
+                                    </template>
+                                    <div if:true={selectedRequest.messageFlagFinancial}>
+                                        No result found.
+                                    </div>
+                                    <div if:true={selectedRequest.loadingTextFinancial}>
+                                        Loading...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    
+        <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 1.5rem;">
+            <lightning-tile type="media">
+                <div class="slds-text-heading_small">Signing Details</div>
+            </lightning-tile>
+        </div>
+    
+        <lightning-layout>
+            <table style="width:100%">
+                <tr class="slds-border--bottom">
+                    <th style="padding-right: 1.5rem">Layer</th>
+                    <th style="padding-right: 1.5rem">Treaty Ref</th>
+                    <th style="padding-right: 1.5rem">Treaty</th>
+                    <th style="padding-right: 1.5rem">Written Share</th>
+                    <th style="padding-right: 1.5rem">Signed Share</th>
+                    <th style="padding-right: 1.5rem">Deductions</th>
+                    <th style="padding-right: 1.5rem">Retrocession Brokerage</th>
+                    <th style="padding-right: 1.5rem">Broker's Ref</th>
+                    <th style="padding-right: 1.5rem">Reinsurer's Ref</th>
+                    <th style="padding-right: 1.5rem">Loss Deposit</th>
+                    <th style="padding-right: 1.5rem">Loss Deposit Mode</th>
+                    <th style="padding-right: 1.5rem">Premium Deposit</th>
+                    <th style="padding-right: 1.5rem">Premium Deposit Mode</th>
+                </tr>
+                <template for:each={lstRelatedSigningRequests} for:item="req">
+                    <tr class="slds-border--bottom slds-align-middle" key={req.Id} id={req.Id}>
+                        <td style="padding-right: 1.5rem">{req.TECH_Layer__c}</td>
+                        <td style="padding-right: 1.5rem">{req.TreatyReference__c}</td>
+                        <td style="padding-right: 1.5rem"><a data-id={req.Id} data-value={req.Treaty__c} onclick={handleOpenTreatyDetailsModal}>{req.TECH_TreatyName__c}</a></td>
+                        <td style="padding-right: 1.5rem">{req.WrittenShareVal}</td>
+                        <template if:true={disableSignedShare}>
+                            <td style="padding-right: 1.5rem">{req.SignedShareVal}</td>
+                        </template>
+                        <template if:false={disableSignedShare}>
+                            <td style="padding-right: 1.5rem;padding-bottom: 1rem;">
+                                <lightning-input type="number" label="" data-value={req.index} step="0.000001" value={req.SignedShare__c} onchange={handleOnchangeSignedShare}> </lightning-input>
+                            </td>
+                        </template>
+                        <template if:true={portalAccess}>
+                            <td style="padding-right: 1.5rem">{req.Deductions__c}%</td>
+                        </template>
+                        <template if:false={portalAccess}>
+                            <td style="padding-right: 1.5rem;padding-bottom: 1rem;">
+                                <lightning-input type="number" label="" data-value={req.index} step="0.000001" value={req.Deductions__c} disabled={req.disableDeduction} onchange={handleOnchangeDeductions}> </lightning-input>
+                            </td>
+                        </template>
+                        <template if:true={portalAccess}>
+                            <td style="padding-right: 1.5rem">{req.RetrocessionBrokerage__c}%</td>
+                        </template>
+                        <template if:false={portalAccess}>
+                            <td style="padding-right: 1.5rem;padding-bottom: 1rem;">
+                                <lightning-input label="" type="number" step="0.000001" value={req.RetrocessionBrokerage__c} name="RetrocessionBrokerage__c" data-value={req.index} disabled={req.disableRetroBrokerage} onchange={handleOnchangeRetroBroker}></lightning-input>  
+                            </td>       
+                        </template>
+                        <td style="padding-right: 1.5rem;padding-bottom: 1rem;">
+                            <lightning-input type="text" label="" data-value={req.index} value={req.Broker_s_Ref__c} disabled={req.disableBrokerRef} onchange={handleOnchangeBrokerRef}> </lightning-input>
+                        </td>
+                        <td style="padding-right: 1.5rem;padding-bottom: 1rem;">
+                            <lightning-input type="text" label="" data-value={req.index} value={req.Reinsurer_s_Ref__c} disabled={isStatusTimeout} onchange={handleOnchangeReinsurerRef}> </lightning-input>
+                        </td>
+                        <td style="padding-right: 1.5rem">{req.lossDeptValue}</td>
+                        <td style="padding-right: 1.5rem;padding-bottom: 1rem;">
+                            <lightning-combobox label="" placeholder="--None--" data-value={req.index} value={req.LossDepositMode__c} disabled={req.disableLossDepModeOpt} required={isRequiredField} onchange={handleOnchangeLossDept} options={req.lossDeptModeOpt} name="LossDepositMode__c" id={req.Id}></lightning-combobox>
+                        </td>
+                        <td style="padding-right: 1.5rem;padding-bottom: 1rem;">
+                            <lightning-combobox label="" placeholder="--None--" data-value={req.index} value={req.PremiumDeposit__c} onchange={handleOnchangePremiumDept} options={premiumDepositOpt} name="premiumDeposit" id={req.Id} disabled={req.isPremiumDisable}></lightning-combobox>
+                        </td>
+                        <td style="padding-right: 1.5rem;padding-bottom: 1rem;">
+                            <lightning-combobox label="" data-id="premiumDeptMode" placeholder="--None--" data-value={req.index} value={req.PremiumDepositMode__c} onchange={handleOnchangePremiumDeptMode} disabled={req.disablePremiumDeptMode} options={premiumDeptModeOpt} name="premiumDepositMode" id={req.Id}></lightning-combobox>
+                        </td>
+                    </tr>
+                </template>
+            </table>
+        </lightning-layout>
+        <br/>
+        <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 1.5rem;">
+            <lightning-tile type="media">
+                <div class="slds-text-heading_small">Collateral Information</div>
+            </lightning-tile>
+        </div>
+        <table>
+            <tr>
+                <td style="padding-right: 1rem;padding-top: 1rem;">
+                    <lightning-input type="Text" 
+                                     name="providerName" 
+                                     data-id="providerName"
+                                     label="Collateral Provider Name" 
+                                     value={selectedRequest.Collateral_provider_Name__c}
+                                     disabled={isStatusTimeout}>
+                    </lightning-input>
+                </td>
+                <td style="padding-right: 1rem;padding-top: 1rem;">
+                    <lightning-input type="text" 
+                                     name="providerCity"
+                                     data-id="providerCity" 
+                                     label="Collateral Provider City" 
+                                     value={selectedRequest.Collateral_Provider_City__c}
+                                     disabled={isStatusTimeout}>
+                    </lightning-input>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-right: 1rem;padding-top: 1rem;">
+                    <lightning-input type="text"
+                                     name="providerCode"
+                                     data-id="providerCode"
+                                     label="Collateral Provider Code"
+                                     value={selectedRequest.Collateral_provider_Code__c}
+                                     disabled={isStatusTimeout}>
+                    </lightning-input>
+                </td>
+                <td style="padding-right: 1rem;padding-top: 1rem;">
+                    <lightning-combobox name="typeCode"
+                                        data-id="typeCode"
+                                        label="Type of Code"
+                                        value={selectedRequest.Type_of_Code__c}
+                                        options={typeOfCodeOpt}
+                                        placeholder="--None--"
+                                        disabled={isStatusTimeout}>
+                    </lightning-combobox>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-right: 1rem;padding-top: 1rem;">
+                    <lightning-combobox name="descLimit"
+                                        data-id="DescCollValue"
+                                        label="Description of the Reinsurers Limit Collateralised"
+                                        value={selectedRequest.DescriptionReinsurerLimitColl__c}
+                                        options={descCollOpt}
+                                        placeholder="--None--"
+                                        disabled={isStatusTimeout}>
+                    </lightning-combobox>
+                </td>
+                <td style="padding-right: 1rem;">
+                </td>
+            </tr>
+        </table>
+        <br/>
+        <br/>
+        <template if:true={portalAccess}>
+                <lightning-card>
+                    <h3 slot="title">
+                        <lightning-icon icon-name="standard:contact" alternative-text="Info!" variant="info" size="small"> </lightning-icon>
+                            {titleSignatories}
+                        <lightning-helptext content="Please indicate the order of signatories : 1 is the first person who will sign the contract, etc."></lightning-helptext>
+                    </h3>
+                    <lightning-button-group slot="actions">
+                        <lightning-button label='New' onclick={handleOpenSignatories} disabled={isStatusTimeout}></lightning-button>
+                        <lightning-button label="Modify" onclick={handleOpenUpdateSignatory} disabled={isStatusTimeout}></lightning-button>
+                        <lightning-button label="Delete" onclick={handleDeleteSignatories} disabled={isStatusTimeout}></lightning-button>
+                        <lightning-button label="Order Signatory" onclick={handleOpenReorderSignatories} disabled={isStatusTimeout}></lightning-button><!--//MRA 19/05/23 - Contact Signatory Rebuild-->
+                    </lightning-button-group>
+                    <div style="height:200px;">
+                        <lightning-datatable
+                                key-field="id"
+                                data-id="signatoriesContact"
+                                data={signatoriesData}
+                                columns={columnSignatories} >
+                        </lightning-datatable>
+                    </div>
+               </lightning-card>
+                <br/>
+                <br/>
+                <lightning-card title={titleClaimContacts} icon-name="standard:contact"> <br/>
+                    <lightning-button-group slot="actions">
+                        <lightning-button label="New" onclick={handleOpenAddClaimContacts} disabled={isStatusTimeout}></lightning-button>
+                        <lightning-button label="Delete" onclick={handleDeleteClaimContact} disabled={isStatusTimeout}></lightning-button>
+                    </lightning-button-group>
+                    <div style="height:200px;">
+                        <lightning-datatable
+                                key-field="id"
+                                data-id="claimsContacts"
+                                data={claimContactData}
+                                columns={columnClaimContacts}>
+                        </lightning-datatable>
+                    </div>
+                </lightning-card>
+                <br/>
+                 <!-- SRA - 1046 - Bug Signing Emma when click on button Open-->
+                 <c-lwc-28-portal-documents value-program={programId} selected-broker={selectedBrokerId} selected-reinsurer={selectedReinsurerId} answer-pages-section="true" stage="Signing"  disable-doc-new-button={isStatusSigned} disable-doc-delete-btn={isStatusTimeout}></c-lwc-28-portal-documents>
+        </template>
+        <template if:false={portalAccess}>
+            <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small">
+                 <!-- RRA - 1163 07/07/2022-->
+
+                 <div class="slds-m-top_x-small slds-m-bottom_large slds-m-horizontal_none  slds-p-around_none">
+                    <lightning-layout>
+
+                        <lightning-layout-item>
+                                <lightning-icon icon-name="standard:contact" alternative-text="Info!" variant="info" size="small"> </lightning-icon>&nbsp;&nbsp;
+                        </lightning-layout-item>
+
+                        <lightning-layout-item>
+                                <lightning-formatted-text variant="label-hidden" class="slds-form-element__label slds-m-bottom_small slds-col" style="font-weight: bold;font-size:medium;" value={titleSignatories}> </lightning-formatted-text>
+                        </lightning-layout-item>
+
+                        <lightning-layout-item>
+                                <lightning-helptext content="Please indicate the order of signatories : 1 is the first person who will sign the contract, etc."></lightning-helptext>
+                        </lightning-layout-item>
+
+                        <lightning-layout-item alignment-bump="left">
+                                <lightning-button label="New" onclick={handleOpenSignatories} disabled={isStatusTimeout}></lightning-button>
+                        </lightning-layout-item>
+
+                        <lightning-layout-item>
+                                <lightning-button label="Modify" onclick={handleOpenUpdateSignatory} disabled={isStatusTimeout}></lightning-button>
+                        </lightning-layout-item>
+
+                        <lightning-layout-item>
+                                <lightning-button label="Delete" onclick={handleDeleteSignatories} disabled={isStatusTimeout}></lightning-button>
+                        </lightning-layout-item>
+
+                        <lightning-layout-item><!--//MRA 19/05/23 - Contact Signatory Rebuild-->
+                                <lightning-button label="Order Signatory" onclick={handleOpenReorderSignatories} disabled={isStatusTimeout}></lightning-button>
+                        </lightning-layout-item>
+
+                    </lightning-layout>
+                </div>
+                    <div style="height:200px;">
+                        <lightning-datatable
+                                key-field="id"
+                                data-id="signatoriesContact"
+                                data={signatoriesData}
+                                columns={columnSignatories} >
+                        </lightning-datatable>
+                    </div>
+              
+            </div>
+            <br/>
+            <br/>
+            <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small">
+                <lightning-card title={titleClaimContacts} icon-name="standard:contact"> <br/>
+                    <lightning-button-group slot="actions">
+                        <lightning-button label="New" onclick={handleOpenAddClaimContacts} disabled={isStatusTimeout}></lightning-button>
+                        <lightning-button label="Delete" onclick={handleDeleteClaimContact} disabled={isStatusTimeout}></lightning-button>
+                    </lightning-button-group>
+                    <div style="height:200px;">
+                        <lightning-datatable
+                                key-field="id"
+                                data-id="claimsContacts"
+                                data={claimContactData}
+                                columns={columnClaimContacts}>
+                        </lightning-datatable>
+                    </div>
+                </lightning-card>
+            </div>
+        </template>
+
+        <template if:true={openTreatyDetailsModal}>
+            <div class="demo-only">
+                <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-05" aria-modal="true" aria-describedby="modal-content-id-5" class="slds-modal slds-fade-in-open">
+                    <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                        <header class="slds-modal__header">
+                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseTreatyDetailsModal}>
+                                <lightning-icon icon-name="utility:close" size="medium">
+                                </lightning-icon>
+                                <span class="slds-assistive-text">Close</span>
+                            </button>
+    
+                            <h2 id="modal-heading-06" class="slds-text-heading_medium slds-hyphenate">
+                               Treaty Details
+                            </h2>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-6">
+                            <c-lwc-34-treaty-details selected-request-id={selectedRelatedReqId}
+                                                     selected-treaty-id={selectedTreatyid}></c-lwc-34-treaty-details>
+                        </div>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open"></div>
+            </div>
+        </template>
+        <template if:false={portalAccess}>
+            <br/>
+            <div style="float: right;">
+                <template if:true={activeAcc}>
+                    <lightning-button label="Cancel" onclick={handleCloseMarketSubModal}></lightning-button>
+                     <!-- RRA - ticket 585 - 07032023-->
+                     <lightning-button label="Save" style="padding-left: 10px;" variant="brand" onclick={handleSaveRequest} disabled={disableBtnSave}></lightning-button>
+                </template>
+                <template if:false={activeAcc}>
+                    <lightning-button label="Cancel" onclick={handleCloseMarketSubModal}></lightning-button>
+                    <lightning-button label="Save" style="padding-left: 10px;" variant="brand" disabled onclick={handleSaveRequest}></lightning-button>
+                </template>
+            </div>
+            <br/>
+            <br/>
+        </template>
+        <template if:true={portalAccess}>
+            <div class="slds-p-top--medium">
+                <lightning-input label={agreeCheckboxLabel} name="Accept__c" data-id="AcceptSigningCheckbox" checked={selectedRequest.Accept__c} onchange={handleCheckboxAccept} type="checkbox" disabled={isStatusSigned} required={isRequiredField}></lightning-input>
+            </div>
+            <br/>
+           <!-- RRA - ticket 585 - 07032023-->
+           <button type="button" class="slds-button slds-button_neutral" style="width: 100%;margin-bottom: 13px;" name="SaveAll" disabled={disableBtnSave} onclick={handleSaveRequest}>Save All</button>
+            <button type="button" class="slds-button slds-button_brand" style="width: 100%;" onclick={handleSaveRequest} name="Send" disabled={isStatusSigned}>Send</button>
+        </template>
+    
+       
+    </div>
+    <template if:true={openAddClaimContacts}>
+        <div class="demo-only">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-05" aria-modal="true" aria-describedby="modal-content-id-5" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseAddClaimsContacts}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-heading-07" class="slds-text-heading_medium slds-hyphenate">
+                           Enter email address
+                        </h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-7">
+                            <lightning-input type="email"
+                                         label="Email"
+                                         data-id="newEmailId"
+                                         message-when-type-mismatch="Please enter a valid email address">
+                            </lightning-input>
+                        <br/>
+                        <div style="float: right;">
+                            <lightning-button class="slds-p-around--xxx-small" label="Close" slot="actions" onclick={handleCloseAddClaimsContacts}></lightning-button>
+                            <lightning-button class="slds-p-around--xxx-small" variant="brand" label="Add" slot="actions" onclick={handleAddClaimContact}></lightning-button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+
+    <template if:true={openAddSignatories}>
+        <div>
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-05" aria-modal="true" aria-describedby="modal-content-id-5" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;text-align: left;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseSignatories}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+                    </header>
+                    <lightning-flow  flow-api-name='Contact_Signatory_Component_v3' onstatuschange={handleStatusChange} flow-input-variables={inputVariables} >
+                    </lightning-flow><!--//MRA 19/05/23 - Contact Signatory Rebuild-->
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+    <!--MRA 1103 07/07/2022 : START-->
+    <template if:true={isUpdate}>
+        <div class="demo-only">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-05" aria-modal="true" aria-describedby="modal-content-id-5" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseUpdateSignatory}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-heading-09" class="slds-text-heading_medium slds-hyphenate">
+                          Update Signatory
+                        </h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-9">
+                        <lightning-flow  flow-api-name='Contact_Signatory_Update_a_contact' onstatuschange={handleStatusChangeUpdateFlow} flow-input-variables={inputVariablesUpdateContact} >
+                        </lightning-flow><!--//MRA 19/05/23 - Contact Signatory Rebuild-->
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+    <!--MRA 1103 07/07/2022 : END-->
+    <template if:true={isDocumentModalOpen}>
+        <div class="demo-only">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Documents</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <!-- SRA - 1046 - Bug Signing Emma when click on button Open-->
+                        <c-lwc-28-portal-documents value-program={programId} selected-broker={selectedBrokerId} selected-reinsurer={selectedReinsurerId} stage="Signing" value-reinsurer={selectedReinsurerId}></c-lwc-28-portal-documents>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+    <template if:true={displaySpinner}>
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </template>
+</template>

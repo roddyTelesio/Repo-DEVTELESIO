@@ -1,0 +1,38 @@
+<template>
+    <!-- Header -->
+    <div
+        style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 1rem;margin-right: 0.5rem;">
+        <lightning-tile type="media">
+            <div class="slds-text-heading_small">Quota Share Section</div>
+        </lightning-tile>
+    </div>
+
+    <!-- ReadOnly Information Section-->
+    <template if:true={readOnly}>
+        <div
+            style="margin-left: 1rem;margin-right: 0.5rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem;">
+            <lightning-combobox name="Currency" label="Currency" value={sectionRequest.Section__r.Currency__c}
+                placeholder="--None--" options={currencyOpt} disabled></lightning-combobox>
+            <lightning-input type="number" name="CapacityPerRisk" label="Capacity (per risk)"
+                value={sectionRequest.Section__r.CapacityPerRisk__c} disabled></lightning-input><br />
+            <lightning-input name="Unlimited" checked={sectionRequest.Section__r.Unlimited__c} type="checkbox"
+                label="Or Unlimited" disabled></lightning-input>
+            <lightning-input type="number" name="EvenLimit" label="Event Limit"
+                value={sectionRequest.Section__r.EventLimit__c} disabled></lightning-input>
+            <lightning-input type="number" name="CessionPerc" label="Cession (%)"
+                value={sectionRequest.Section__r.Cession_Perc__c} disabled></lightning-input>
+            <lightning-input type="number" name="RetentionPerc" label="Retention (%)"
+                value={sectionRequest.Section__r.Retention__c} disabled></lightning-input>
+            <lightning-input type="number" name="CessionAmount" label="Cession (amount)"
+                value={sectionRequest.Section__r.CessionAmount__c} disabled></lightning-input>
+            <lightning-input type="number" name="RetensionAmount" label="Retention (amount)"
+                value={sectionRequest.Section__r.RetentionAmount__c} disabled></lightning-input>
+            <lightning-input type="number" name="CededPremium" label="Ceded Premium"
+                value={sectionRequest.Section__r.CededPremium__c} disabled></lightning-input>
+            <lightning-input type="number" name="TotalEPI" disabled label="Total EPI"
+                value={sectionRequest.Section__r.TotalEPI__c}></lightning-input>
+            <lightning-combobox name="Nature" label="Nature" value={sectionRequest.Section__r.Nature__c}
+                placeholder="--None--" options={natureOpt} disabled></lightning-combobox>
+        </div>
+    </template>
+</template>

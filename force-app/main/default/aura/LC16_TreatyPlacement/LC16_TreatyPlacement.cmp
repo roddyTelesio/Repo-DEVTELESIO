@@ -1,0 +1,17 @@
+<aura:component description="LC16_TreatyPlacement" implements="force:appHostable,flexipage:availableForAllPageTypes,lightning:actionOverride,force:hasRecordId,force:hasSObjectName,lightning:isUrlAddressable">
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+    <aura:handler name="change" value="{!v.pageReference}" action="{!c.reInit}" />
+    
+    <div class="slds-grid slds-wrap" style="background-color: #ffffff; padding:1rem;">
+        <div class="slds-size--1-of-1">
+            <c:lwc01WorkingScope />
+            <br/>
+            <c:lwc11TreatyPlacementFilters />
+            <br/>
+            <c:lwc12TreatyPlacementPath />
+            <br/>
+            <c:lwc13TreatyPlacementPage />
+            <br/>
+        </div>
+    </div>
+</aura:component>

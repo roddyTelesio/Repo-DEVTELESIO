@@ -1,0 +1,17 @@
+<template>
+        <div class="dualListboxCmp">
+                <lightning-dual-listbox
+                id="selectOptions"
+                name="Select Options"
+                label=""
+                source-label="Available Options"
+                selected-label="Selected Options"
+                options={listOptions}
+                value={defaultOptions}
+                onchange={handleChange}
+            >
+            </lightning-dual-listbox>
+        </div>
+        
+    
+</template>

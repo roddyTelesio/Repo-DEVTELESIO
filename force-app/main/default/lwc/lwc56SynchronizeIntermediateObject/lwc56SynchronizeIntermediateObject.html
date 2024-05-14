@@ -1,0 +1,34 @@
+<template>
+    <!--<template if:true={spinnerloadIntObj}>
+        <div class=""><lightning-spinner variant="brand" size="medium" class="slds-align_absolute-center"></lightning-spinner></div>
+    </template>-->
+
+    <!--<template if:true={displaySpinner}>
+        <lightning-spinner alternative-text="Loading" size="medium" class="spinnerClass"></lightning-spinner>
+    </template>-->
+
+    <template if:true={displaySpinner}>
+        <!--Spinner-->
+        <div class="slds-p-around_x-large">
+            <lightning-spinner alternative-text="Loading" size="large" variant="brand"></lightning-spinner>
+        </div>
+     </template>
+   
+        <lightning-card title="Manage keys for Sharing Visibility" icon-name="doctype:keynote">
+            <lightning-button  label="Synchronize" class="slds-m-left_x-small" slot="actions" variant="brand" title="Click to check and calculate keys for sharing visibility" onclick={handleClick} disabled={isKeyExist}></lightning-button>
+            <template if:true={isAppearMessage}>
+                <div class="slds-text-align_center">
+                    <p class="slds-p-horizontal_small slds-text-title_bold slds-text-color_error">{messageUser}</p>
+                </div>               
+
+            </template>
+            <template if:false={isAppearMessage}>
+                <div class="slds-text-align_center">
+                    <p class="slds-p-horizontal_small slds-text-title_bold slds-text-color_error">{messageUser}</p>
+                </div>  
+                
+                
+            </template>
+           
+        </lightning-card>
+</template>

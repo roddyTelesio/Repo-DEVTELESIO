@@ -1,0 +1,1174 @@
+<template>
+    <div style="background-color: #ffffff;">
+        <lightning-card title={titleCountSpecialAcceptance} icon-name="standard:file">
+            <lightning-button-group slot="actions">
+                <lightning-button label="New" onclick={handleOpenNewModal}></lightning-button>
+                <template if:true={isCE}>
+                    <lightning-button label="Deactivate" name="Deactivate" onclick={handleOnClickBtn} disabled={disableDeactivateBtn}></lightning-button>
+                    <lightning-button label="Reactivate" name="Reactivate" onclick={handleOnClickBtn} disabled={disableReactivateBtn}></lightning-button>
+                </template>
+                <lightning-button label="Bind" name="Bind" onclick={handleOnClickBtn} disabled={disableBindBtn}></lightning-button>
+            </lightning-button-group>
+
+            <template if:true={spinnerSpecialAcceptance}>
+                <div class="">
+                    <lightning-spinner variant="brand" size="medium" class="slds-align_absolute-center"></lightning-spinner>
+                </div>
+            </template>
+
+            <div style="height:300px;">
+                <lightning-datatable
+                        key-field="id"
+                        data={data}
+                        columns={columns}
+                        onrowaction={handleRowAction}
+                        onrowselection={handleRowSelection}>
+                </lightning-datatable>
+            </div>
+        </lightning-card>
+    </div>
+
+    <template if:true={isNewSa}>
+        <div class="demo-only">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseNewModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">New Special Acceptance</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <template if:true={spinnerSaveSpecialAcceptance}>
+                            <div class="">
+                                <lightning-spinner variant="brand" size="medium" class="slds-align_absolute-center"></lightning-spinner>
+                            </div>
+                        </template>
+
+                        <c-lwc-46-working-scope-special-acceptance value-uw-year={valUwYear} value-principal-ced-comp={valPrincipalCedComp} value-ceding-program-old-value="null" program-modal={valProgram} is-modal-new={isNewSa} is-modal-copy={isCopySa} is-modal-renew={isRenewSa}></c-lwc-46-working-scope-special-acceptance>
+                        <br/>
+                        
+                        <!-- General Information About Special Acceptance -->
+                        <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+                            <lightning-tile type="media">
+                                <div class="slds-text-heading_small">General Information</div>
+                            </lightning-tile>
+                        </div>
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item padding="around-small" size="4">
+                                <!--RRA - 0841 22/06/2022-->
+                                <lightning-input type="text" name="CedingCompanySpecialAcceptationNumber__c"  max-length="20" label='Ceding Company Special Acceptance no' disabled={isCE}></lightning-input>
+                            </lightning-layout-item>
+
+                            <lightning-layout-item padding="around-small" size="4">
+                                 <!--RRA - 0841 22/06/2022  max-length="254"-->
+                                <lightning-input type="text" max-length="254" name="Reference__c" label='Special Acceptance no' value={referenceVal} disabled required></lightning-input>
+                            </lightning-layout-item>
+                            <lightning-layout-item padding="around-small" size="4">
+                                <lightning-input type="date" name="DateRequest__c" label='Date of Request' required></lightning-input>
+                            </lightning-layout-item>
+
+                            <lightning-layout-item padding="around-small" size="4">
+                                <div style="padding-top: 1.5rem">
+                                    <lightning-input name="LegalEntity__c" data-id="LegalEntity" type="checkbox" label='Legal Entity' onchange={deselectOtherCheckbox} checked={legalEntityVal}></lightning-input>
+                                </div>
+                            </lightning-layout-item>
+                            <lightning-layout-item padding="around-small" size="4">
+                                <div style="padding-top: 1.5rem">
+                                    <lightning-input name="NaturalPerson__c" data-id="NaturalPerson" type="checkbox" label='Natural Person' onchange={deselectOtherCheckbox} checked={naturalPersonVal}></lightning-input>
+                                </div>
+                            </lightning-layout-item>
+                            <lightning-layout-item padding="around-small" size="4">
+                                <!--RRA - 841 - 22/06/2022  max-length="255"-->
+                                <lightning-input type="text" name="SpecialAcceptanceName__c" data-id="SpecialAcceptanceName" value={specialAcceptanceNameVal}  disabled={disableSpecialAcceptanceName} max-length="255" label='Special Acceptance Name' required></lightning-input>
+                            </lightning-layout-item>
+
+                            <lightning-layout-item padding="around-small" size="4">
+                                <lightning-input type="text" name="MacroLob" label='Macro L.o.B' value={macroLobFromProgram} disabled></lightning-input>
+                            </lightning-layout-item>
+                            <lightning-layout-item padding="around-small" size="4">
+                                <lightning-combobox name="SubLoB__c" label='Sub L.o.B' placeholder="--None--" options={subLobOpt} value={selectedSubLOB} required></lightning-combobox>
+                            </lightning-layout-item>
+                            <lightning-layout-item padding="around-small" size="4">
+                                <template if:true={isCE}>
+                                    <lightning-combobox name="Type__c" label='Type' placeholder="--None--" options={typeOpt}></lightning-combobox>
+                                </template>
+                            </lightning-layout-item>
+
+                            <lightning-layout-item padding="around-small" size="4">
+                               <lightning-combobox name="CoveredCedingCompany__c" label='Covered Ceding Company' placeholder="--None--" options={covCedComOpt} required></lightning-combobox>
+                            </lightning-layout-item>
+                            <lightning-layout-item padding="around-small" size="4">
+                                <lightning-combobox name="Country__c" label='Special Acceptance Country' placeholder="--None--" options={countryOpt}></lightning-combobox>
+                            </lightning-layout-item>
+                             <!-- RRA 22/06/22: W-0841  max-length="50"-->
+                            <lightning-layout-item padding="around-small" size="4">
+                                <lightning-input type="text" name="Location__c" label='Special Acceptance Location' max-length="50"></lightning-input>
+                            </lightning-layout-item>
+
+                            <lightning-layout-item padding="around-small" size="6">
+                                <lightning-dual-listbox name="Reason__c"
+                                            label='Reason(s)'
+                                            source-label="Available"
+                                            selected-label="Selected"
+                                            options={reasonOpt}
+                                            value={reasonValue}
+                                            onchange={reasonChanged}
+                                            required>
+                                </lightning-dual-listbox>
+                            </lightning-layout-item>
+                            <lightning-layout-item padding="around-small" size="6">
+                                <lightning-textarea name="ReasonDetails__c" label="Reason(s) details" max-length="2000"></lightning-textarea> <!--FMU - 1047-->
+                            </lightning-layout-item>
+                        </lightning-layout>
+
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item padding="right-small" size="6">
+                                <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-right: 1rem;">
+                                    <lightning-tile type="media">
+                                        <div class="slds-text-heading_small">Original Policy Information</div>
+                                    </lightning-tile>
+                                </div>
+                                <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem">
+                                    <lightning-layout multiple-rows>
+                                        <lightning-layout-item padding="around-small" size="6">
+                                            <lightning-input type="date" name="SpaInceptionDate__c" data-id="setNull" label='SpA Inception Date' value={inceptionDateVal} onchange={handleOnChangeIncepDate} required></lightning-input> <!-- RRA - ticket 1537 - 31072023-->
+                                        </lightning-layout-item>
+                                        <lightning-layout-item padding="around-small" size="6">
+                                            <lightning-input type="date" name="SpaExpirationDate__c"  data-id="setNull" label='SpA Expiry Date' value={expiryDateVal} onchange={handleOnChangeExpDate} required></lightning-input> <!-- RRA - ticket 1537 - 31072023-->
+                                        </lightning-layout-item>
+
+                                        <lightning-layout-item padding="around-small" size="6">
+                                            <lightning-input type="number" name="SpaDurationDays__c" value={daysDurationVal} label='SpA Policy Duration(days)' disabled></lightning-input>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item padding="around-small" size="6">
+                                              <!--RRA 841 22/06/2022 maxlength="4-->
+                                            <lightning-input pattern="[0-9]{4}" name="OriginalUwYear__c" class={errorclass} maxlength="4" minlength="4" message-when-pattern-mismatch="Original Uw Year is not of the right format (YYYY)." label='Original U/W Year'></lightning-input>
+                                        </lightning-layout-item>
+
+                                        <template if:true={displayAutoFacForm}>
+                                            <lightning-layout-item padding="around-small" size="12">
+                                                <div class="slds-form-element">
+                                                    <div class="slds-form-element__control">
+                                                        <div class="slds-combobox_container">
+                                                            <div class={txtNaceLookupClassName} data-id="resultBox" aria-expanded="false" aria-haspopup="listbox" role="combobox">
+                                                                <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon slds-input-has-icon_left-right" role="none" style="padding-bottom: 8.5px;padding-right: 8px;">
+                                                                    <div>
+                                                                        <span class="slds-icon_container slds-input__icon">
+                                                                            <lightning-icon class="slds-icon slds-icon slds-icon_small slds-align-middle slds-m-top_xxx-small slds-icon-text-default" icon-name="utility:display_text" size="small" alternative-text="icon" ></lightning-icon>
+                                                                        </span>
+                                                                    </div>
+                                                                     <!--RRA - 0841 22/06/2022 max-length="255"-->
+                                                                    <lightning-input data-id="userinput" value={selectedNaceText} label="NACE Code" name="selectedNaceText" onchange={searchNaceLookUpField}  max-length="255" class="leftspace"></lightning-input>
+                                                                    <span class="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_right iconheight">
+                                                                        <lightning-icon class="slds-icon slds-icon slds-icon_small slds-icon-text-default slds-align-middle slds-m-top_xx-small" icon-name="utility:search" size="x-small" alternative-text="icon" ></lightning-icon>
+                                                                        </span>
+                                                                </div>
+                
+                                                                <div id="listbox-id-2" class="slds-dropdown slds-dropdown_length-with-icon-7 slds-dropdown_fluid" role="listbox">
+                                                                    <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                                        <template for:each={searchNaceCodeLookupRecords} for:item="record">
+                                                                            <li role="presentation" class="slds-listbox__item" key={record.recId}>
+                                                                                <div data-id={record.recId} data-name={record.recName} data-label={record.originalIsuredAct} onclick={setSelectedNaceCodeLookupRecord} class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                                                                                    <span class="slds-media__figure">
+                                                                                        <span class="slds-icon_container slds-align-middle">
+                                                                                            <lightning-icon icon-name={iconName} class="slds-icon slds-icon slds-icon_small slds-icon-text-default" size="small"></lightning-icon>
+                                                                                        </span>
+                                                                                    </span>
+                                                                                    <span class="slds-media__body">
+                                                                                        <span class="slds-listbox__option-meta slds-listbox__option-meta_entity" style="margin-top: 8px;">{record.recName}</span>
+                                                                                    </span>
+                                                                                </div>
+                                                                            </li>
+                                                                        </template>
+                                                                    </ul>
+                                                                </div>
+                                                                <div if:true={messageFlag}>
+                                                                    No result found.
+                                                                </div>
+                                                                <div if:true={loadingText}>
+                                                                    Loading...
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item padding="around-small" size="12">
+                                                <lightning-textarea name="OriginalInsuredActivityAutofac__c" label="Original Insured Activity" value={valOriginalInsuredActAutofac} disabled></lightning-textarea>
+                                            </lightning-layout-item>
+                                        </template>
+
+                                        <template if:false={displayAutoFacForm}>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="text" name="OriginalInsuredActivityPCLife__c" label='Original Insured Activity' max-length="255"></lightning-input>
+                                            </lightning-layout-item>
+                                        </template>
+
+                                        <lightning-layout-item padding="around-small" size="6">
+                                            <!-- RRA 22/06/22: W-0841 max-length="255" -->
+                                            <lightning-input type="text" name="OriginalPolicyId__c" field-level-help='Possibility to add several Policy Ids by separating them with ";"' max-length="255" label='Original Policy Id'></lightning-input>
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+                                </div>
+                            </lightning-layout-item>
+
+                            <lightning-layout-item padding="right-small" size="6">
+                                <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;">
+                                    <lightning-tile type="media">
+                                        <div class="slds-text-heading_small">Original Insured Value</div>
+                                    </lightning-tile>
+                                </div>
+                                <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem">
+                                    <lightning-layout multiple-rows>
+                                        <lightning-layout-item padding="around-small" size="6">
+                                            <lightning-combobox name="Currency__c" label='Currency' onchange={handleOnchangeValue} placeholder="--None--" options={currencyOpt} required></lightning-combobox>
+                                        </lightning-layout-item>
+
+                                        <template if:true={displayAutoFacForm}>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-combobox name="ExposureBasedOn__c" label='Exposure based on' value={valExposureBasedOn} onchange={handleOnchangeValue} placeholder="--None--" options={exposureBaseOpt} required></lightning-combobox>
+                                            </lightning-layout-item>
+                                        </template>
+                                        <template if:false={displayAutoFacForm}>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <!--<lightning-combobox name="LimitType__c" label='Limit Type' class="labelColour"  value={valLimitType} onchange={handleOnchangeValue} placeholder="None" options={limitTypeOpt} required></lightning-combobox>-->
+                                                <!--RRA - ticket 1523 - 03062023-->
+                                                <label class="slds-form-element__label labelColour" for="select-01">
+                                                    <abbr class="slds-required" title="required">* </abbr>Limit Type <lightning-helptext content="Limit Type must be completed in order to fill in the other fields"></lightning-helptext>
+                                                </label>
+                                                <select class="slds-select" name="LimitType__c" onchange={handleOnchangeValue} required>
+                                                    <template for:each = {limitTypeOpt} for:item="listViewItem" >
+                                                        <option key={listViewItem.key} value={listViewItem.value} >{listViewItem.label}</option>
+                                                     </template>
+                                                </select>
+                                            </lightning-layout-item>
+                                        </template>
+
+                                        <template if:false={displayLifeForm}>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" name="RateExchange__c" label='Rate of Exchange' step="0.000001" value={valRateExchange} required disabled></lightning-input>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                            </lightning-layout-item>
+                                                <!-- RRA 22/06/22: W-0841 / W-1523 30052023 -->
+                                                <lightning-layout-item padding="around-small" size="6">
+                                                    <lightning-input type="number" name="TotalInsuredValue__c" 
+                                                                    min="0" max="9999999999999999" 
+                                                                    value={valTotalInsuredValue} 
+                                                                    pattern="^\-?[0-9]+(?:\.[0-9]{1,2})?$"
+                                                                    message-when-pattern-mismatch="Total Insured Value must only have up to 2 decimal places." 
+                                                                    label='Total Insured Value' 
+                                                                    disabled={isDisabledFields} 
+                                                                    step="0.01" onchange={handleOnchangeValue} required>
+                                                    </lightning-input>
+                                                </lightning-layout-item>
+                                            <!---<lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" name="TotalInsuredValue__c" min="0" value={valTotalInsuredValue} label='Total Insured Value' step="0.01" onchange={handleOnchangeValue} required></lightning-input>
+                                            </lightning-layout-item>-->
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" name="TotalInsuredValueEuro__c"  min="0" label='Total Insured Value(EUR)' step="0.01" value={valTotalInsuredValueEuro} required disabled></lightning-input>
+                                            </lightning-layout-item>
+
+                                            <lightning-layout-item size="6">
+                                            </br>
+                                            <!-- RRA - 1163 - 23/06/2022 -->
+                                            <span  style = "color: red;margin-left:10px" if:true={tonHasError}>*</span>&nbsp;<span style ="padding-top:25px;margin-left:3px">Limit</span>
+                                            <!--RRA - ticket 1523 02062023 - -->
+                                            <lightning-input data-id="limitVal" type="number" class='inputLimit' variant="label-hidden" name="Limit__c" step="0.01" min="0" value={valLimit} style="margin-left: 13px;" onchange={handleOnchangeValue} disabled={disableLimit} >
+                                            </lightning-input>
+                                            <div style = "color: red;" >{errors}</div>
+                                                <!--<lightning-input type="number" name="Limit__c" label='Limit' step="0.01"  min="0" value={valLimit} data-id="limitVal" onchange={handleOnchangeValue} disabled={disableLimit}></lightning-input>-->
+                                            </lightning-layout-item>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <!--RRA - ticket 1523 02062023 - -->
+                                                <lightning-input type="number" style ="margin-left:5px" name="LimitEuro__c" label='Limit(EUR)' step="0.01" value={valLimitEuro} required disabled></lightning-input>
+                                            </lightning-layout-item>
+
+                                              <!-- RRA - 1240 - 16/08/2022 -->
+                                            <lightning-layout-item style="text-align: left;">
+                                                <!--RRA - ticket 1523 02062023 - -->
+                                                <span  style = "color: red;margin-left:10px" if:true={tonHasErrorUnlimited}>*</span>&nbsp;<span style ="padding-top:25px;margin-left:3px">Limit Unlimited &nbsp;</span> 
+                                            </lightning-layout-item>
+
+                                            <lightning-layout-item style="text-align: right;">
+                                                <lightning-input  name="LimitUnlimited__c" type="checkbox" variant="label-hidden" label=" Limit Unlimited" onchange={handleOnchangeValue} data-id="limitUnlimitedVal" checked={valLimitUnlimited} disabled={disableLimitUnlimited}> <!-- required ={requiredUlimitedLimit}-->
+                                                </lightning-input> 
+                                            </lightning-layout-item>
+                                            
+                                             <!-- <lightning-layout-item padding="around-small" size="6">
+                                                <span  style = "color: red;" if:true={tonHasErrorUnlimited}>*</span>&nbsp;<span style ="padding-top:25px;">Limit Unlimited</span>
+                                                <lightning-input  name="LimitUnlimited__c" type="checkbox" variant="label-hidden" label=" Limit Unlimited" onchange={handleOnchangeValue} data-id="limitUnlimitedVal" checked={valLimitUnlimited} disabled={disableLimitUnlimited}> <! required ={requiredUlimitedLimit}-->
+                                                <!--</lightning-input>
+
+                                            </lightning-layout-item>-->
+
+                                            
+                                            <lightning-layout-item padding="around-small" size="6">
+                                            </lightning-layout-item>
+                                        </template>
+
+                                        <template if:true={displayAutoFacForm}>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" name="TopLocationPdValues100__c" label='Top location PD values 100%' step="0.01" value={valTopLocationPdValues100} onchange={handleOnchangeValue} required></lightning-input>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" name="TopLocationPdValues100Euro__c" label='Top location PD values 100% (EUR)' step="0.01" value={valTopLocationPdValues100Euro} required disabled></lightning-input>
+                                            </lightning-layout-item>
+
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" name="TopLocationBiValues100__c" label='Top location BI values 100%' step="0.01" value={valTopLocationBiValues100} onchange={handleOnchangeValue} required></lightning-input>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" name="TopLocationBiValues100Euro__c" label='Top location BI values 100% (EUR)' step="0.01" value={valTopLocationBiValues100Euro} required disabled></lightning-input>
+                                            </lightning-layout-item>
+
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" name="MaximumPossibleLossMpl__c" label='Maximum possible loss (MPL)' step="0.01" value={valMaximumPossibleLossMpl} onchange={handleOnchangeValue} required></lightning-input>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" name="MaximumPossibleLossMplEuro__c" label='Maximum possible loss (MPL) (EUR)' step="0.01" value={valMaximumPossibleLossMplEuro} required disabled></lightning-input>
+                                            </lightning-layout-item>
+
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" name="LossLimit100__c" label='Loss limit 100% (if applicable)' step="0.01" value={valLossLimit100} onchange={handleOnchangeValue} required></lightning-input>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" name="LossLimit100Euro__c" label='Loss limit 100% (if applicable) (EUR)' step="0.01" value={valLossLimit100Euro} required disabled></lightning-input>
+                                            </lightning-layout-item>
+                                        </template>
+
+                                        <template if:false={displayLifeForm}>
+                                            <lightning-layout-item padding="around-small" size="6">
+
+                                                <!-- RRA 22/06/22: W-0841 / W-1523 30052023-->
+                                                <lightning-input type="number" name="AxaShare__c" 
+                                                label='AXA Share(%)'  
+                                                min="0" max="999999999999"
+                                                value={valAxaShare} 
+                                                onchange={handleOnchangeValue} 
+                                                pattern="^\-?[0-9]+(?:\.[0-9]{1,6})?$"
+                                                message-when-pattern-mismatch="AXA Share(%) must only have up to 6 decimal places." 
+                                                disabled={isDisabledFields}
+                                                step="0.000001" required>
+                                                </lightning-input>
+
+                                                <!--<lightning-input type="number" name="AxaShare__c" label='AXA Share(%)'  min="0" max="999" value={valAxaShare} onchange={handleOnchangeValue} step="0.000001" required></lightning-input>-->
+                                            </lightning-layout-item>
+                                            <template if:true={displayPCForm}>
+                                                <lightning-layout-item padding="around-small" size="6">
+                                                </lightning-layout-item>
+                                            </template>
+                                        </template>
+
+                                        <template if:true={displayPCForm}>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" name="TotalExposureAxaShare__c" label='Total Exposure at AXA Share' step="0.01" value={valTotalExposureAxaSharePC} required disabled></lightning-input>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" name="TotalExposureAxaShareEuro__c" label='Total Exposure at AXA Share(EUR)' step="0.01" value={valTotalExposureAxaShareEuro} required disabled></lightning-input>
+                                            </lightning-layout-item>
+                                        </template>
+
+                                        <template if:false={displayLifeForm}>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-combobox name="AxaLeader__c" label='AXA Leader' onchange={handleOnchangeValue} placeholder="--None--" options={axaLeaderOpt}></lightning-combobox>
+                                            </lightning-layout-item>
+                                            <template if:true={displayPCForm}>
+                                                <lightning-layout-item padding="around-small" size="6">
+                                                </lightning-layout-item>
+                                            </template>
+                                        </template>
+
+                                        <template if:true={displayAutoFacForm}>
+                                            <lightning-layout-item padding="around-small" size="6">
+
+                                                <!-- RRA 22/06/22: W-0841 -->
+                                                <lightning-input type="number" 
+                                                name="ExposureAmount100__c" 
+                                                label='Exposure amount at 100%' 
+                                                step="0.01" 
+                                                max="9999999999999999"
+                                                value={valExposureAmount100} 
+                                                onchange={handleOnchangeValue} 
+                                                required
+                                                pattern="^\-?[0-9]+(?:\.[0-9]{1,2})?$" 
+                                                message-when-pattern-mismatch="Exposure amount at 100% must only have up to 2 decimal places." >
+                                                </lightning-input>
+
+                                                <!--<lightning-input type="number" name="ExposureAmount100__c" label='Exposure amount at 100%' step="0.01" value={valExposureAmount100} onchange={handleOnchangeValue} required></lightning-input>-->
+                                            </lightning-layout-item>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" name="ExposureAmount100Euro__c" label='Exposure amount at 100%(EUR)' step="0.01" value={valExposureAmount100Euro} required disabled></lightning-input>
+                                            </lightning-layout-item>
+
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" class="TotalExposureAxaShareAutofac" name="TotalExposureAxaShare__c" label='Total Exposure at AXA Share' step="0.01" value={valTotalExposureAxaShareAutoFac} required disabled></lightning-input><!--MRA W-1251 13/09/2022-->
+                                            </lightning-layout-item>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" name="TotalExposureAxaShareEuro__c" label='Total Exposure at AXA Share(EUR)' step="0.01" value={valTotalExposureAxaShareEuro} required disabled></lightning-input>
+                                            </lightning-layout-item>
+
+                                            <lightning-layout-item padding="around-small" size="6">
+
+                                                <!-- AMI 17/05/22: W-0841 -->
+                                                <lightning-input type="number" 
+                                                name="CededExposureTreaty__c" 
+                                                label='Ceded Exposure to Treaty' 
+                                                value={valCededExposureTreaty} 
+                                                step="0.01" 
+                                                onchange={handleOnchangeValue} 
+                                                required
+                                                max="9999999999999999"
+                                                pattern="^\-?[0-9]+(?:\.[0-9]{1,2})?$" 
+                                                message-when-pattern-mismatch="Ceded Exposure to Treaty must only have up to 2 decimal places.">
+                                                </lightning-input>
+
+                                                <!--<lightning-input type="number" name="CededExposureTreaty__c" label='Ceded Exposure to Treaty' value={valCededExposureTreaty} step="0.01" onchange={handleOnchangeValue} required></lightning-input>-->
+                                            </lightning-layout-item>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" name="CededExposureTreatyEuro__c" label='Ceded Exposure to Treaty(EUR)' step="0.01" value={valCededExposureTreatyEuro} required disabled></lightning-input>
+                                            </lightning-layout-item>
+
+                                            <lightning-layout-item padding="around-small" size="6">
+
+                                                <!-- AMI 17/05/22: W-0841 -->
+                                                <lightning-input type="number" 
+                                                name="CededExposureAutofac__c" 
+                                                label='Ceded Exposure to Autofac' 
+                                                value={valCededExposureAutofac} 
+                                                step="0.01" 
+                                                onchange={handleOnchangeValue} 
+                                                required
+                                                max="9999999999999999"
+                                                pattern="^\-?[0-9]+(?:\.[0-9]{1,2})?$" 
+                                                message-when-pattern-mismatch="Ceded Exposure to Autofac must only have up to 2 decimal places.">
+                                                </lightning-input>
+
+                                                <!--<lightning-input type="number" name="CededExposureAutofac__c" label='Ceded Exposure to Autofac' value={valCededExposureAutofac} step="0.01" onchange={handleOnchangeValue} required></lightning-input>-->
+                                            </lightning-layout-item>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" name="CededExposureAutofacEuro__c" label='Ceded Exposure to Autofac(EUR)' step="0.01" value={valCededExposureAutofacEuro} required disabled></lightning-input>
+                                            </lightning-layout-item>
+
+                                            <lightning-layout-item padding="around-small" size="6">
+
+                                                <!-- AMI 17/05/22: W-0841 -->
+                                                <lightning-input type="number" 
+                                                name="CededExposureInternalFacultative__c" 
+                                                label='Ceded Exposure to internal facultative'
+                                                value={valCededExposureInternalFacultative} 
+                                                step="0.01" 
+                                                onchange={handleOnchangeValue} 
+                                                required
+                                                max="9999999999999999"
+                                                pattern="^\-?[0-9]+(?:\.[0-9]{1,2})?$" 
+                                                message-when-pattern-mismatch="Ceded Exposure to internal facultative must only have up to 2 decimal places.">
+                                                </lightning-input>
+
+                                                <!--<lightning-input type="number" name="CededExposureInternalFacultative__c" label='Ceded Exposure to internal facultative' value={valCededExposureInternalFacultative} step="0.01" onchange={handleOnchangeValue} required></lightning-input>-->
+                                            </lightning-layout-item>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" name="CededExposureInternalFacultativeEuro__c" label='Ceded Exposure to internal facultative(EUR)' step="0.01" value={valCededExposureInternalFacultativeEuro} required disabled></lightning-input>
+                                            </lightning-layout-item>
+
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <!-- AMI 17/05/22: W-0841 -->
+                                                <lightning-input type="number" 
+                                                name="CededExposureExternalFacultative__c" 
+                                                label='Ceded Exposure to external facultative' 
+                                                step="0.01" 
+                                                value={valCededExposureExternalFacultative} 
+                                                onchange={handleOnchangeValue} 
+                                                required
+                                                max="9999999999999999"
+                                                pattern="^\-?[0-9]+(?:\.[0-9]{1,2})?$" 
+                                                message-when-pattern-mismatch="Ceded Exposure to external facultative must only have up to 2 decimal places.">
+                                            </lightning-input>
+
+                                                <!--<lightning-input type="number" name="CededExposureExternalFacultative__c" label='Ceded Exposure to external facultative' step="0.01" value={valCededExposureExternalFacultative} onchange={handleOnchangeValue} required></lightning-input>-->
+                                            </lightning-layout-item>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" name="CededExposureExternalFacultativeEuro__c" label='Ceded Exposure to external facultative(EUR)' step="0.01" value={valCededExposureExternalFacultativeEuro} required disabled></lightning-input>
+                                            </lightning-layout-item>
+
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" class ="TotalAxaShare__c" name="TotalAxaShare__c" label='Total AXA Share' value={valTotalAxaShare} step="0.01" required disabled></lightning-input>
+                                                <template if:true={isTotalAxaShareInvalid}><!--MRA W-1251 13/09/2022-->
+                                                    <div class="slds-form-element__help" id="help-message-481" style="color: red;" role="alert">Total AXA Share should be equal to Total Exposure at AXA Share.</div>
+                                                </template>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" name="TotalAxaShareEuro__c" label='Total AXA Share(EUR)' value={valTotalAxaShareEuro} step="0.01" required disabled></lightning-input>
+                                            </lightning-layout-item>
+                                        </template>
+
+                                        <template if:false={displayLifeForm}>
+                                            <lightning-layout-item padding="around-small" size="6">
+
+                                                <!-- AMI 17/05/22: W-0841 -->
+                                                <lightning-input type="number" 
+                                                name="DeductibleAmount__c" 
+                                                label='Deductible (Amount)' 
+                                                step="0.01" 
+                                                value={valDeductibleAmount} 
+                                                disabled={disableDeductibleAmount} 
+                                                onchange={handleOnchangeValue}
+                                                max="9999999999999999"
+                                                pattern="^\-?[0-9]+(?:\.[0-9]{1,2})?$" 
+                                                message-when-pattern-mismatch="Deductible (Amount) must only have up to 2 decimal places.">
+                                                 </lightning-input>
+
+                                               <!--<lightning-input type="number" name="DeductibleAmount__c" label='Deductible (Amount)' step="0.01" value={valDeductibleAmount} disabled={disableDeductibleAmount} onchange={handleOnchangeValue}></lightning-input>-->
+                                            </lightning-layout-item>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" name="DeductibleAmountEuro__c" label='Deductible (Amount)(EUR)' step="0.01" value={valDeductibleAmountEuro} required disabled></lightning-input>
+                                            </lightning-layout-item>
+
+                                            <lightning-layout-item padding="around-small" size="6">
+
+                                                 <!-- AMI 17/05/22: W-0841 -->
+                                                 <lightning-input type="number" 
+                                                 name="DeductiblePercentage__c" 
+                                                 min="0" 
+                                                 label='Deductible (Percentage)' 
+                                                 value={valDeductiblePercentage} 
+                                                 disabled={disableDeductiblePercentage} 
+                                                 step="0.01" 
+                                                 onchange={handleOnchangeValue}
+                                                 max="9999999999999999"
+                                                 pattern="^\-?[0-9]+(?:\.[0-9]{1,2})?$" 
+                                                 message-when-pattern-mismatch="Deductible (Percentage) must only have up to 2 decimal places.">
+                                                </lightning-input>
+
+                                                <!--<lightning-input type="number" name="DeductiblePercentage__c" min="0" max="999" label='Deductible (Percentage)' value={valDeductiblePercentage} disabled={disableDeductiblePercentage} step="0.01" onchange={handleOnchangeValue}></lightning-input>-->
+                                            </lightning-layout-item>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                            </lightning-layout-item>
+                                        </template>
+
+                                        <template if:true={displayPCForm}>
+                                            <lightning-layout-item padding="around-small" size="6">
+
+                                                <!-- AMI 17/05/22: W-0841 -->
+                                                <lightning-input type="number" 
+                                                name="OriginalPolicyPremium__c" 
+                                                label='Original Policy Premium' 
+                                                step="0.01" 
+                                                value={valOriginalPolicyPremium} 
+                                                onchange={handleOnchangeValue}
+                                                max="9999999999999999"
+                                                pattern="^\-?[0-9]+(?:\.[0-9]{1,2})?$" 
+                                                message-when-pattern-mismatch="Original Policy Premium must only have up to 2 decimal places.">
+                                                </lightning-input>
+
+                                                <!--<lightning-input type="number" name="OriginalPolicyPremium__c" label='Original Policy Premium' step="0.01" value={valOriginalPolicyPremium} onchange={handleOnchangeValue}></lightning-input>-->
+                                                
+                                            </lightning-layout-item>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" name="OriginalPolicyPremiumEuro__c" label='Original Policy Premium(EUR)' step="0.01" value={valOriginalPolicyPremiumEuro} required disabled></lightning-input>
+                                            </lightning-layout-item>
+
+                                            <lightning-layout-item padding="around-small" size="6">
+
+                                                 <!-- AMI 17/05/22: W-0841 -->
+                                                 <lightning-input type="number" 
+                                                 name="PremiumRate__c" 
+                                                 label='Premium rate (‰)' 
+                                                 value={valPremiumRate} 
+                                                 step="0.01"
+                                                 max="9999999999999999"
+                                                 pattern="^\-?[0-9]+(?:\.[0-9]{1,2})?$" 
+                                                 message-when-pattern-mismatch="Premium rate (‰) must only have up to 2 decimal places.">
+                                                </lightning-input>
+
+                                                <!--<lightning-input type="number" name="PremiumRate__c" label='Premium rate (‰)' value={valPremiumRate} step="0.01"></lightning-input>-->
+                                            </lightning-layout-item>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                            </lightning-layout-item>
+                                        </template>
+
+                                        <template if:true={displayAutoFacForm}>
+                                            <lightning-layout-item padding="around-small" size="6">
+
+                                                 <!-- AMI 17/05/22: W-0841 -->
+                                                 <lightning-input type="number" 
+                                                 name="OriginalPremium100__c" 
+                                                 step="0.01" 
+                                                 label='Original premium at 100% (net of brokerage and taxes)'
+                                                 value={valOriginalPremium100} 
+                                                 onchange={handleOnchangeValue}
+                                                 required
+                                                 max="9999999999999999"
+                                                 pattern="^\-?[0-9]+(?:\.[0-9]{1,2})?$" 
+                                                 message-when-pattern-mismatch="Original premium at 100% must only have up to 2 decimal places.">
+                                                </lightning-input>
+
+                                                <!--<lightning-input type="number" name="OriginalPremium100__c" step="0.01" label='Original premium at 100% (net of brokerage and taxes)' value={valOriginalPremium100} onchange={handleOnchangeValue} required></lightning-input>-->
+                                            </lightning-layout-item>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" name="OriginalPremium100Euro__c" step="0.01" label='Original premium at 100% (net of brokerage and taxes)(EUR)' value={valOriginalPremium100Euro} required disabled></lightning-input>
+                                            </lightning-layout-item>
+
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <lightning-input type="number" name="OriginalNetRate__c" label='Original Net Rate (‰)' step="0.01" value={valOriginalNetRate} required disabled></lightning-input>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                            </lightning-layout-item>
+
+
+                                            <lightning-layout-item padding="around-small" size="12">
+                                                 <!-- RRA 22/06/2022 - W-0841 max-length="1000"-->
+                                                <lightning-textarea name="OriginalDeductible__c" label="Original Deductible, please detail" value={valOriginalDeductible} max-length="1000"></lightning-textarea>
+                                            </lightning-layout-item>
+                                        </template>
+
+                                        <template if:true={displayPCForm}>
+                                            <lightning-layout-item padding="around-small" size="12">
+                                                 <!-- RRA 22/06/2022 - W-0841 max-length="1000"-->
+                                                <lightning-textarea name="LossHistory__c" label="Loss History" max-length="1000"></lightning-textarea>
+                                            </lightning-layout-item>
+                                        </template>
+                                        <template if:false={displayPCForm}>
+                                            <lightning-layout-item padding="around-small" size="12">
+                                                 <!-- RRA 22/06/2022 - W-0841 max-length="1000"-->
+                                                <lightning-textarea name="LossHistory5Years__c" label="Loss History (5 years)" max-length="1000"></lightning-textarea>
+                                            </lightning-layout-item>
+                                        </template>
+                                    </lightning-layout>
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        
+                        <!-- Life Insurance About Special Acceptance -->
+                        <template if:true={displayLifeForm}>
+                            <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+                                <lightning-tile type="media">
+                                    <div class="slds-text-heading_small">Life Insurance</div>
+                                </lightning-tile>
+                            </div>
+
+                            <lightning-layout multiple-rows>
+                                <lightning-layout-item padding="around-small" size="6">
+
+                                    <!-- AMI 17/05/22: W-0841 -->
+                                    <lightning-input type="number" 
+                                    name="NumberHeads__c" 
+                                    label='Number of Heads' 
+                                    required 
+                                    value={valNumberHeads} 
+                                    onchange={handleOnchangeValue}
+                                    max="999999999999999999">
+                                    </lightning-input>
+
+                                    <!--<lightning-input type="number" name="NumberHeads__c" label='Number of Heads' required value={valNumberHeads} onchange={handleOnchangeValue}></lightning-input>-->
+                                </lightning-layout-item>
+                                <lightning-layout-item padding="around-small" size="6">
+                                    <lightning-input type="number" name="RateExchange__c" step="0.000001" value={valRateExchange} label='Rate of Exchange' required disabled></lightning-input>
+                                </lightning-layout-item>
+
+                                <lightning-layout-item padding="around-small" size="6">
+
+                                    <!-- AMI 17/05/22: W-0841 -->
+                                    <lightning-input type="number" 
+                                    name="TreatyExposure__c" 
+                                    step="0.01" 
+                                    value={valTreatyExposure} 
+                                    onchange={handleOnchangeValue} 
+                                    label='Treaty Exposure'
+                                    max="9999999999999999"
+                                    pattern="^\-?[0-9]+(?:\.[0-9]{1,2})?$" 
+                                    message-when-pattern-mismatch="Treaty Exposure must only have up to 2 decimal places.">
+                                </lightning-input>
+
+                                    <!--<lightning-input type="number" name="TreatyExposure__c" step="0.01" value={valTreatyExposure} onchange={handleOnchangeValue} label='Treaty Exposure'></lightning-input>-->
+                                </lightning-layout-item>
+                                <lightning-layout-item padding="around-small" size="6">
+                                    <lightning-input type="number" name="TreatyExposureEuro__c" step="0.01" label='Treaty Exposure (EUR)' value={valTreatyExposureEuro} required disabled></lightning-input>
+                                </lightning-layout-item>
+
+                                <lightning-layout-item padding="around-small" size="6">
+
+                                    <!-- RRA 22/06/22: W-0841 -->
+                                    <lightning-input type="number" 
+                                    name="TotalSumRisk__c" 
+                                    label='Total Sum at Risk' 
+                                    step="0.01" 
+                                    onchange={handleOnchangeValue} 
+                                    value={valTotalSumRisk} 
+                                    required
+                                    max="9999999999999999"
+                                    pattern="^\-?[0-9]+(?:\.[0-9]{1,2})?$" 
+                                    message-when-pattern-mismatch="Total Sum at Risk must only have up to 2 decimal places.">
+                                    </lightning-input>
+
+                                    <!--<lightning-input type="number" name="TotalSumRisk__c" label='Total Sum at Risk' step="0.01" onchange={handleOnchangeValue} value={valTotalSumRisk} required></lightning-input>-->
+                                </lightning-layout-item>
+                                <lightning-layout-item padding="around-small" size="6">
+                                    <lightning-input type="number" name="TotalSumRiskEuro__c" label='Total Sum at Risk (EUR)' step="0.01" value={valTotalSumRiskEuro} required disabled></lightning-input>
+                                </lightning-layout-item>
+
+                                <lightning-layout-item padding="around-small" size="6">
+                                    <lightning-input type="number" name="AverageSumRisk__c" label='Average Sum at Risk' step="0.01" value={valAverageSumRisk} required disabled></lightning-input>
+                                </lightning-layout-item>
+                                <lightning-layout-item padding="around-small" size="6">
+                                    <lightning-input type="number" name="AverageSumRiskEuro__c" label='Average Sum at Risk (EUR)' step="0.01" value={valAverageSumRiskEuro} required disabled></lightning-input>
+                                </lightning-layout-item>
+
+                                <lightning-layout-item padding="around-small" size="6">
+
+                                    <!-- RRA 22/06/22: W-0841 / W-1523 30052023 -->
+                                    <lightning-input type="number" 
+                                    name="AxaShare__c" 
+                                    label='AXA Share (%)'  
+                                    min="0" 
+                                    value={valAxaShare} 
+                                    onchange={handleOnchangeValue} 
+                                    step="0.000001" 
+                                    required
+                                    max="999999999999"
+                                    pattern="^\-?[0-9]+(?:\.[0-9]{1,6})?$" 
+                                    message-when-pattern-mismatch="AXA Share (%) must only have up to 6 decimal places."
+                                    disabled={isDisabledFields}
+                                    >
+                                    </lightning-input>
+
+                                    <!--<lightning-input type="number" name="AxaShare__c" label='AXA Share (%)'  min="0" max="999" value={valAxaShare} onchange={handleOnchangeValue} step="0.000001" required></lightning-input>-->
+                                </lightning-layout-item>
+                                <lightning-layout-item padding="around-small" size="6">
+                                    <lightning-combobox name="AxaLeader__c" label='AXA Leader' onchange={handleOnchangeValue} placeholder="--None--" options={axaLeaderOpt}></lightning-combobox>
+                                </lightning-layout-item>
+
+                                <lightning-layout-item padding="around-small" size="6">
+                                    <lightning-input type="number" name="TotalExposureAxaShare__c" label='Total Exposure at AXA Share' step="0.01" value={valTotalExposureAxaShareLife} required disabled></lightning-input>
+                                </lightning-layout-item>
+                                <lightning-layout-item padding="around-small" size="6">
+                                    <lightning-input type="number" name="TotalExposureAxaShareEuro__c" label='Total Exposure at AXA Share(EUR)' step="0.01" value={valTotalExposureAxaShareEuro} required disabled></lightning-input>
+                                </lightning-layout-item>
+                            </lightning-layout>
+                        </template>
+
+                        <template if:true={displayAutoFacForm}>
+                            <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+                                <lightning-tile type="media">
+                                    <div class="slds-text-heading_small">AutoFac Placement</div>
+                                </lightning-tile>
+                            </div>
+
+                            <lightning-layout multiple-rows>
+                                <lightning-layout-item padding="around-small" size="6">
+                                    <lightning-input type="number" name="CededExposureAutofacEuro__c" value={valCededExposureAutofacEuro} label='Ceded Exposure to AutoFac (EUR)' step="0.01" required disabled></lightning-input>
+                                </lightning-layout-item>
+                                <lightning-layout-item padding="around-small" size="6">
+                                    <lightning-combobox name="TypeFacPlacement__c" label='Type of Fac Placement' value={valTypeFacPlacement} onchange={handleOnchangeValue} placeholder="--None--" options={typeFacPlacementOpt} required></lightning-combobox>
+                                </lightning-layout-item>
+
+                                <template if:true={displayAutofacQS}>
+                                    <lightning-layout-item padding="around-small" size="6">
+                                        <lightning-input type="number" name="AutofacShare__c"  min="0" max="999" label='AutoFac share (%)' value={valAutofacShare} step="0.01" required disabled></lightning-input>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item padding="around-small" size="6">
+                                        <lightning-combobox name="IsCededExposureAutofacInLine__c" label='Is the ceded exposure to Autofac in line with the proportionality rule ?' value={valIsCededExposureAutofacInLine} placeholder="--None--" options={isCededExposureAutofacInLineOpt} required></lightning-combobox>
+                                    </lightning-layout-item>
+
+                                    <lightning-layout-item padding="around-small" size="4">
+
+                                         <!-- AMI 17/05/22: W-0841 -->
+                                         <lightning-input type="number" 
+                                         name="AutofacCommission__c" 
+                                         min="0" 
+                                         label='AutoFac commission (%)' 
+                                         value={valAutofacCommission} 
+                                         step="0.01" 
+                                         required 
+                                         onchange={handleOnchangeValue}
+                                         max="9999999999999999"
+                                         pattern="^\-?[0-9]+(?:\.[0-9]{1,2})?$" 
+                                         message-when-pattern-mismatch="AutoFac commission (%) must only have up to 6 decimal places.">
+                                        </lightning-input>
+
+                                        <!--<lightning-input type="number" name="AutofacCommission__c"  min="0" max="999" label='AutoFac commission (%)' value={valAutofacCommission} step="0.01" required onchange={handleOnchangeValue}></lightning-input>-->
+                                    </lightning-layout-item>
+                                    <lightning-layout-item padding="around-small" size="4">
+                                        <lightning-input type="number" name="NetCededPremiumAutofac__c" label='Net Ceded Premium to AutoFac' step="0.01" value={valNetCededPremiumAutofac} onchange={handleOnchangeValue} required disabled></lightning-input>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item padding="around-small" size="4">
+                                        <lightning-input type="number" name="NetCededPremiumAutofacEuro__c" label='Net Ceded Premium to AutoFac (in EUR)' value={valNetCededPremiumAutofacEuro} step="0.01" required disabled></lightning-input>
+                                    </lightning-layout-item>
+                                </template>
+
+                                <template if:true={displayAutofacXS}>
+                                    <lightning-layout-item padding="around-small" size="6">
+                                        <lightning-input type="number" name="FacLayer__c" label='Fac Layer' step="0.01" value={valFacLayer} required disabled></lightning-input>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item padding="around-small" size="6">
+                                        <lightning-input type="number" name="InXsOf__c" label='In XS of' step="0.01" value={valInXsOf} required disabled></lightning-input>
+                                    </lightning-layout-item>
+
+                                    <lightning-layout-item padding="around-small" size="6">
+
+                                        <!-- AMI 17/05/22: W-0841 -->
+                                        <lightning-input type="number" 
+                                        name="AutofacCommission__c"  
+                                        min="0" 
+                                        label='AutoFac commission (%)' 
+                                        value={valAutofacCommission} 
+                                        step="0.01" 
+                                        required 
+                                        onchange={handleOnchangeValue}
+                                        max="9999999999999999"
+                                        pattern="^\-?[0-9]+(?:\.[0-9]{1,2})?$" 
+                                        message-when-pattern-mismatch="AutoFac commission (%) must only have up to 6 decimal places.">
+                                        </lightning-input>
+
+                                        <!--<lightning-input type="number" name="AutofacCommission__c"  min="0" max="999" label='AutoFac commission (%)' value={valAutofacCommission} step="0.01" required onchange={handleOnchangeValue}></lightning-input>-->
+                                    </lightning-layout-item>
+
+                                    <lightning-layout-item padding="around-small" size="6">
+                                        <lightning-input type="number" name="NetPremiumLayerEuro__c" label='Net Premium for the layer according AutoFac wording "rating for layers" (in EUR)' step="0.01" value={valNetPremiumLayerEuro} required disabled></lightning-input>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item padding="around-small" size="6">
+                                    </lightning-layout-item>
+                                </template>
+                            </lightning-layout>
+                        </template>
+                        
+                        <!-- CAT Limits About Special Acceptance -->
+                        <template if:false={displayLifeForm}>
+                            <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+                                <lightning-tile type="media">
+                                    <div class="slds-text-heading_small">CAT Limits</div>
+                                </lightning-tile>
+                            </div>
+    
+                            <lightning-layout multiple-rows>
+                                <lightning-layout-item padding="around-small" size="6">
+                                    <lightning-combobox name="CatCoverage__c" label='CAT Coverage' value={valCatCoverage} onchange={handleOnchangeValue} placeholder="--None--" options={catCoverageOpt}></lightning-combobox>
+                                </lightning-layout-item>
+                                <lightning-layout-item padding="around-small" size="6">
+                                </lightning-layout-item>
+        
+                                <lightning-layout-item padding="around-small" size="6">
+
+                                    <!-- AMI 17/05/22: W-0841 -->
+                                    <lightning-input type="number" 
+                                    name="FloodLimit__c" 
+                                    value={valWindstormLimit} 
+                                    label='Flood Limit' 
+                                    step="0.01"
+                                    max="9999999999999999"
+                                    pattern="^\-?[0-9]+(?:\.[0-9]{1,2})?$"
+                                    message-when-pattern-mismatch="Flood Limit must only have up to 6 decimal places.">
+                                    </lightning-input>
+
+                                    <!--<lightning-input type="number" name="FloodLimit__c" value={valFloodLimit} label='Flood Limit' step="0.01"></lightning-input>-->
+                                </lightning-layout-item>
+                                <lightning-layout-item padding="around-small" size="6">
+
+                                    <!-- AMI 17/05/22: W-0841 -->
+                                    <lightning-input type="number" 
+                                    name="WindstormLimit__c" 
+                                    value={valWindstormLimit} 
+                                    label='Windstorm Limit' 
+                                    step="0.01"
+                                    max="9999999999999999"
+                                    pattern="^\-?[0-9]+(?:\.[0-9]{1,2})?$" 
+                                    message-when-pattern-mismatch="Windstorm Limit must only have up to 6 decimal places.">
+                                    </lightning-input>
+
+                                    <!--<lightning-input type="number" name="WindstormLimit__c" value={valWindstormLimit} label='Windstorm Limit' step="0.01"></lightning-input>-->
+                                </lightning-layout-item>
+        
+                                <lightning-layout-item padding="around-small" size="6">
+
+                                    <!-- AMI 17/05/22: W-0841 -->
+                                    <lightning-input type="number" 
+                                    name="EarthquakeLimit__c" 
+                                    value={valEarthquakeLimit} 
+                                    label='Earthquake Limit' 
+                                    step="0.01"
+                                    max="9999999999999999"
+                                    pattern="^\-?[0-9]+(?:\.[0-9]{1,2})?$" 
+                                    message-when-pattern-mismatch="Earthquake Limit must only have up to 6 decimal places.">
+                                    </lightning-input>
+
+                                    <!--<lightning-input type="number" name="EarthquakeLimit__c" value={valEarthquakeLimit} label='Earthquake Limit' step="0.01"></lightning-input>-->
+                                </lightning-layout-item>
+                                <lightning-layout-item padding="around-small" size="6">
+
+                                    <!-- AMI 17/05/22: W-0841 -->
+                                    <lightning-input type="number" 
+                                    name="TerrorismLimit__c" 
+                                    value={valTerrorismLimit} 
+                                    label='Terrorism Limit' 
+                                    step="0.01"
+                                    max="9999999999999999"
+                                    pattern="^\-?[0-9]+(?:\.[0-9]{1,2})?$" 
+                                    message-when-pattern-mismatch="Terrorism Limit must only have up to 6 decimal places.">
+                                </lightning-input>
+
+                                    <!--<lightning-input type="number" name="TerrorismLimit__c" value={valTerrorismLimit} label='Terrorism Limit' step="0.01"></lightning-input>-->
+                                </lightning-layout-item>
+                            </lightning-layout>
+                        </template>
+
+                        <!-- Comments About Special Acceptance -->
+                        <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+                            <lightning-tile type="media">
+                                <div class="slds-text-heading_small">Comments</div>
+                            </lightning-tile>
+                        </div>
+
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item padding="around-small" size="12">
+                                <lightning-textarea name="Comments__c" label="Comments" max-length="4000"></lightning-textarea>
+                            </lightning-layout-item>
+                        </lightning-layout>
+
+                        <!-- Documents -->
+                        <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+                            <lightning-tile type="media">
+                                <div class="slds-text-heading_small">Documents</div>
+                            </lightning-tile>
+                        </div>
+                        <br/>
+
+                        <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small" style="min-height: 200px;">
+                            <lightning-card title={titleCountDocument} icon-name="standard:account">
+                                <lightning-button-group slot="actions">
+                                    <lightning-button label="New" onclick={handleOpenNewDocumentModal}></lightning-button>
+                                    <lightning-button label="Delete" onclick={handleDeleteDocument} disabled={disableDeleteBtn}></lightning-button>
+                                </lightning-button-group>
+                                <lightning-layout>
+                                    <!-- Add Table -->
+                                    <table class="slds-table slds-table_bordered">
+                                        <tr>
+                                            <th></th>
+                                            <th>Name</th>
+                                            <th>Nature</th>
+                                        </tr>
+                                        <template for:each={lstDocuments} for:item="doc">
+                                            <tr key={doc.Id} id={doc.Id} class="slds-p-around--xxx-small">
+                                                <td><lightning-input label="" name={doc.Id} type="checkbox" onchange={handleChangeDocCheckbox}></lightning-input></td>
+                                                <td>
+                                                    <a href={doc.DocumentUrl} target="_blank">{doc.Name}</a>
+                                                </td>
+                    
+                                                <td style="padding-bottom:20px;">
+                                                    <!--RRA - 0968 - 20/06/2022-->
+                                                    <lightning-combobox label="" placeholder="--None--" value={doc.Nature__c} options={natureOpt} name={doc.Id} onchange={handleChangeNature} disabled={disableAllFields} required ></lightning-combobox>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </table>
+                                </lightning-layout>
+                            </lightning-card>
+                        </div>
+                        <br/>
+
+                        <!-- Binding About Special Acceptance -->
+                        <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+                            <lightning-tile type="media">
+                                <div class="slds-text-heading_small">Binding</div>
+                            </lightning-tile>
+                        </div>
+
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item padding="around-small" size="6">
+                                <lightning-input type="text" name="Bound__c" value="Pending" disabled label='Bound' required></lightning-input>
+                            </lightning-layout-item>
+                            <lightning-layout-item padding="around-small" size="6">
+                            </lightning-layout-item>
+                        </lightning-layout>
+
+                        <!-- Additional Information About Special Acceptance -->
+                        <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+                            <lightning-tile type="media">
+                                <div class="slds-text-heading_small">Additional Information</div>
+                            </lightning-tile>
+                        </div>
+
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item padding="around-small" size="6">
+                                <lightning-input type="number" name="AdditionalPremium__c" label='Additional Premium' disabled></lightning-input>
+                            </lightning-layout-item>
+                            <lightning-layout-item padding="around-small" size="6">
+                                <!-- RRA - 0841 22/06/2023-->
+                                <lightning-textarea label="Rationale" name="Rationale__c" disabled max-length="255"></lightning-textarea>
+                            </lightning-layout-item>
+
+                            <template if:false={displayAutoFacForm}>
+                                <lightning-layout-item padding="around-small" size="6">
+                                    <lightning-combobox name="ProposedToFac__c" label='Proposed to fac' onchange={handleOnchangeValue} placeholder="--None--" options={proposedToFacOpt} disabled></lightning-combobox>
+                                </lightning-layout-item>
+                            </template>
+
+                            <lightning-layout-item padding="around-small" size="6">
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        <br/>
+
+                        <div style="float: right;">
+                            <lightning-button class="slds-p-around--xxx-small" label="Cancel" slot="actions" onclick={handleCloseNewModal}></lightning-button>
+                            <lightning-button class="slds-p-around--xxx-small" variant="brand" label="Save" name="Save" slot="actions" onclick={handleSaveSubmitSA}></lightning-button>
+                            <template if:false={isCE}>
+                                <lightning-button class="slds-p-around--xxx-small" variant="brand" label="Submit to AXA SA" name="Submit" slot="actions" onclick={handleSaveSubmitSA}></lightning-button> <!--RRA - ticket 1345 02122022 (Submit to AGRE)-->
+                            </template>
+                        </div>
+                        <br/><br/>
+
+                        <template if:true={isOpenDocModal}>
+                            <div class="demo-only">
+                                <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-02" aria-modal="true" aria-describedby="modal-content-id-2" class="slds-modal slds-fade-in-open">
+                                    <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                                        <header class="slds-modal__header">
+                                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseUploadModal}>
+                                                <lightning-icon icon-name="utility:close" size="medium">
+                                                </lightning-icon>
+                                                <span class="slds-assistive-text">Close</span>
+                                            </button>
+                    
+                                            <h2 id="modal-heading-02" class="slds-text-heading_medium slds-hyphenate">New Documents</h2>
+                                        </header>
+                                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-2">
+                                            <div style="margin-top: 0.5rem;" class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-around--medium">
+                                                <lightning-file-upload name="documentUpload"
+                                                                       label="Drag & Drop or select your new files in the file selector below"
+                                                                       onuploadfinished={handleUploadFinished}
+                                                                       record-id={valProgram}
+                                                                       multiple>
+                                                </lightning-file-upload>
+                                                <lightning-formatted-text value={documentNames}></lightning-formatted-text>
+                                            </div>
+                    
+                                            <div style="float: right;" class="slds-p-top--small">
+                                                <lightning-button class="slds-p-around--xxx-small" label="Cancel" slot="actions" onclick={handleCloseUploadModal}></lightning-button>
+                                                <lightning-button class="slds-p-around--xxx-small" variant="brand" label="Save" slot="actions" onclick={handleSaveUploadDoc}></lightning-button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                                <div class="slds-backdrop slds-backdrop_open"></div>
+                            </div>
+                        </template>
+
+                        <template if:true={isSubmit}>
+                            <div>
+                                <section role="dialog" tabindex="-1" aria-labelledby="modal-del01" aria-modal="true" aria-describedby="modal-id-del1" class="slds-modal slds-fade-in-open">
+                                    <div class="slds-modal__container" style="width: 50%; max-width: 65rem; min-width: 40rem;">
+                                        <header class="slds-modal__header">
+                                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseSubmitModal}>
+                                                <lightning-icon icon-name="utility:close" size="medium">
+                                                </lightning-icon>
+                                                <span class="slds-assistive-text">Close</span>
+                                            </button>
+
+                                            <h2 id="modal-del01" class="slds-text-heading_medium slds-hyphenate">Submit to AXA SA</h2>  <!--RRA - ticket 134502122022 (Submit to AGRE)-->
+                                        </header>
+                                        <div class="slds-modal__content slds-p-around_medium" id="modal-id-del1">
+                                            {submitMsg}
+                                        </div>
+                                        <footer class="slds-modal__footer">
+                                            <lightning-button-group>
+                                                <lightning-button label="Accept" onclick={handleAcceptSubmit}></lightning-button>
+                                                <lightning-button label="Cancel" onclick={handleCloseSubmitModal}></lightning-button>
+                                            </lightning-button-group>
+                                        </footer>
+                                    </div>
+                                </section>
+                                <div class="slds-backdrop slds-backdrop_open"></div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+
+    <template if:true={isCopySa}>
+        <c-lwc-48-copy-special-acceptance selected-special-acceptance ={selectedSpecialAcceptanceId}
+                                          selected-program={valProgram}
+                                          is-modal-copy={isCopySa}
+                                          is-modal-renew={isRenewSa}
+                                          program-nature-options-val={programNatureOptions}
+                                          nature-program-val={natureProgram}
+                                          is-user-ce={isCE}>
+        </c-lwc-48-copy-special-acceptance>
+    </template>
+
+    <template if:true={isRenewSa}>
+        <c-lwc-48-copy-special-acceptance display-auto-fac-form-val={displayAutoFacForm}
+                                          display-p-c-form-val={displayPCForm}
+                                          display-life-form-val={displayLifeForm}
+                                          reason-opt-val={reasonOpt}
+                                          limit-type-opt-val={limitTypeOpt}
+                                          selected-special-acceptance ={selectedSpecialAcceptanceId}
+                                          selected-program={valProgram}
+                                          cov-ced-com-option={covCedComOpt}
+                                          is-modal-copy={isCopySa}
+                                          is-modal-renew={isRenewSa}
+                                          renewed-program-id={renewedProgId}
+                                          is-user-ce={isCE}>
+        </c-lwc-48-copy-special-acceptance>
+    </template>
+
+    <template if:true={isAskToDelete}>
+        <div>
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-01" aria-modal="true" aria-describedby="modal-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 50%; max-width: 65rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseDeleteModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-01" class="slds-text-heading_medium slds-hyphenate">Delete Special Acceptance</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-id-1">
+                        {deleteMsg}
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button-group>
+                            <lightning-button label="Accept" onclick={handleAcceptDelete}></lightning-button>
+                            <lightning-button label="Cancel" onclick={handleCloseDeleteModal}></lightning-button>
+                        </lightning-button-group>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+
+    <template if:true={isAskToBindDeactReact}>
+        <div>
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-02" aria-modal="true" aria-describedby="modal-id-2" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 50%; max-width: 65rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseBindDeactReactModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-02" class="slds-text-heading_medium slds-hyphenate">{isAskToTitle}</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-id-2">
+                        {isAskToMsg}
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button-group>
+                            <lightning-button label="Accept" onclick={handleAcceptBindDeactReact}></lightning-button>
+                            <lightning-button label="Cancel" onclick={handleCloseBindDeactReactModal}></lightning-button>
+                        </lightning-button-group>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+</template>

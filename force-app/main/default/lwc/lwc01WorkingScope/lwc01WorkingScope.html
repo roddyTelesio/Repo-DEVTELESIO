@@ -1,0 +1,148 @@
+<template>
+    <template if:false={isSignForPool}>
+        <template if:true={isModalOpen}>
+            <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+                <lightning-tile type="media">
+                    <div class="slds-text-heading_small">{label.WorkingScope}</div>
+                </lightning-tile>
+            </div>
+            <lightning-layout>
+                <template if:true={isDocument}>
+                    <lightning-layout-item padding="around-small" size="4">
+                        <lightning-input type="text" name="year" label={label.UWYear} value={selectedYear} disabled></lightning-input>
+                    </lightning-layout-item>
+
+                    <lightning-layout-item padding="around-small" size="4">
+                        <lightning-input type="text" name="company" label={label.PrincipalCedingCompany} value={valuePCCName} disabled></lightning-input>
+                    </lightning-layout-item>
+
+                    <lightning-layout-item padding="around-small" size="4">
+                        <lightning-input type="text" name="program" label="Program" value={valueProgramName} disabled></lightning-input>
+                    </lightning-layout-item>
+                </template>
+                <template if:false={isDocument}>
+                    <lightning-layout-item padding="around-small" size="6">
+                        <lightning-combobox name="year"
+                                            label={label.UWYear}
+                                            value={selectedYear}
+                                            options={uwYearOpt}
+                                            onchange={handleChangeUWYr}
+                                            disabled={isModalOpen}>
+                        </lightning-combobox>
+                    </lightning-layout-item>
+                    <lightning-layout-item padding="around-small" size="6">
+                        <lightning-combobox name="company"
+                                            label={label.PrincipalCedingCompany}
+                                            value={selectedComp}
+                                            options={cedingAccOpt}
+                                            onchange={handleChangeCedingComp}
+                                            disabled={isModalOpen}>
+                        </lightning-combobox>
+                    </lightning-layout-item>
+                </template>          
+            </lightning-layout>
+        </template>
+        
+    
+        <template if:false={isModalOpen}>
+            <template if:true={createProg}>
+                <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+                    <lightning-tile type="media">
+                        <div class="slds-text-heading_small">{label.WorkingScope}</div>
+                    </lightning-tile>
+                </div>
+                <lightning-layout>
+                    <lightning-layout-item padding="around-small" size="6">
+                        <lightning-combobox name="year"
+                                            label={label.UWYear}
+                                            value={selectedYear}
+                                            options={uwYearOpt}
+                                            onchange={handleChangeUWYr}>
+                        </lightning-combobox>
+                    </lightning-layout-item>
+                    <lightning-layout-item padding="around-small" size="6">
+                        <lightning-combobox name="company"
+                                            label={label.PrincipalCedingCompany}
+                                            value={selectedComp}
+                                            options={cedingAccOpt}
+                                            onchange={handleChangeCedingComp}>
+    
+                        </lightning-combobox>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </template>
+    
+            <template if:false={createProg}>
+                <template if:true={isSummaryPage}>
+                    <lightning-card title={label.WorkingScope}>
+                        <lightning-layout>
+                            <lightning-layout-item padding="around-small" size="6">
+                                <lightning-combobox name="year"
+                                                    label={label.UWYear}
+                                                    value={valueUWYearSummary}
+                                                    options={uwYearOpt}
+                                                    disabled>
+                                </lightning-combobox>
+                            </lightning-layout-item>
+                            <lightning-layout-item padding="around-small" size="6">
+                                <lightning-combobox name="company"
+                                                    label={label.PrincipalCedingCompany}
+                                                    value={valuePrincipalCedCompSummary}
+                                                    options={cedingAccOpt}
+                                                    disabled>
+                                </lightning-combobox>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </lightning-card>
+                </template>
+    
+                <template if:false={isSummaryPage}>
+                    <lightning-card title={label.WorkingScope}>
+                        <lightning-layout>
+                            <lightning-layout-item padding="around-small" size="6">
+                                <lightning-combobox name="year"
+                                                    label={label.UWYear}
+                                                    value={valueUWYear}
+                                                    options={uwYearOpt}
+                                                    onchange={handleChangeUWYr}>
+                                </lightning-combobox>
+                            </lightning-layout-item>
+                            <lightning-layout-item padding="around-small" size="6">
+                                <lightning-combobox name="company"
+                                                    label={label.PrincipalCedingCompany}
+                                                    value={valuePrincipalCedComp}
+                                                    options={cedingAccOpt}
+                                                    onchange={handleChangeCedingComp}>
+                                </lightning-combobox>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </lightning-card>
+                </template>
+    
+            </template>
+        </template>
+    </template>
+
+    <template if:true={isSignForPool}>
+        <lightning-card title={label.WorkingScope}>
+            <lightning-layout>
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-combobox name="year"
+                                        label={label.UWYear}
+                                        value={selectedYear}
+                                        options={uwYearOpt}
+                                        disabled>
+                    </lightning-combobox>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-combobox name="company"
+                                        label={label.PrincipalCedingCompany}
+                                        value={selectedComp}
+                                        options={cedingAccOpt}
+                                        disabled>
+                    </lightning-combobox>
+                </lightning-layout-item>
+            </lightning-layout>
+        </lightning-card>
+    </template>
+</template>

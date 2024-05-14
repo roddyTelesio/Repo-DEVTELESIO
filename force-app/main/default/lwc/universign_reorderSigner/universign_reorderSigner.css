@@ -1,0 +1,42 @@
+/* Style the draggable items */
+.draggable-item {
+    /* display: flex; */
+    align-items: center;
+    padding: 5px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    margin: 1.5px 0; /* Reduce vertical margin between items */
+    cursor: grab;
+    /* width: 400px; */
+    text-align: left;
+    transition: background-color 0.3s ease; /* Add a smooth transition effect */
+}
+
+/* Style the icon */
+.icon {
+    margin-right: 10px; /* Add some spacing between the icon and text */
+    width: 24px;
+    height: 24px;
+}
+
+/* Style the text container */
+.text {
+    flex: 1; /* Allow text to take up remaining space */
+}
+
+/* Style the title text */
+.title {
+    font-weight: bold;
+    /* font-size: 16px; */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Style the additional information text */
+.info {
+    /* font-size: 14px; */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

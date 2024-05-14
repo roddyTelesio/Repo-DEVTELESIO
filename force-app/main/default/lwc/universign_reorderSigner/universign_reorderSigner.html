@@ -1,0 +1,37 @@
+<!--
+  @description       : 
+  @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+  @group             : 
+  @last modified on  : 10-04-2023
+  @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+-->
+<template>
+    <div class="draggable-list" ondragover={handleDragOver} ondrop={handleDrop}>
+        <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+            <thead>
+                <tr>
+                    <th class="icon"></th>
+                    <th class="info">Name</th>
+                    <th class="info">Role</th>
+                    <th class="info">Email</th>
+                    <th class="info">Mobile</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template for:each={items} for:item="item">
+                    <tr key={item.Id} data-id={item.Id} class="draggable-item" draggable="true" ondragstart={handleDragStart}>
+                        <td class="icon">
+                            <lightning-icon draggable="true" icon-name="utility:drag_and_drop"></lightning-icon>
+                        </td>
+                        <td class="title" draggable="true">
+                            <p title=Name>{item.Name}</p>
+                        </td>
+                        <td class="Role"  draggable="true">{item.role__c}</td>
+                        <td class="Role"  draggable="true">{item.Email__c}</td>
+                        <td class="Role"  draggable="true">{item.Phone__c}</td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+</template>

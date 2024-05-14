@@ -1,0 +1,25 @@
+.slds-table .redIcon{
+    background: red;
+}
+
+.redIcon{
+    background: red;
+}
+
+/**.redIcon, .redIcon a{
+    color: red ;
+}
+
+.redIcon use{
+    fill : red!important;
+}
+
+**/
+
+.greenIcon{
+    fill : green !important;
+}
+
+/**.greenIcon, .greenIcon a{
+    color: green ;
+}**/

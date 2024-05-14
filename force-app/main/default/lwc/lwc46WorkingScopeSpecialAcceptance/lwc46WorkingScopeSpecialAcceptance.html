@@ -1,0 +1,120 @@
+<template>
+    <template if:true={isModal}>
+        <!--New or Copy-->
+        <!--Disable Working Scope-->
+        <div class="slds-border_top slds-border_bottom slds-border_right slds-border_left">
+            <lightning-card title={label.WorkingScope}>
+                <lightning-layout>
+                    <lightning-layout-item padding="around-small" size="6">
+                        <lightning-combobox name="year"
+                                            label={label.UWYear}
+                                            value={valueUwYear}
+                                            options={uwYearOpt}
+                                            onchange={handleChangeUWYr}
+                                            disabled>
+                        </lightning-combobox>
+                    </lightning-layout-item>
+                    <lightning-layout-item padding="around-small" size="6">
+                        <lightning-combobox name="company"
+                                            label={label.PrincipalCedingCompany}
+                                            value={valuePrincipalCedComp}
+                                            options={cedingAccOpt}
+                                            onchange={handleChangeCedingComp}
+                                            disabled>
+                        </lightning-combobox>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </lightning-card>
+        </div>
+
+        <template if:false={isCeLoadSaReq}>
+            <template if:false={isModalCopy}>
+                <!--New-->
+                <!--Disable Filter-->
+                <br/>
+                <div class="slds-border_top slds-border_bottom slds-border_right slds-border_left">
+                    <lightning-card title="Filters">
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item padding="around-small" size="6">
+                                <lightning-input type="text" name="program" label='Program' value={programNameModal} disabled></lightning-input>
+                            </lightning-layout-item>
+                            <lightning-layout-item padding="around-small" size="6">
+                                <lightning-input type="text" name="Nature" label='Nature' value={natureProgram} disabled></lightning-input>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </lightning-card>
+                </div>
+            </template>
+        </template>
+    </template>
+
+    <template if:false={isModal}>
+        <!--Homepage-->
+        <lightning-card title={label.WorkingScope}>
+            <lightning-layout>
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-combobox name="year"
+                                        label={label.UWYear}
+                                        value={valueUwYear}
+                                        options={uwYearOpt}
+                                        onchange={handleChangeUWYr}>
+                    </lightning-combobox>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-combobox name="company"
+                                        label={label.PrincipalCedingCompany}
+                                        value={valuePrincipalCedComp}
+                                        options={cedingAccOpt}
+                                        onchange={handleChangeCedingComp}>
+                    </lightning-combobox>
+                </lightning-layout-item>
+            </lightning-layout>
+        </lightning-card>
+        <br/>
+
+        <template if:true={isCEUser}>
+            <template if:false={isCeLoadSaReq}>
+                <!--Homepage CE-->
+                <lightning-card title="Filters">
+                    <lightning-layout multiple-rows>
+                        <lightning-layout-item padding="around-small" size="6">
+                            <lightning-combobox name="program"
+                                                label="Program"
+                                                value={valueCEProgram}
+                                                options={programOptions}
+                                                placeholder=""
+                                                onchange={handleOnChangeProgramCE}>
+                            </lightning-combobox>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                </lightning-card>
+            </template>
+        </template>
+        <template if:false={isCEUser}>
+            <!--Homepage Ceding Portal-->
+            <lightning-card title="Filters">
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item padding="around-small" size="6">
+                        <lightning-combobox name="nature"
+                                            label="Nature"
+                                            value={natureProgram}
+                                            options={natureOpt}
+                                            placeholder=""
+                                            onchange={handleOnChangeNature}>
+                        </lightning-combobox>
+                    </lightning-layout-item>
+
+                    <lightning-layout-item padding="around-small" size="6">
+                        <lightning-combobox name="program"
+                                            label="Program"
+                                            value={valueCedingProgram}
+                                            options={programOptions}
+                                            placeholder=""
+                                            onchange={handleOnChangeProgramCeding}>
+                        </lightning-combobox>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </lightning-card>
+        </template>
+    </template>
+</template>

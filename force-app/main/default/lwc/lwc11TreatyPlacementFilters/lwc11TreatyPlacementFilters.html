@@ -1,0 +1,87 @@
+<template>
+    <lightning-card title="Filters">
+        <lightning-button-group slot="actions">
+            <lightning-button variant="brand" label="Documents" title="Documents" icon-name="utility:file" disabled={disableDocuments} class="slds-m-left_x-small" onclick={handleOpenModal}></lightning-button>
+        </lightning-button-group>
+
+        <lightning-layout multiple-rows>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-combobox name="program"
+                                    label="Program"
+                                    value={valueProgram}
+                                    options={programOptions}
+                                    onchange={handleChangeProgram}
+                                    placeholder="--None--">
+                </lightning-combobox>
+            </lightning-layout-item>
+
+            <template if:true={isQuoteOrLeadPage}>
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-combobox name="treaty"
+                                        label="Treaty"
+                                        value={valueTreaty}
+                                        options={treatyOptions}
+                                        onchange={handleChangeTreaty}
+                                        placeholder="--All--">
+                    </lightning-combobox>
+                </lightning-layout-item>
+
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-combobox name="broker"
+                                        label="Broker"
+                                        value={valueBroker}
+                                        options={brokerOptions}
+                                        onchange={handleChangeBroker}
+                                        placeholder="--All--">
+                    </lightning-combobox>
+                </lightning-layout-item>
+
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-combobox name="reinsurer"
+                                        label="Reinsurer"
+                                        value={valueReinsurer}
+                                        options={reinsurerOptions}
+                                        onchange={handleChangeReinsurer}
+                                        placeholder="--All--">
+                    </lightning-combobox>
+                </lightning-layout-item>
+
+                <lightning-layout-item padding="around-small" size="6">
+                </lightning-layout-item>
+
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-combobox name="reinsurerStatus"
+                                        label="Reinsurer Status"
+                                        value={valueReinsurerStatus}
+                                        options={reinsurerStatusOptions}
+                                        onchange={handleChangeReinsurerStatus}
+                                        placeholder="--All--">
+                    </lightning-combobox>
+                </lightning-layout-item>
+            </template>
+        </lightning-layout>
+
+    </lightning-card>
+
+    <template if:true={isOpenModal}>
+        <div class="demo-only">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Documents</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <c-lwc-14-documents uw-year={valueUWYear} principal-ceding-company={valuePrincipalCedComp} value-program={valueProgram} program-options={programOptions}></c-lwc-14-documents>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+</template>

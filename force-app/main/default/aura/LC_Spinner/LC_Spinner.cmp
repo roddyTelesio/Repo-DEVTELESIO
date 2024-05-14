@@ -1,0 +1,12 @@
+<aura:component description="LC_Spinner">
+    <aura:attribute name="show" type="boolean" default="false" description="control the spinner object"/>
+    <aura:attribute name="inModal" type="boolean" default="false" description="If loaded in a modal action window, do not show the overlay" />
+    <!-- if called from modal do not show the blocked back -->
+    <div class="{!(v.show ? ( v.inModal ? 'xcs-spinner_container' : 'slds-spinner_container') : 'slds-hide')}">
+        <div class="slds-spinner--brand slds-spinner slds-spinner--large" role="alert">
+            <span class="slds-assistive-text">{$!Label.c.Loading}</span>
+            <div class="slds-spinner__dot-a"></div>
+            <div class="slds-spinner__dot-b"></div>
+        </div>
+    </div>
+</aura:component>

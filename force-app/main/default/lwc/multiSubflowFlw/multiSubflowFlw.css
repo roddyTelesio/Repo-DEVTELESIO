@@ -1,0 +1,5 @@
+.invisiblesection{
+    opacity: 0;
+    height: 0px;
+    overflow-y: hidden;
+}

@@ -1,0 +1,38 @@
+<!--
+  @description       : 
+  @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+  @group             : 
+  @last modified on  : 11-14-2023
+  @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+-->
+<template>
+    <lightning-card  >
+        <!--Previous-->
+        <lightning-button 
+            label={previousLabel} 
+            disabled={disablePrevious} 
+            slot="actions" 
+            onclick={handlePrevious}
+            class={HidePreviousButton}>
+        </lightning-button>
+
+        <!--Next-->
+        <lightning-button 
+            variant="Brand"
+            label={nextLabel} 
+            disabled={disableNext} 
+            onclick={handleNext}
+            class={HideNextButton}
+            slot="actions">
+        </lightning-button>
+
+        <!--Relaunch button-->
+        <lightning-button 
+            label={relaunchButtonLabel} 
+            disabled={disableRelaunchBtn} 
+            slot="actions" 
+            onclick={handleRelaunchBtn}
+            class={HideRelaunchButton}>
+        </lightning-button>
+    </lightning-card>
+</template>

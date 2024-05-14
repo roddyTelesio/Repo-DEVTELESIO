@@ -1,0 +1,636 @@
+<template>
+    <div class="slds-p-around_small slds-theme_shade">
+        <lightning-layout horizontal-align="spread" vertical-align="center">
+            <lightning-layout-item>
+                <div class="slds-media slds-media_center">
+                    <div class="slds-media__figure"><lightning-icon icon-name="standard:apps" size="medium" variant="slds-icon-inverse"></lightning-icon></div>
+                    <div class="slds-media__body"><div style="font-size: 0.8125rem;">Program</div><div class="slds-page-header__title slds-text-heading_small">{programNameValue}</div></div>
+                    <div class="slds-media__figure slds-media__figure_reverse"></div>
+                </div>
+            </lightning-layout-item>
+            <lightning-layout-item><lightning-button-group class="slds-button-group-row slds-m-right_large"></lightning-button-group></lightning-layout-item>
+        </lightning-layout>
+    </div>
+    <div class="slds-m-bottom_small slds-page-header slds-page-header_vertical">
+        <lightning-layout class="slds-wrap" multiple-rows="true">
+            <lightning-layout-item size="6">
+                <div class="slds-form-element"><span class="slds-form-element__label">Inception Date</span><div class="slds-form-element__control"><span class="slds-form-element__static">{inceptionDateValue}</span></div></div>
+            </lightning-layout-item>
+            <lightning-layout-item size="6">
+                <div class="slds-form-element"><span class="slds-form-element__label">Expiry Date</span>
+                    <div class="slds-form-element__control"><span class="slds-form-element__static">{expiryDateValue}</span></div>
+                </div>
+            </lightning-layout-item>
+        </lightning-layout>
+    </div>
+    <div>
+        <!-- AMI 130722: W-0949 Portal -Quote / Placement - Ajout d'un bouton "refuse all" -->
+        <template if:true={showRefuseAllModal}>
+            <lightning-button class="slds-p-around--xxx-small" variant="destructive" label="Refuse All" slot="actions" disabled={disableSaveBtn} onclick={showRefuseAllHandler}></lightning-button>
+        </template>
+    </div>
+    <br/>
+    <template for:each={lstSectionRequestByTreatyId} for:item='treatySectionRequest'>
+        <div key={treatySectionRequest.key.value}>
+            <div style="background-color: #001933;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 1rem;"><lightning-tile type="media"><div class="slds-text-heading_small" style="color: white; text-align: center">{treatySectionRequest.key.label}</div></lightning-tile></div><br/>
+            <div class="slds-m-bottom_small slds-page-header slds-page-header_vertical">
+                <lightning-layout class="slds-wrap" multiple-rows="true">
+                    <lightning-layout-item size="6">
+                        <div class="slds-form-element"><span class="slds-form-element__label">Loss Deposit</span><div class="slds-form-element__control"><span class="slds-form-element__static">{treatySectionRequest.treatyDetail.LossDeposit__c}</span></div></div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="6">
+                        <div class="slds-form-element"><span class="slds-form-element__label">Premium Deposit</span>
+                            <div class="slds-form-element__control"><span class="slds-form-element__static">{treatySectionRequest.treatyDetail.PremiumDeposit__c}</span></div>
+                        </div>
+                        <div class="slds-form-element"><span class="slds-form-element__label">Deductions</span>
+                            <div class="slds-form-element__control"><span class="slds-form-element__static">{treatySectionRequest.treatyDetail.Deductions_Perc__c}</span></div>
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </div><br/>
+            <template for:each={treatySectionRequest.value} for:item='sectionRequest'>
+                <div key={sectionRequest.Id}>
+                    <lightning-accordion allow-multiple-sections-open="true">
+                        <lightning-accordion-section name={sectionRequest.TECH_SectionName__c} label={sectionRequest.Name} class="collapsible_bg">
+                            <div style="background-color: #FFFFFF; margin-left: -1rem;margin-right:-1rem;padding-top: -0.5rem;padding-bottom: -1.5rem;"><br/>
+                                <template if:true={sectionRequest.disablePriceStructureDetails}><div style="text-align: center;">{sectionRequest.errorMsg}</div></template>
+                                <template if:false={sectionRequest.disablePriceStructureDetails}>
+                                    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-left: 1rem;margin-right: 1rem;"><lightning-tile type="media"><div class="slds-text-heading_small">Price Structure Details</div></lightning-tile></div>
+                                    <lightning-layout multiple-rows>
+                                        <lightning-layout-item padding="around-small" size="6">
+                                            <!-- AMI 130722: W-0949 Portal -Quote / Placement - Ajout d'un bouton "refuse all" Confirmation Modal for Refuse All 
+                                                             Rework to be able to accomodate more html with evolution since limit was already reached-->
+                                            <c-psd-Main-Form section-request={sectionRequest} currency-opt={currencyOpt} nature-opt={natureOpt} read-only>
+                                            </c-psd-Main-Form>
+                                            
+                                            <!-- RRA ticket 1095 -16112022-->
+                                            <div style="margin-left: 1rem;margin-right: 0.5rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem;">
+                                                <lightning-textarea name="CommentsReinsurerBroker__c" disabled id={sectionRequest.Id} value={sectionRequest.Section__r.CommentsReinsurerBroker__c} label="Comments for Reinsurer/Broker" ></lightning-textarea>
+                                            </div>
+                                            
+                                        </lightning-layout-item>
+                                        
+                                        <template if:true={isPhaseTypeQuote}>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <template if:true={sectionRequest.isQuoteTypeFlatCommission}>
+                                                    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;"><lightning-tile type="media"><div class="slds-text-heading_small">Quotes - Flat commission</div></lightning-tile></div>
+                                                    <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem">
+                                                        <lightning-combobox name="Quote__c" label="Quote" disabled={isProgRenewedAndIdentical} id={sectionRequest.Id} value={sectionRequest.Quote__c} placeholder="&#45;&#45;None&#45;&#45;" options={quoteOpt} onchange={handleQuoteChange}></lightning-combobox>
+                                                        <template if:true={sectionRequest.isQuoteYes}>
+                                                            <lightning-input type="number" name="FixedCommission__c" disabled={isProgRenewedAndIdentical} id={sectionRequest.Id} label="Fixed Commission (%)" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} value={sectionRequest.FixedCommission__c} required={sectionRequest.isQuoteYes} class={sectionRequest.FixedCommission__cEmpty}></lightning-input>
+                                                            <lightning-input type="number" name="ProfitCommission__c" disabled={isProgRenewedAndIdentical} id={sectionRequest.Id} label="Profit Commission (%)" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} value={sectionRequest.ProfitCommission__c}></lightning-input>
+                                                            <lightning-input type="number" name="ReinsurerExpenses__c" disabled={isProgRenewedAndIdentical} id={sectionRequest.Id} label="Reinsurer Expenses (%)" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} value={sectionRequest.ReinsurerExpenses__c}></lightning-input>
+                                                            <lightning-input type="number" name="LossCarryingForward__c" disabled={sectionRequest.disableLossCarryingForward} data-id={sectionRequest.Id} message-when-step-mismatch={label.NumberErrorMessage} id={sectionRequest.Id} label="Loss Carrying Forward" value={sectionRequest.LossCarryingForward__c} ></lightning-input><br/>
+                                                            <lightning-input name="OrUnlimited__c" id={sectionRequest.Id} disabled={isProgRenewedAndIdentical} checked={sectionRequest.OrUnlimited__c} type="checkbox" label="Or Unlimited" onchange={handleOnChangeInputValue}></lightning-input>
+                                                            <lightning-input type="number" name="LossCorridorPart__c" id={sectionRequest.Id} disabled={isProgRenewedAndIdentical} label="Loss Corridor Part (%)" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="999" message-when-range-overflow={label.maxThousandErrorMessage} value={sectionRequest.LossCorridorPart__c}></lightning-input>
+                                                            <lightning-input type="number" name="LossCorridorMinLR__c" id={sectionRequest.Id} disabled={isProgRenewedAndIdentical} label="Loss Corridor Min. L/R (%)" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="999" message-when-range-overflow={label.maxThousandErrorMessage} value={sectionRequest.LossCorridorMinLR__c}></lightning-input>
+                                                            <lightning-input type="number" name="LossCorridorMaxLR__c" id={sectionRequest.Id} disabled={isProgRenewedAndIdentical} label="Loss Corridor Max. L/R (%)" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="999" message-when-range-overflow={label.maxThousandErrorMessage} value={sectionRequest.LossCorridorMaxLR__c}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonus__c" disabled={sectionRequest.disableNoClaimBonusPerc} id={sectionRequest.Id} label="No Claim Bonus (%)" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} value={sectionRequest.NoClaimBonus__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonusAmount__c" message-when-step-mismatch={label.NumberErrorMessage} disabled={sectionRequest.disableNoClaimBonusAmount} id={sectionRequest.Id} label="No Claim Bonus (Amount)" value={sectionRequest.NoClaimBonusAmount__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                                            <lightning-input type="number" name="WrittenShareResponse__c" id={sectionRequest.Id} disabled={isProgRenewedAndIdentical} label="Written Share (%)" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} value={sectionRequest.WrittenShareResponse__c} required={sectionRequest.isQuoteYes} class={sectionRequest.WrittenShareResponse__cEmpty}></lightning-input>
+                                                        </template>
+                                                        <template if:true={sectionRequest.isQuoteNo}>
+                                                            <template if:true={isProgRenewedAndIdentical}><lightning-combobox name="ReasonRefusal__c" id={sectionRequest.Id} label="Reason For Refusal" value={sectionRequest.ReasonRefusal__c} placeholder="&#45;&#45;None&#45;&#45;" options={reasonForRefusalOpt} disabled></lightning-combobox></template>
+                                                            <template if:false={isProgRenewedAndIdentical}><lightning-combobox name="ReasonRefusal__c" id={sectionRequest.Id} label="Reason For Refusal" value={sectionRequest.ReasonRefusal__c} class={sectionRequest.ReasonRefusal__cEmpty} placeholder="&#45;&#45;None&#45;&#45;" options={reasonForRefusalOpt} required={sectionRequest.isQuoteNo} disabled={sectionRequest.isQuoteYes}></lightning-combobox></template>
+                                                        </template>
+                                                        <lightning-textarea name="CommentsResponse__c" disabled={isProgRenewedAndIdentical} id={sectionRequest.Id} value={sectionRequest.CommentsResponse__c} label="Comments"></lightning-textarea>
+
+                                                    </div>
+                                                </template>
+                                                <template if:true={sectionRequest.isQuoteTypePerHead}>
+                                                    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;"><lightning-tile type="media"><div class="slds-text-heading_small">Quotes - Per Head</div></lightning-tile></div>
+                                                    <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem">
+                                                        <lightning-combobox name="Quote__c" label="Quote" disabled={isProgRenewedAndIdentical} id={sectionRequest.Id} value={sectionRequest.Quote__c} placeholder="&#45;&#45;None&#45;&#45;" options={quoteOpt} onchange={handleQuoteChange}></lightning-combobox>
+                                                        <template if:true={sectionRequest.isQuoteYes}>
+                                                            <lightning-input type="number" name="PerHeadPremium__c" disabled={isProgRenewedAndIdentical} id={sectionRequest.Id} label="Per Head Premium" step="0.01" message-when-step-mismatch={label.twoDpErrorMessage} value={sectionRequest.PerHeadPremium__c} required={sectionRequest.isQuoteYes} class={sectionRequest.PerHeadPremium__cEmpty}></lightning-input>
+                                                            <lightning-input type="number" name="LossCorridorParticipation__c" disabled={isProgRenewedAndIdentical} id={sectionRequest.Id} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} label="Loss Corridor Participation(%)" value={sectionRequest.LossCorridorParticipation__c}></lightning-input>
+                                                            <lightning-input type="number" name="ProfitCommission__c" step="0.000001" disabled={isProgRenewedAndIdentical} message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Profit Commission (%)" value={sectionRequest.ProfitCommission__c} ></lightning-input>
+                                                            <lightning-input type="number" name="LossCorridorPart__c" step="0.000001" disabled={isProgRenewedAndIdentical} message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="999" message-when-range-overflow={label.maxThousandErrorMessage} id={sectionRequest.Id} label="Loss Corridor Part (%)" value={sectionRequest.LossCorridorPart__c}></lightning-input>
+                                                            <lightning-input type="number" name="LossCarryingForward__c" disabled={sectionRequest.disableLossCarryingForward} data-id={sectionRequest.Id} message-when-step-mismatch={label.NumberErrorMessage} id={sectionRequest.Id} label="Loss Carrying Forward" value={sectionRequest.LossCarryingForward__c}></lightning-input><br/>
+                                                            <lightning-input type="number" name="ReinsurerExpenses__c" step="0.000001" disabled={isProgRenewedAndIdentical} message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Reinsurer Expenses (%)" value={sectionRequest.ReinsurerExpenses__c}></lightning-input>
+                                                            <lightning-input type="number" name="WrittenShareResponse__c" id={sectionRequest.Id} disabled={isProgRenewedAndIdentical} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} label="Written Share (%)" value={sectionRequest.WrittenShareResponse__c} required={sectionRequest.isQuoteYes} class={sectionRequest.WrittenShareResponse__cEmpty}></lightning-input>
+                                                        </template>
+                                                        <template if:true={sectionRequest.isQuoteNo}>
+                                                            <template if:true={isProgRenewedAndIdentical}>
+                                                                <lightning-combobox name="ReasonRefusal__c" id={sectionRequest.Id} label="Reason For Refusal" value={sectionRequest.ReasonRefusal__c} placeholder="&#45;&#45;None&#45;&#45;" options={reasonForRefusalOpt} disabled></lightning-combobox>
+                                                            </template>
+                                                            <template if:false={isProgRenewedAndIdentical}>
+                                                                <lightning-combobox name="ReasonRefusal__c" id={sectionRequest.Id} label="Reason For Refusal" value={sectionRequest.ReasonRefusal__c} class={sectionRequest.ReasonRefusal__cEmpty} placeholder="&#45;&#45;None&#45;&#45;" options={reasonForRefusalOpt} disabled={sectionRequest.isQuoteYes} required={sectionRequest.isQuoteNo}></lightning-combobox>
+                                                            </template>
+                                                        </template>
+                                                        <lightning-textarea name="CommentsResponse__c" disabled={isProgRenewedAndIdentical} id={sectionRequest.Id} value={sectionRequest.CommentsResponse__c} label="Comments"></lightning-textarea>
+                                                    </div>
+                                                </template>
+                                                <template if:true={sectionRequest.isQuoteTypeVariableCommission}>
+                                                    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;"><lightning-tile type="media"><div class="slds-text-heading_small">Quotes - Variable commission</div></lightning-tile></div>
+                                                    <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem">
+                                                        <lightning-combobox name="Quote__c" label="Quote" disabled={isProgRenewedAndIdentical} id={sectionRequest.Id} value={sectionRequest.Quote__c} placeholder="&#45;&#45;None&#45;&#45;" options={quoteOpt} onchange={handleQuoteChange}></lightning-combobox>
+                                                        <template if:true={sectionRequest.isQuoteYes}>
+                                                            <lightning-input type="number" name="ProvisionalCommission__c" step="0.000001" disabled={isProgRenewedAndIdentical} message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Provisional Commission (%)" value={sectionRequest.ProvisionalCommission__c} required={sectionRequest.isQuoteYes} class={sectionRequest.ProvisionalCommission__cEmpty}></lightning-input>
+                                                            <lightning-input type="number" name="MinVarCommission__c" step="0.000001" disabled={isProgRenewedAndIdentical} message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Min. Var. Commission (%)" value={sectionRequest.MinVarCommission__c} required={sectionRequest.isQuoteYes} class={sectionRequest.MinVarCommission__cEmpty}></lightning-input>
+                                                            <lightning-input type="number" name="MaxVarCommission__c" step="0.000001" disabled={isProgRenewedAndIdentical} message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Max. Var. Commission (%)" value={sectionRequest.MaxVarCommission__c} required={sectionRequest.isQuoteYes} class={sectionRequest.MaxVarCommission__cEmpty}></lightning-input>
+                                                            <lightning-input type="number" name="MinLR__c" step="0.000001" disabled={isProgRenewedAndIdentical} message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Min. L/R (%)" value={sectionRequest.MinLR__c} required={sectionRequest.isQuoteYes} class={sectionRequest.MinLR__cEmpty}></lightning-input>
+                                                            <lightning-input type="number" name="MaxLR__c" step="0.000001" disabled={isProgRenewedAndIdentical} message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Max. L/R (%)" value={sectionRequest.MaxLR__c} required={sectionRequest.isQuoteYes} class={sectionRequest.MaxLR__cEmpty}></lightning-input>
+                                                            <lightning-input type="number" name="ProfitCommission__c" step="0.000001" disabled={isProgRenewedAndIdentical} message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Profit Commission (%)" value={sectionRequest.ProfitCommission__c} ></lightning-input>
+                                                            <lightning-input type="number" name="ReinsurerExpenses__c" step="0.000001" disabled={isProgRenewedAndIdentical} message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Reinsurer Expenses (%)" value={sectionRequest.ReinsurerExpenses__c}></lightning-input>
+                                                            <lightning-input type="number" name="LossCarryingForward__c" data-id={sectionRequest.Id} disabled={sectionRequest.disableLossCarryingForward} message-when-step-mismatch={label.NumberErrorMessage} id={sectionRequest.Id} label="Loss Carrying Forward" value={sectionRequest.LossCarryingForward__c}></lightning-input><br/>
+                                                            <lightning-input name="OrUnlimited__c" id={sectionRequest.Id} disabled={isProgRenewedAndIdentical} checked={sectionRequest.OrUnlimited__c} type="checkbox" label="Or Unlimited" onchange={handleOnChangeInputValue}></lightning-input>
+                                                            <lightning-input type="number" name="LossCorridorPart__c" step="0.000001" disabled={isProgRenewedAndIdentical} message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="999" message-when-range-overflow={label.maxThousandErrorMessage} id={sectionRequest.Id} label="Loss Corridor Part (%)" value={sectionRequest.LossCorridorPart__c}></lightning-input>
+                                                            <lightning-input type="number" name="LossCorridorMinLR__c" step="0.000001" disabled={isProgRenewedAndIdentical} message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="999" message-when-range-overflow={label.maxThousandErrorMessage} id={sectionRequest.Id} label="Loss Corridor Min. L/R (%)" value={sectionRequest.LossCorridorMinLR__c}></lightning-input>
+                                                            <lightning-input type="number" name="LossCorridorMaxLR__c" step="0.000001" disabled={isProgRenewedAndIdentical} message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="999" message-when-range-overflow={label.maxThousandErrorMessage} id={sectionRequest.Id} label="Loss Corridor Max. L/R (%)" value={sectionRequest.LossCorridorMaxLR__c}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonus__c" disabled={sectionRequest.disableNoClaimBonusPerc} id={sectionRequest.Id} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} label="No Claim Bonus (%)" value={sectionRequest.NoClaimBonus__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonusAmount__c" message-when-step-mismatch={label.NumberErrorMessage} disabled={sectionRequest.disableNoClaimBonusAmount} id={sectionRequest.Id} label="No Claim Bonus (Amount)" value={sectionRequest.NoClaimBonusAmount__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                                            <lightning-input type="number" name="WrittenShareResponse__c" id={sectionRequest.Id} disabled={isProgRenewedAndIdentical} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} label="Written Share (%)" value={sectionRequest.WrittenShareResponse__c} required={sectionRequest.isQuoteYes} class={sectionRequest.WrittenShareResponse__cEmpty}></lightning-input>
+                                                        </template>
+                                                        <template if:true={sectionRequest.isQuoteNo}>
+                                                            <template if:true={isProgRenewedAndIdentical}><lightning-combobox name="ReasonRefusal__c" id={sectionRequest.Id} label="Reason For Refusal" value={sectionRequest.ReasonRefusal__c} placeholder="&#45;&#45;None&#45;&#45;" options={reasonForRefusalOpt} disabled></lightning-combobox></template>
+                                                            <template if:false={isProgRenewedAndIdentical}><lightning-combobox name="ReasonRefusal__c" id={sectionRequest.Id} label="Reason For Refusal" value={sectionRequest.ReasonRefusal__c} class={sectionRequest.ReasonRefusal__cEmpty} placeholder="&#45;&#45;None&#45;&#45;" options={reasonForRefusalOpt} disabled={sectionRequest.isQuoteYes} required={sectionRequest.isQuoteNo}></lightning-combobox></template>
+                                                        </template>
+                                                        <lightning-textarea name="CommentsResponse__c" disabled={isProgRenewedAndIdentical} id={sectionRequest.Id} value={sectionRequest.CommentsResponse__c} label="Comments"></lightning-textarea>
+                                                    </div>
+                                                </template>
+                                                <template if:true={sectionRequest.isQuoteTypeRiskPremiumBasis}>
+                                                    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;"><lightning-tile type="media"><div class="slds-text-heading_small">Proportional - Risk Premium Basis</div></lightning-tile></div>
+                                                    <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem">
+                                                        <lightning-combobox name="Quote__c" label="Quote" disabled={isProgRenewedAndIdentical} id={sectionRequest.Id} value={sectionRequest.Quote__c} placeholder="&#45;&#45;None&#45;&#45;" options={quoteOpt} onchange={handleQuoteChange}></lightning-combobox>
+                                                        <template if:true={sectionRequest.isQuoteYes}>
+                                                            <template if:true={isProgRenewedAndIdentical}>
+                                                                <lightning-input field-level-help="Please indicate 1st year of premium only" type="number" message-when-step-mismatch={label.NumberErrorMessage} name="EstimatedReinsurancePremium__c" id={sectionRequest.Id} label="Estimated Reinsurance Premium" value={sectionRequest.EstimatedReinsurancePremium__c} disabled></lightning-input>
+                                                                <lightning-input type="number" field-level-help="Please indicate 1st year of premium only" name="EstimatedInsurancePremium__c" message-when-step-mismatch={label.NumberErrorMessage} id={sectionRequest.Id} label="Estimated Insurance Premium (100% basis)" value={sectionRequest.EstimatedInsurancePremium__c} disabled></lightning-input>
+                                                            </template>
+                                                            <template if:false={isProgRenewedAndIdentical}>
+                                                                <!--1966-->
+                                                                <template if:true={sectionRequest.isTreatyTypeQS}>
+                                                                    <lightning-input field-level-help="Please indicate 1st year of premium only" type="number" message-when-step-mismatch={label.NumberErrorMessage} name="EstimatedReinsurancePremium__c" id={sectionRequest.Id} label="Estimated Reinsurance Premium" value={sectionRequest.EstimatedReinsurancePremium__c} required={sectionRequest.isTreatyTypeSurplus} disabled={sectionRequest.isTreatyTypeQS} class={sectionRequest.EstimatedReinsurancePremium__cEmpty}></lightning-input>
+                                                                    <lightning-input type="number" field-level-help="Please indicate 1st year of premium only" name="EstimatedInsurancePremium__c" message-when-step-mismatch={label.NumberErrorMessage} id={sectionRequest.Id} label="Estimated Insurance Premium (100% basis)" value={sectionRequest.EstimatedInsurancePremium__c} required={sectionRequest.isTreatyTypeQS} disabled={sectionRequest.isTreatyTypeSurplus} class={sectionRequest.EstimatedInsurancePremium__cEmpty}></lightning-input>
+                                                                </template>
+                                                                <template if:true={sectionRequest.isTreatyTypeAXAXLQS}>
+                                                                    <lightning-input field-level-help="Please indicate 1st year of premium only" type="number" message-when-step-mismatch={label.NumberErrorMessage} name="EstimatedReinsurancePremium__c" id={sectionRequest.Id} label="Estimated Reinsurance Premium" value={sectionRequest.EstimatedReinsurancePremium__c} required={sectionRequest.isTreatyTypeSurplus} disabled={sectionRequest.isTreatyTypeAXAXLQS} class={sectionRequest.EstimatedReinsurancePremium__cEmpty}></lightning-input>
+                                                                    <lightning-input type="number" field-level-help="Please indicate 1st year of premium only" name="EstimatedInsurancePremium__c" message-when-step-mismatch={label.NumberErrorMessage} id={sectionRequest.Id} label="Estimated Insurance Premium (100% basis)" value={sectionRequest.EstimatedInsurancePremium__c} required={sectionRequest.isTreatyTypeAXAXLQS} disabled={sectionRequest.isTreatyTypeSurplus} class={sectionRequest.EstimatedInsurancePremium__cEmpty}></lightning-input>
+                                                                </template>
+                                                            </template>
+                                                            <lightning-input type="number" name="ProfitCommission__c" step="0.000001" disabled={isProgRenewedAndIdentical} message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Profit Commission (%)" value={sectionRequest.ProfitCommission__c}></lightning-input>
+                                                            <lightning-input type="number" name="ReinsurerExpenses__c" step="0.000001" disabled={isProgRenewedAndIdentical} message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Reinsurer Expenses (%)" value={sectionRequest.ReinsurerExpenses__c}></lightning-input>
+                                                            <lightning-input type="number" name="LossCarryingForward__c" data-id={sectionRequest.Id} message-when-step-mismatch={label.NumberErrorMessage} disabled={sectionRequest.disableLossCarryingForward} id={sectionRequest.Id} label="Loss Carrying Forward" value={sectionRequest.LossCarryingForward__c}></lightning-input><br/>
+                                                            <lightning-input name="OrUnlimited__c" id={sectionRequest.Id} disabled={isProgRenewedAndIdentical} checked={sectionRequest.OrUnlimited__c} type="checkbox" label="Or Unlimited" onchange={handleOnChangeInputValue}></lightning-input>
+                                                            <lightning-input type="number" name="WrittenShareResponse__c" min="0" max="100" disabled={isProgRenewedAndIdentical} message-when-range-overflow={label.maxHundredErrorMessage} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} id={sectionRequest.Id} label="Written Share (%)" value={sectionRequest.WrittenShareResponse__c} required={sectionRequest.isQuoteYes} class={sectionRequest.WrittenShareResponse__cEmpty}></lightning-input>
+                                                        </template>
+                                                        <template if:true={sectionRequest.isQuoteNo}>
+                                                            <template if:true={isProgRenewedAndIdentical}><lightning-combobox name="ReasonRefusal__c" id={sectionRequest.Id} label="Reason For Refusal" value={sectionRequest.ReasonRefusal__c} placeholder="&#45;&#45;None&#45;&#45;" options={reasonForRefusalOpt} disabled></lightning-combobox></template>
+                                                            <template if:false={isProgRenewedAndIdentical}><lightning-combobox name="ReasonRefusal__c" id={sectionRequest.Id} label="Reason For Refusal" value={sectionRequest.ReasonRefusal__c} class={sectionRequest.ReasonRefusal__cEmpty} placeholder="&#45;&#45;None&#45;&#45;" options={reasonForRefusalOpt} disabled={sectionRequest.isQuoteYes} required={sectionRequest.isQuoteNo}></lightning-combobox></template>
+                                                        </template>
+                                                        <lightning-textarea name="CommentsResponse__c" id={sectionRequest.Id} disabled={isProgRenewedAndIdentical} value={sectionRequest.CommentsResponse__c} label="Comments"></lightning-textarea>
+                                                        <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem" class="slds-form-element"><span class="slds-form-element__label"><b>Please join the mortality table</b></span></div>
+                                                    </div>
+                                                </template>
+                                                <template if:true={sectionRequest.isQuoteTypeFixedRate}>
+                                                    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;"><lightning-tile type="media"><div class="slds-text-heading_small">Quotes - Fixed Rate</div></lightning-tile></div>
+                                                    <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem">
+                                                        <lightning-combobox name="Quote__c" label="Quote" disabled={isProgRenewedAndIdentical} id={sectionRequest.Id} value={sectionRequest.Quote__c} placeholder="&#45;&#45;None&#45;&#45;" options={quoteOpt} onchange={handleQuoteChange}></lightning-combobox>
+                                                        <template if:true={sectionRequest.isQuoteYes}>
+                                                            <lightning-input type="number" name="FixedRate__c" step="0.000001" disabled={isProgRenewedAndIdentical} message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Fixed Rate (%)" value={sectionRequest.FixedRate__c} required={sectionRequest.isQuoteYes} class={sectionRequest.FixedRate__cEmpty}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonus__c" disabled={sectionRequest.disableNoClaimBonusPerc} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="No Claim Bonus (%)" value={sectionRequest.NoClaimBonus__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonusAmount__c" step="1" message-when-step-mismatch={label.NumberErrorMessage} disabled={sectionRequest.disableNoClaimBonusAmount} id={sectionRequest.Id} label="No Claim Bonus (Amount)" value={sectionRequest.NoClaimBonusAmount__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                                            <lightning-input type="number" name="WrittenShareResponse__c" disabled={isProgRenewedAndIdentical} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Written Share (%)" value={sectionRequest.WrittenShareResponse__c} required={sectionRequest.isQuoteYes} class={sectionRequest.WrittenShareResponse__cEmpty}></lightning-input>
+                                                        </template>
+                                                        <template if:true={sectionRequest.isQuoteNo}>
+                                                            <template if:true={isProgRenewedAndIdentical}><lightning-combobox name="ReasonRefusal__c" id={sectionRequest.Id} label="Reason For Refusal" value={sectionRequest.ReasonRefusal__c} placeholder="&#45;&#45;None&#45;&#45;" options={reasonForRefusalOpt} disabled></lightning-combobox></template>
+                                                            <template if:false={isProgRenewedAndIdentical}><lightning-combobox name="ReasonRefusal__c" id={sectionRequest.Id} label="Reason For Refusal" value={sectionRequest.ReasonRefusal__c} class={sectionRequest.ReasonRefusal__cEmpty} placeholder="&#45;&#45;None&#45;&#45;" options={reasonForRefusalOpt} disabled={sectionRequest.isQuoteYes} required={sectionRequest.isQuoteNo}></lightning-combobox></template>
+                                                        </template>
+                                                        <lightning-textarea name="CommentsResponse__c" disabled={isProgRenewedAndIdentical} id={sectionRequest.Id} value={sectionRequest.CommentsResponse__c} label="Comments"></lightning-textarea>
+                                                    </div>
+                                                </template>
+                                                <template if:true={sectionRequest.isQuoteTypeFlatPremium}>
+                                                    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;"><lightning-tile type="media"><div class="slds-text-heading_small">Quotes - Flat Premium</div></lightning-tile></div>
+                                                    <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem">
+                                                        <lightning-combobox name="Quote__c" label="Quote" disabled={isProgRenewedAndIdentical} id={sectionRequest.Id} value={sectionRequest.Quote__c} placeholder="&#45;&#45;None&#45;&#45;" options={quoteOpt} onchange={handleQuoteChange}></lightning-combobox>
+                                                        <template if:true={sectionRequest.isQuoteYes}>
+                                                            <lightning-input type="number" name="FlatPremium__c" disabled={isProgRenewedAndIdentical} message-when-step-mismatch={label.NumberErrorMessage} min="0" step="1" id={sectionRequest.Id} label="Flat Premium" value={sectionRequest.FlatPremium__c} required={sectionRequest.isQuoteYes} class={sectionRequest.FlatPremium__cEmpty}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonus__c" disabled={sectionRequest.disableNoClaimBonusPerc} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="No Claim Bonus (%)" value={sectionRequest.NoClaimBonus__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonusAmount__c" disabled={sectionRequest.disableNoClaimBonusAmount} message-when-step-mismatch={label.NumberErrorMessage} id={sectionRequest.Id} label="No Claim Bonus (Amount)" value={sectionRequest.NoClaimBonusAmount__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                                            <lightning-input type="number" name="WrittenShareResponse__c" disabled={isProgRenewedAndIdentical} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Written Share (%)" value={sectionRequest.WrittenShareResponse__c} required={sectionRequest.isQuoteYes} class={sectionRequest.WrittenShareResponse__cEmpty}></lightning-input>
+                                                        </template>
+                                                        <template if:true={sectionRequest.isQuoteNo}>
+                                                            <template if:true={isProgRenewedAndIdentical}><lightning-combobox name="ReasonRefusal__c" id={sectionRequest.Id} label="Reason For Refusal" value={sectionRequest.ReasonRefusal__c} placeholder="&#45;&#45;None&#45;&#45;" options={reasonForRefusalOpt} disabled></lightning-combobox></template>
+                                                            <template if:false={isProgRenewedAndIdentical}><lightning-combobox name="ReasonRefusal__c" id={sectionRequest.Id} label="Reason For Refusal" value={sectionRequest.ReasonRefusal__c} class={sectionRequest.ReasonRefusal__cEmpty} placeholder="&#45;&#45;None&#45;&#45;" options={reasonForRefusalOpt} disabled={sectionRequest.isQuoteYes} required={sectionRequest.isQuoteNo}></lightning-combobox></template>
+                                                        </template>
+                                                        <lightning-textarea name="CommentsResponse__c" id={sectionRequest.Id} disabled={isProgRenewedAndIdentical} value={sectionRequest.CommentsResponse__c} label="Comments"></lightning-textarea>
+                                                    </div>
+                                                </template>
+                                                <template if:true={sectionRequest.isQuoteTypeMDP}>
+                                                    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;"><lightning-tile type="media"><div class="slds-text-heading_small">Quotes - MDP</div></lightning-tile></div>
+                                                    <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem">
+                                                        <lightning-combobox name="Quote__c" label="Quote" disabled={isProgRenewedAndIdentical} id={sectionRequest.Id} value={sectionRequest.Quote__c} placeholder="&#45;&#45;None&#45;&#45;" options={quoteOpt} onchange={handleQuoteChange}></lightning-combobox>
+                                                        <template if:true={sectionRequest.isQuoteYes}>
+                                                            <lightning-input type="number" name="MDP__c" disabled={isProgRenewedAndIdentical} id={sectionRequest.Id} label="MDP" message-when-step-mismatch={label.NumberErrorMessage} value={sectionRequest.MDP__c} required={sectionRequest.isQuoteYes} class={sectionRequest.MDP__cEmpty}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonus__c" disabled={sectionRequest.disableNoClaimBonusPerc} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="No Claim Bonus (%)" value={sectionRequest.NoClaimBonus__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonusAmount__c"  message-when-step-mismatch={label.NumberErrorMessage} disabled={sectionRequest.disableNoClaimBonusAmount} id={sectionRequest.Id} label="No Claim Bonus (Amount)" value={sectionRequest.NoClaimBonusAmount__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                                            <lightning-input type="number" name="WrittenShareResponse__c" disabled={isProgRenewedAndIdentical}  step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Written Share (%)" value={sectionRequest.WrittenShareResponse__c} required={sectionRequest.isQuoteYes} class={sectionRequest.WrittenShareResponse__cEmpty}></lightning-input>
+                                                        </template>
+                                                        <template if:true={sectionRequest.isQuoteNo}>
+                                                            <template if:true={isProgRenewedAndIdentical}><lightning-combobox name="ReasonRefusal__c" id={sectionRequest.Id} label="Reason For Refusal" value={sectionRequest.ReasonRefusal__c} placeholder="&#45;&#45;None&#45;&#45;" options={reasonForRefusalOpt} disabled></lightning-combobox></template>
+                                                            <template if:false={isProgRenewedAndIdentical}><lightning-combobox name="ReasonRefusal__c" id={sectionRequest.Id} label="Reason For Refusal" value={sectionRequest.ReasonRefusal__c} class={sectionRequest.ReasonRefusal__cEmpty} placeholder="&#45;&#45;None&#45;&#45;" options={reasonForRefusalOpt} disabled={sectionRequest.isQuoteYes} required={sectionRequest.isQuoteNo}></lightning-combobox></template>
+                                                        </template>
+                                                        <lightning-textarea name="CommentsResponse__c" disabled={isProgRenewedAndIdentical} id={sectionRequest.Id} value={sectionRequest.CommentsResponse__c} label="Comments"></lightning-textarea>
+                                                    </div>
+                                                </template>
+                                                <template if:true={sectionRequest.isQuoteTypeVariableRate}>
+                                                    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;"><lightning-tile type="media"><div class="slds-text-heading_small">Quotes - Variable rate</div></lightning-tile></div>
+                                                    <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem">
+                                                        <lightning-combobox name="Quote__c" label="Quote" disabled={isProgRenewedAndIdentical} id={sectionRequest.Id} value={sectionRequest.Quote__c} placeholder="&#45;&#45;None&#45;&#45;" options={quoteOpt} onchange={handleQuoteChange}></lightning-combobox>
+                                                        <template if:true={sectionRequest.isQuoteYes}>
+                                                            <lightning-input type="number" name="MinRate__c" disabled={isProgRenewedAndIdentical} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Min. Rate (%)" value={sectionRequest.MinRate__c} required={sectionRequest.isQuoteYes} class={sectionRequest.MinRate__cEmpty}></lightning-input>
+                                                            <lightning-input type="number" name="MaxRate__c" disabled={isProgRenewedAndIdentical} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Max. Rate (%)" value={sectionRequest.MaxRate__c} required={sectionRequest.isQuoteYes} class={sectionRequest.MaxRate__cEmpty}></lightning-input>
+                                                            <lightning-input type="number" name="ProvisionalRate__c" disabled={isProgRenewedAndIdentical} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Provisional Rate (%)" value={sectionRequest.ProvisionalRate__c} required={sectionRequest.isQuoteYes} class={sectionRequest.ProvisionalRate__cEmpty}></lightning-input>
+                                                            <lightning-input type="number" name="Adjustment__c" disabled={isProgRenewedAndIdentical} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="100" message-when-range-underflow={label.minHundredErrorMessage} id={sectionRequest.Id} label="Adjustment (%)" value={sectionRequest.Adjustment__c}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonus__c" disabled={sectionRequest.disableNoClaimBonusPerc} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="No Claim Bonus (%)" value={sectionRequest.NoClaimBonus__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonusAmount__c" disabled={sectionRequest.disableNoClaimBonusAmount} message-when-step-mismatch={label.NumberErrorMessage} id={sectionRequest.Id} label="No Claim Bonus (Amount)" value={sectionRequest.NoClaimBonusAmount__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                                            <lightning-input type="number" name="WrittenShareResponse__c" disabled={isProgRenewedAndIdentical} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Written Share (%)" value={sectionRequest.WrittenShareResponse__c} required={sectionRequest.isQuoteYes} class={sectionRequest.WrittenShareResponse__cEmpty}></lightning-input>
+                                                        </template>
+                                                        <template if:true={sectionRequest.isQuoteNo}>
+                                                            <template if:true={isProgRenewedAndIdentical}><lightning-combobox name="ReasonRefusal__c" id={sectionRequest.Id} label="Reason For Refusal" value={sectionRequest.ReasonRefusal__c} placeholder="&#45;&#45;None&#45;&#45;" options={reasonForRefusalOpt} disabled></lightning-combobox></template>
+                                                            <template if:false={isProgRenewedAndIdentical}><lightning-combobox name="ReasonRefusal__c" id={sectionRequest.Id} label="Reason For Refusal" value={sectionRequest.ReasonRefusal__c} class={sectionRequest.ReasonRefusal__cEmpty} placeholder="&#45;&#45;None&#45;&#45;" options={reasonForRefusalOpt} disabled={sectionRequest.isQuoteYes} required={sectionRequest.isQuoteNo}></lightning-combobox></template>
+                                                        </template>
+                                                        <lightning-textarea name="CommentsResponse__c" disabled={isProgRenewedAndIdentical} id={sectionRequest.Id} value={sectionRequest.CommentsResponse__c} label="Comments"></lightning-textarea>
+                                                    </div>
+                                                </template>
+                                                <template if:true={sectionRequest.isQuoteTypePerHeadPremium}>
+                                                    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;"><lightning-tile type="media"><div class="slds-text-heading_small">Quotes - Per Head Premium</div></lightning-tile></div>
+                                                    <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem">
+                                                        <lightning-combobox name="Quote__c" disabled={isProgRenewedAndIdentical} label="Quote" id={sectionRequest.Id} value={sectionRequest.Quote__c} placeholder="&#45;&#45;None&#45;&#45;" options={quoteOpt} onchange={handleQuoteChange}></lightning-combobox>
+                                                        <template if:true={sectionRequest.isQuoteYes}>
+                                                            <lightning-input type="number" disabled={isProgRenewedAndIdentical} name="PerHeadPremium__c" id={sectionRequest.Id} label="Per Head Premium" message-when-step-mismatch={label.twoDpErrorMessage} value={sectionRequest.PerHeadPremium__c} step="0.01" required={sectionRequest.isQuoteYes} class={sectionRequest.PerHeadPremium__cEmpty}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonus__c" disabled={sectionRequest.disableNoClaimBonusPerc} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="No Claim Bonus (%)" value={sectionRequest.NoClaimBonus__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonusAmount__c" disabled={sectionRequest.disableNoClaimBonusAmount} message-when-step-mismatch={label.NumberErrorMessage} id={sectionRequest.Id} label="No Claim Bonus (Amount)" value={sectionRequest.NoClaimBonusAmount__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                                            <lightning-input type="number" disabled={isProgRenewedAndIdentical} name="WrittenShareResponse__c" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Written Share (%)" value={sectionRequest.WrittenShareResponse__c} required={sectionRequest.isQuoteYes} class={sectionRequest.WrittenShareResponse__cEmpty}></lightning-input>
+                                                        </template>
+                                                        <template if:true={sectionRequest.isQuoteNo}>
+                                                            <template if:true={isProgRenewedAndIdentical}><lightning-combobox name="ReasonRefusal__c" id={sectionRequest.Id} label="Reason For Refusal" value={sectionRequest.ReasonRefusal__c} placeholder="&#45;&#45;None&#45;&#45;" options={reasonForRefusalOpt} disabled></lightning-combobox></template>
+                                                            <template if:false= {isProgRenewedAndIdentical}><lightning-combobox name="ReasonRefusal__c" id={sectionRequest.Id} label="Reason For Refusal" value={sectionRequest.ReasonRefusal__c} class={sectionRequest.ReasonRefusal__cEmpty} placeholder="&#45;&#45;None&#45;&#45;" options={reasonForRefusalOpt} disabled={sectionRequest.isQuoteYes} required={sectionRequest.isQuoteNo}></lightning-combobox></template>
+                                                        </template>
+                                                        <lightning-textarea name="CommentsResponse__c" disabled={isProgRenewedAndIdentical} id={sectionRequest.Id} value={sectionRequest.CommentsResponse__c} label="Comments"></lightning-textarea>
+                                                    </div>
+                                                </template>
+                                                <template if:true={sectionRequest.isQuoteTypePerHeadVariable}>
+                                                    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;"><lightning-tile type="media"><div class="slds-text-heading_small">Quotes - Per Head Variable</div></lightning-tile></div>
+                                                    <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem">
+                                                        <lightning-combobox name="Quote__c" disabled={isProgRenewedAndIdentical} label="Quote" id={sectionRequest.Id} value={sectionRequest.Quote__c} placeholder="&#45;&#45;None&#45;&#45;" options={quoteOpt} onchange={handleQuoteChange}></lightning-combobox>
+                                                        <template if:true={sectionRequest.isQuoteYes}>
+                                                            <lightning-input type="number" name="MinPerHeadAmount__c" disabled={isProgRenewedAndIdentical} id={sectionRequest.Id} label="Min. Per Head amount" step="0.01" message-when-step-mismatch={label.twoDpErrorMessage} value={sectionRequest.MinPerHeadAmount__c} required={sectionRequest.isQuoteYes} class={sectionRequest.MinPerHeadAmount__cEmpty}></lightning-input>
+                                                            <lightning-input type="number" name="MaxPerHeadAmount__c" disabled={isProgRenewedAndIdentical} id={sectionRequest.Id} label="Max. Per Head amount" step="0.01" message-when-step-mismatch={label.twoDpErrorMessage} value={sectionRequest.MaxPerHeadAmount__c} required={sectionRequest.isQuoteYes} class={sectionRequest.MaxPerHeadAmount__cEmpty}></lightning-input>
+                                                            <lightning-input type="number" name="ProvisionalPerHeadPremium__c" disabled={isProgRenewedAndIdentical} id={sectionRequest.Id} step="0.01" message-when-step-mismatch={label.twoDpErrorMessage} label="Provisional Per Head Premium" value={sectionRequest.ProvisionalPerHeadPremium__c} required={sectionRequest.isQuoteYes} class={sectionRequest.ProvisionalPerHeadPremium__cEmpty}></lightning-input>
+                                                            <lightning-input type="number" name="Adjustment__c" step="0.000001" disabled={isProgRenewedAndIdentical} message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="100" message-when-range-underflow={label.minHundredErrorMessage} id={sectionRequest.Id} label="Adjustment (%)" value={sectionRequest.Adjustment__c}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonus__c" disabled={sectionRequest.disableNoClaimBonusPerc} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="No Claim Bonus (%)" value={sectionRequest.NoClaimBonus__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonusAmount__c" disabled={sectionRequest.disableNoClaimBonusAmount} message-when-step-mismatch={label.NumberErrorMessage} id={sectionRequest.Id} label="No Claim Bonus (Amount)" value={sectionRequest.NoClaimBonusAmount__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                                            <lightning-input type="number" name="WrittenShareResponse__c" disabled={isProgRenewedAndIdentical} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Written Share (%)" value={sectionRequest.WrittenShareResponse__c} required={sectionRequest.isQuoteYes} class={sectionRequest.WrittenShareResponse__cEmpty}></lightning-input>
+                                                        </template>
+                                                        <template if:true={sectionRequest.isQuoteNo}>
+                                                            <template if:true={isProgRenewedAndIdentical}><lightning-combobox name="ReasonRefusal__c" id={sectionRequest.Id} label="Reason For Refusal" value={sectionRequest.ReasonRefusal__c} class={sectionRequest.ReasonRefusal__cEmpty} placeholder="&#45;&#45;None&#45;&#45;" options={reasonForRefusalOpt} disabled></lightning-combobox></template>
+                                                            <template if:true={isProgRenewedAndIdentical}><lightning-combobox name="ReasonRefusal__c" id={sectionRequest.Id} label="Reason For Refusal" value={sectionRequest.ReasonRefusal__c} class={sectionRequest.ReasonRefusal__cEmpty} placeholder="&#45;&#45;None&#45;&#45;" options={reasonForRefusalOpt} disabled={sectionRequest.isQuoteYes} required={sectionRequest.isQuoteNo}></lightning-combobox></template>
+                                                        </template>
+                                                        <lightning-textarea name="CommentsResponse__c" disabled={isProgRenewedAndIdentical} id={sectionRequest.Id} value={sectionRequest.CommentsResponse__c} label="Comments"></lightning-textarea>
+                                                    </div>
+                                                </template>
+                                            </lightning-layout-item>
+                                        </template>
+                                        <template if:true={isPhaseTypeLead}>
+                                            <template if:true={disableLeadPlacementInfo}>
+                                                <lightning-layout-item padding="around-small" size="6">
+                                                    <c-lwc-28-respond-on-behalf-placement request-obj={sectionRequest} stage="Lead"></c-lwc-28-respond-on-behalf-placement>
+                                                </lightning-layout-item>
+                                            </template>
+                                            <template if:false={disableLeadPlacementInfo}>
+                                                <lightning-layout-item padding="around-small" size="6">
+                                                    <template if:true={sectionRequest.isQuoteTypeFlatCommission}>
+                                                        <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;"><lightning-tile type="media"><div class="slds-text-heading_small">Flat commission</div></lightning-tile></div>
+                                                        <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;padding-top: 0.5rem;">
+                                                            <lightning-input type="number" name="FixedCommission__c" id={sectionRequest.Id} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage}  label="Fixed Commission (%)" value={sectionRequest.FixedCommission__c} required class={sectionRequest.FixedCommission__cEmpty}></lightning-input>
+                                                            <lightning-input type="number" name="ProfitCommission__c" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Profit Commission (%)" value={sectionRequest.ProfitCommission__c}></lightning-input>
+                                                            <lightning-input type="number" name="ReinsurerExpenses__c" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Reinsurer Expenses (%)" value={sectionRequest.ReinsurerExpenses__c}></lightning-input>
+                                                            <lightning-input type="number" name="LossCarryingForward__c" data-id={sectionRequest.Id} message-when-step-mismatch={label.NumberErrorMessage} onchange={handleOnChangeInputValue} disabled={sectionRequest.disableLossCarryingForward} id={sectionRequest.Id} label="Loss Carrying Forward" value={sectionRequest.LossCarryingForward__c}></lightning-input><br/>
+                                                            <lightning-input name="OrUnlimited__c" onchange={handleOnChangeInputValue} id={sectionRequest.Id} checked={sectionRequest.OrUnlimited__c} type="checkbox" label="Or Unlimited"></lightning-input>
+                                                            <lightning-input type="number" name="LossCorridorPart__c" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="999" message-when-range-overflow={label.maxThousandErrorMessage} id={sectionRequest.Id} label="Loss Corridor Part (%)" value={sectionRequest.LossCorridorPart__c}></lightning-input>
+                                                            <lightning-input type="number" name="LossCorridorMinLR__c" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="999" message-when-range-overflow={label.maxThousandErrorMessage} id={sectionRequest.Id} label="Loss Corridor Min. L/R (%)" value={sectionRequest.LossCorridorMinLR__c}></lightning-input>
+                                                            <lightning-input type="number" name="LossCorridorMaxLR__c" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="999" message-when-range-overflow={label.maxThousandErrorMessage} id={sectionRequest.Id} label="Loss Corridor Max. L/R (%)" value={sectionRequest.LossCorridorMaxLR__c}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonus__c" onchange={handleOnChangeInputValue} message-when-step-mismatch={label.DecimalPlacesErrorMessage} disabled={sectionRequest.disableNoClaimBonusPerc} id={sectionRequest.Id} label="No Claim Bonus (%)" step="0.000001" min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} value={sectionRequest.NoClaimBonus__c}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonusAmount__c" onchange={handleOnChangeInputValue} message-when-step-mismatch={label.NumberErrorMessage} disabled={sectionRequest.disableNoClaimBonusAmount} id={sectionRequest.Id} label="No Claim Bonus (Amount)" value={sectionRequest.NoClaimBonusAmount__c}></lightning-input>
+                                                            <lightning-input type="number" name="OverridingCommission__c" required class={sectionRequest.OverridingCommission__cEmpty} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} id={sectionRequest.Id} label="Overriding Commission (%)" value={sectionRequest.OverridingCommission__c}></lightning-input>
+                                                            <lightning-input type="number" name="CededPremium__c" id={sectionRequest.Id} disabled label="Ceded Premium" value={sectionRequest.CededPremium__c} message-when-step-mismatch={label.NumberErrorMessage}></lightning-input>
+                                                        </div>
+                                                    </template>
+                                                    <template if:true={sectionRequest.isQuoteTypeVariableCommission}>
+                                                        <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;"><lightning-tile type="media"><div class="slds-text-heading_small">Variable commission</div></lightning-tile></div>
+                                                        <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;padding-top: 0.5rem;">
+                                                            <lightning-input type="number" name="ProvisionalCommission__c" required class={sectionRequest.ProvisionalCommission__cEmpty} id={sectionRequest.Id} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} label="Provisional Commission (%)" value={sectionRequest.ProvisionalCommission__c}></lightning-input>
+                                                            <lightning-input type="number" name="MinVarCommission__c" required class={sectionRequest.MinVarCommission__cEmpty} id={sectionRequest.Id} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} label="Min. Var. Commission (%)" value={sectionRequest.MinVarCommission__c}></lightning-input>
+                                                            <lightning-input type="number" name="MaxVarCommission__c" required class={sectionRequest.MaxVarCommission__cEmpty} id={sectionRequest.Id} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} label="Max. Var. Commission (%)" value={sectionRequest.MaxVarCommission__c}></lightning-input>
+                                                            <lightning-input type="number" name="MinLR__c" required class={sectionRequest.MinLR__cEmpty} id={sectionRequest.Id} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} label="Min. L/R (%)" value={sectionRequest.MinLR__c}></lightning-input>
+                                                            <lightning-input type="number" name="MaxLR__c" required class={sectionRequest.MaxLR__cEmpty} id={sectionRequest.Id} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} label="Max. L/R (%)" value={sectionRequest.MaxLR__c}></lightning-input>
+                                                            <lightning-input type="number" name="ProfitCommission__c" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Profit Commission (%)" value={sectionRequest.ProfitCommission__c}></lightning-input>
+                                                            <lightning-input type="number" name="ReinsurerExpenses__c" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Reinsurer Expenses (%)" value={sectionRequest.ReinsurerExpenses__c}></lightning-input>
+                                                            <lightning-input type="number" name="LossCarryingForward__c" data-id={sectionRequest.Id} message-when-step-mismatch={label.NumberErrorMessage} disabled={sectionRequest.disableLossCarryingForward} onchange={handleOnChangeInputValue} id={sectionRequest.Id} label="Loss Carrying Forward" value={sectionRequest.LossCarryingForward__c}></lightning-input><br/>
+                                                            <lightning-input name="OrUnlimited__c" onchange={handleOnChangeInputValue} id={sectionRequest.Id} checked={sectionRequest.OrUnlimited__c} type="checkbox" label="Or Unlimited"></lightning-input>
+                                                            <lightning-input type="number" name="LossCorridorPart__c" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="999" message-when-range-overflow={label.maxThousandErrorMessage} id={sectionRequest.Id} label="Loss Corridor Part (%)" value={sectionRequest.LossCorridorPart__c}></lightning-input>
+                                                            <lightning-input type="number" name="LossCorridorMinLR__c" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="999" message-when-range-overflow={label.maxThousandErrorMessage} id={sectionRequest.Id} label="Loss Corridor Min. L/R (%)" value={sectionRequest.LossCorridorMinLR__c}></lightning-input>
+                                                            <lightning-input type="number" name="LossCorridorMaxLR__c" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="999" message-when-range-overflow={label.maxThousandErrorMessage} id={sectionRequest.Id} label="Loss Corridor Max. L/R (%)" value={sectionRequest.LossCorridorMaxLR__c}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonus__c" onchange={handleOnChangeInputValue} disabled={sectionRequest.disableNoClaimBonusPerc} id={sectionRequest.Id} label="No Claim Bonus (%)" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} value={sectionRequest.NoClaimBonus__c}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonusAmount__c" message-when-step-mismatch={label.NumberErrorMessage} onchange={handleOnChangeInputValue} disabled={sectionRequest.disableNoClaimBonusAmount} id={sectionRequest.Id} label="No Claim Bonus (Amount)" value={sectionRequest.NoClaimBonusAmount__c}></lightning-input>
+                                                            <lightning-input type="number" name="OverridingCommission__c" required class={sectionRequest.OverridingCommission__cEmpty} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} id={sectionRequest.Id} label="Overriding Commission (%)" value={sectionRequest.OverridingCommission__c}></lightning-input>
+                                                            <lightning-input type="number" name="CededPremium__c" disabled message-when-step-mismatch={label.NumberErrorMessage} id={sectionRequest.Id} label="Ceded Premium" value={sectionRequest.CededPremium__c}></lightning-input>
+                                                        </div>
+                                                    </template>
+                                                    <template if:true={sectionRequest.isQuoteTypeRiskPremiumBasis}>
+                                                        <div style="background-color: #f3f2f2;padding-top: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;"><lightning-tile type="media"><div class="slds-text-heading_small">Proportional - Risk Premium Basis</div></lightning-tile></div>
+                                                        <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem">
+                                                            <!--1966-->
+                                                            <template if:true={sectionRequest.isTreatyTypeQS}>
+                                                                <lightning-input type="number" name="EstimatedReinsurancePremium__c" required={sectionRequest.isTreatyTypeSurplus} message-when-step-mismatch={label.NumberErrorMessage} class={sectionRequest.EstimatedReinsurancePremium__cEmpty} disabled={sectionRequest.isTreatyTypeQS} field-level-help="Please indicate 1st year of premium only" id={sectionRequest.Id} label="Estimated Reinsurance Premium" value={sectionRequest.EstimatedReinsurancePremium__c}></lightning-input>
+                                                                <lightning-input type="number" name="EstimatedInsurancePremium__c" disabled={sectionRequest.isTreatyTypeSurplus} message-when-step-mismatch={label.NumberErrorMessage} required={sectionRequest.isTreatyTypeQS} class={sectionRequest.EstimatedInsurancePremium__cEmpty} field-level-help="Please indicate 1st year of premium only" id={sectionRequest.Id} label="Estimated Insurance Premium (100% basis)" value={sectionRequest.EstimatedInsurancePremium__c}></lightning-input>
+                                                            </template>
+                                                            <template if:true={sectionRequest.isTreatyTypeAXAXLQS}>
+                                                                <lightning-input type="number" name="EstimatedReinsurancePremium__c" required={sectionRequest.isTreatyTypeSurplus} message-when-step-mismatch={label.NumberErrorMessage} class={sectionRequest.EstimatedReinsurancePremium__cEmpty} disabled={sectionRequest.isTreatyTypeAXAXLQS} field-level-help="Please indicate 1st year of premium only" id={sectionRequest.Id} label="Estimated Reinsurance Premium" value={sectionRequest.EstimatedReinsurancePremium__c}></lightning-input>
+                                                                <lightning-input type="number" name="EstimatedInsurancePremium__c" disabled={sectionRequest.isTreatyTypeSurplus} message-when-step-mismatch={label.NumberErrorMessage} required={sectionRequest.isTreatyTypeAXAXLQS} class={sectionRequest.EstimatedInsurancePremium__cEmpty} field-level-help="Please indicate 1st year of premium only" id={sectionRequest.Id} label="Estimated Insurance Premium (100% basis)" value={sectionRequest.EstimatedInsurancePremium__c}></lightning-input>
+                                                            </template>
+                                                        
+                                                            
+                                                            <lightning-input type="number" name="OverridingCommission__c" required class={sectionRequest.OverridingCommission__cEmpty} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} id={sectionRequest.Id} label="Overriding Commission (%)" value={sectionRequest.OverridingCommission__c}></lightning-input>
+                                                            <lightning-input type="number" name="ProfitCommission__c" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Profit Commission (%)" value={sectionRequest.ProfitCommission__c}></lightning-input>
+                                                            <lightning-input type="number" name="ReinsurerExpenses__c" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Reinsurer Expenses (%)" value={sectionRequest.ReinsurerExpenses__c}></lightning-input>
+                                                            <lightning-input type="number" name="LossCarryingForward__c" data-id={sectionRequest.Id} onchange={handleOnChangeInputValue} disabled={sectionRequest.disableLossCarryingForward} message-when-step-mismatch={label.NumberErrorMessage} id={sectionRequest.Id} label="Loss Carrying Forward" value={sectionRequest.LossCarryingForward__c}></lightning-input><br/>
+                                                            <lightning-input name="OrUnlimited__c" id={sectionRequest.Id} onchange={handleOnChangeInputValue} checked={sectionRequest.OrUnlimited__c} type="checkbox" label="Or Unlimited"></lightning-input>
+                                                            <lightning-input type="number" name="CededPremium__c" disabled id={sectionRequest.Id} label="Ceded Premium" message-when-step-mismatch={label.NumberErrorMessage} value={sectionRequest.CededPremium__c}></lightning-input>
+                                                            <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem" class="slds-form-element">
+                                                                <span class="slds-form-element__label"><b>Please join the mortality table</b></span>
+                                                            </div>
+                                                        </div>
+                                                    </template>
+                                                    <template if:true={sectionRequest.isQuoteTypeFixedRate}>
+                                                        <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;"><lightning-tile type="media"><div class="slds-text-heading_small">Fixed Rate</div></lightning-tile></div>
+                                                        <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;padding-top: 0.5rem;">
+                                                            <lightning-input type="number" name="FixedRate__c" required class={sectionRequest.FixedRate__cEmpty} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Fixed Rate (%)" value={sectionRequest.FixedRate__c} onchange={handleChangeLeadRequest}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonus__c" onchange={handleOnChangeInputValue} disabled={sectionRequest.disableNoClaimBonusPerc} id={sectionRequest.Id} label="No Claim Bonus (%)" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} value={sectionRequest.NoClaimBonus__c}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonusAmount__c" message-when-step-mismatch={label.NumberErrorMessage} onchange={handleOnChangeInputValue} disabled={sectionRequest.disableNoClaimBonusAmount} id={sectionRequest.Id} label="No Claim Bonus (Amount)" value={sectionRequest.NoClaimBonusAmount__c}></lightning-input>
+                                                            <lightning-input type="number" name="CededPremium__c" disabled id={sectionRequest.Id} message-when-step-mismatch={label.NumberErrorMessage} label="Ceded Premium" value={sectionRequest.CededPremium__c}></lightning-input>
+                                                            <lightning-input type="number" name="MDP__c" disabled={sectionRequest.disableMDP} message-when-step-mismatch={label.NumberErrorMessage} onchange={handleOnChangeInputValue} id={sectionRequest.Id} label="MDP" value={sectionRequest.MDP__c}></lightning-input>
+                                                            <lightning-input type="number" name="DepoPremium__c" disabled={sectionRequest.disableDepoPremium} message-when-step-mismatch={label.NumberErrorMessage} onchange={handleOnChangeInputValue} id={sectionRequest.Id} label="Depo. Premium" value={sectionRequest.DepoPremium__c}></lightning-input>
+                                                            <lightning-input type="number" name="MinPremium__c" onchange={handleOnChangeInputValue} message-when-step-mismatch={label.NumberErrorMessage} disabled={sectionRequest.disableMinPremium} id={sectionRequest.Id} label="Min. Premium" value={sectionRequest.MinPremium__c}></lightning-input>
+                                                        </div>
+                                                    </template>
+                                                    <template if:true={sectionRequest.isQuoteTypeFlatPremium}>
+                                                        <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;"><lightning-tile type="media"><div class="slds-text-heading_small">Flat Premium</div></lightning-tile></div>
+                                                        <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;padding-top: 0.5rem;">
+                                                            <lightning-input type="number" name="FlatPremium__c" min="0" step="1" message-when-step-mismatch={label.NumberErrorMessage} required class={sectionRequest.FlatPremium__cEmpty} id={sectionRequest.Id} label="Flat Premium" value={sectionRequest.FlatPremium__c} onchange={handleChangeLeadRequest}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonus__c" onchange={handleOnChangeInputValue} disabled={sectionRequest.disableNoClaimBonusPerc} id={sectionRequest.Id} label="No Claim Bonus (%)" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} value={sectionRequest.NoClaimBonus__c}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonusAmount__c" onchange={handleOnChangeInputValue} message-when-step-mismatch={label.NumberErrorMessage} disabled={sectionRequest.disableNoClaimBonusAmount} id={sectionRequest.Id} label="No Claim Bonus (Amount)" value={sectionRequest.NoClaimBonusAmount__c}></lightning-input>
+                                                            <lightning-input type="number" name="CededPremium__c" disabled id={sectionRequest.Id} label="Ceded Premium" message-when-step-mismatch={label.NumberErrorMessage} value={sectionRequest.CededPremium__c}></lightning-input>
+                                                        </div>
+                                                    </template>
+                                                    <template if:true={sectionRequest.isQuoteTypeMDP}>
+                                                        <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;"><lightning-tile type="media"><div class="slds-text-heading_small">MDP</div></lightning-tile></div>
+                                                        <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;padding-top: 0.5rem;">
+                                                            <lightning-input type="number" name="MDP__c" message-when-step-mismatch={label.NumberErrorMessage} required onchange={handleChangeLeadRequest} id={sectionRequest.Id} label="MDP" value={sectionRequest.MDP__c}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonus__c" message-when-step-mismatch={label.DecimalPlacesErrorMessage} onchange={handleOnChangeInputValue} disabled={sectionRequest.disableNoClaimBonusPerc} id={sectionRequest.Id} label="No Claim Bonus (%)" step="0.000001" min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} value={sectionRequest.NoClaimBonus__c}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonusAmount__c" message-when-step-mismatch={label.NumberErrorMessage} onchange={handleOnChangeInputValue} disabled={sectionRequest.disableNoClaimBonusAmount} id={sectionRequest.Id} label="No Claim Bonus (Amount)" value={sectionRequest.NoClaimBonusAmount__c}></lightning-input>
+                                                            <lightning-input type="number" name="CededPremium__c" disabled id={sectionRequest.Id} message-when-step-mismatch={label.NumberErrorMessage} label="Ceded Premium" value={sectionRequest.CededPremium__c}></lightning-input>
+                                                        </div>
+                                                    </template>
+                                                    <template if:true={sectionRequest.isQuoteTypeVariableRate}>
+                                                        <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;"><lightning-tile type="media"><div class="slds-text-heading_small">Variable rate</div></lightning-tile></div>
+                                                        <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;padding-top: 0.5rem;">
+                                                            <lightning-input type="number" name="MinRate__c" onchange={handleChangeLeadRequest} required class={sectionRequest.MinRate__cEmpty} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Min. Rate (%)" value={sectionRequest.MinRate__c}></lightning-input>
+                                                            <lightning-input type="number" name="MaxRate__c" required class={sectionRequest.MaxRate__cEmpty} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Max. Rate (%)" value={sectionRequest.MaxRate__c}></lightning-input>
+                                                            <lightning-input type="number" name="ProvisionalRate__c" required class={sectionRequest.ProvisionalRate__cEmpty} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Provisional Rate (%)" value={sectionRequest.ProvisionalRate__c}></lightning-input>
+                                                            <lightning-input type="number" name="Adjustment__c" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="100" message-when-range-underflow={label.minHundredErrorMessage} id={sectionRequest.Id} label="Adjustment (%)" value={sectionRequest.Adjustment__c}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonus__c" onchange={handleOnChangeInputValue} disabled={sectionRequest.disableNoClaimBonusPerc} id={sectionRequest.Id} label="No Claim Bonus (%)" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} value={sectionRequest.NoClaimBonus__c}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonusAmount__c" message-when-step-mismatch={label.NumberErrorMessage} onchange={handleOnChangeInputValue} disabled={sectionRequest.disableNoClaimBonusAmount} id={sectionRequest.Id} label="No Claim Bonus (Amount)" value={sectionRequest.NoClaimBonusAmount__c}></lightning-input>
+                                                            <lightning-input type="number" name="CededPremium__c" message-when-step-mismatch={label.NumberErrorMessage} disabled id={sectionRequest.Id} label="Ceded Premium" value={sectionRequest.CededPremium__c}></lightning-input>
+                                                            <lightning-input type="number" name="MDP__c" message-when-step-mismatch={label.NumberErrorMessage} disabled={sectionRequest.disableMDP} onchange={handleOnChangeInputValue} id={sectionRequest.Id} label="MDP" value={sectionRequest.MDP__c}></lightning-input>
+                                                            <lightning-input type="number" name="DepoPremium__c" message-when-step-mismatch={label.NumberErrorMessage} disabled={sectionRequest.disableDepoPremium} onchange={handleOnChangeInputValue} id={sectionRequest.Id} label="Depo. Premium" value={sectionRequest.DepoPremium__c}></lightning-input>
+                                                            <lightning-input type="number" name="MinPremium__c" message-when-step-mismatch={label.NumberErrorMessage} onchange={handleOnChangeInputValue} disabled={sectionRequest.disableMinPremium} id={sectionRequest.Id} label="Min. Premium" value={sectionRequest.MinPremium__c}></lightning-input>
+                                                        </div>
+                                                    </template>
+                                                    <template if:true={sectionRequest.isQuoteTypePerHeadPremium}>
+                                                        <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;"><lightning-tile type="media"><div class="slds-text-heading_small">Per Head Premium</div></lightning-tile></div>
+                                                        <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem">
+                                                            <lightning-input type="number" name="PerHeadPremium__c" onchange={handleChangeLeadRequest} required class={sectionRequest.PerHeadPremium__cEmpty} step="0.01" message-when-step-mismatch={label.twoDpErrorMessage} id={sectionRequest.Id} label="Per Head Premium" value={sectionRequest.PerHeadPremium__c}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonus__c" onchange={handleOnChangeInputValue} disabled={sectionRequest.disableNoClaimBonusPerc} id={sectionRequest.Id} label="No Claim Bonus (%)" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} value={sectionRequest.NoClaimBonus__c}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonusAmount__c" message-when-step-mismatch={label.NumberErrorMessage} onchange={handleOnChangeInputValue} disabled={sectionRequest.disableNoClaimBonusAmount} id={sectionRequest.Id} label="No Claim Bonus (Amount)" value={sectionRequest.NoClaimBonusAmount__c}></lightning-input>
+                                                            <lightning-input type="number" name="CededPremium__c" message-when-step-mismatch={label.NumberErrorMessage} disabled id={sectionRequest.Id} label="Ceded Premium" value={sectionRequest.CededPremium__c}></lightning-input>
+                                                            <lightning-input type="number" name="MDP__c" message-when-step-mismatch={label.NumberErrorMessage} disabled={sectionRequest.disableMDP}  onchange={handleOnChangeInputValue} id={sectionRequest.Id} label="MDP" value={sectionRequest.MDP__c}></lightning-input>
+                                                            <lightning-input type="number" name="DepoPremium__c" message-when-step-mismatch={label.NumberErrorMessage} disabled={sectionRequest.disableDepoPremium} onchange={handleOnChangeInputValue} id={sectionRequest.Id} label="Depo. Premium" value={sectionRequest.DepoPremium__c}></lightning-input>
+                                                            <lightning-input type="number" name="MinPremium__c" message-when-step-mismatch={label.NumberErrorMessage} onchange={handleOnChangeInputValue} disabled={sectionRequest.disableMinPremium} id={sectionRequest.Id} label="Min. Premium" value={sectionRequest.MinPremium__c}></lightning-input>
+                                                        </div>
+                                                    </template>
+                                                    <template if:true={sectionRequest.isQuoteTypePerHeadVariable}>
+                                                        <div style="background-color: #f3f2f2;padding-top:0.5rem;padding-bottom:0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;">
+                                                            <lightning-tile type="media"><div class="slds-text-heading_small">Per Head Variable</div></lightning-tile>
+                                                        </div>
+                                                        <div style="margin-left:0.5rem;margin-right:1rem;margin-top:0.5rem;margin-bottom:0.5rem;padding-top:0.5rem;padding-bottom:0.5rem">
+                                                            <lightning-input type="number" name="MinPerHeadAmount__c" step="0.01" message-when-step-mismatch={label.twoDpErrorMessage} required class={sectionRequest.MinPerHeadAmount__cEmpty} id={sectionRequest.Id} label="Min. Per Head amount" value={sectionRequest.MinPerHeadAmount__c} onchange={handleChangeLeadRequest}></lightning-input>
+                                                            <lightning-input type="number" name="MaxPerHeadAmount__c" onchange={handleChangeLeadRequest} step="0.01" message-when-step-mismatch={label.twoDpErrorMessage} required class={sectionRequest.MaxPerHeadAmount__cEmpty} id={sectionRequest.Id} label="Max. Per Head amount" value={sectionRequest.MaxPerHeadAmount__c}></lightning-input>
+                                                            <lightning-input type="number" name="ProvisionalPerHeadPremium__c" step="0.01" message-when-step-mismatch={label.twoDpErrorMessage} required class={sectionRequest.ProvisionalPerHeadPremium__cEmpty} id={sectionRequest.Id} label="Provisional Per Head Premium" value={sectionRequest.ProvisionalPerHeadPremium__c}></lightning-input>
+                                                            <lightning-input type="number" name="Adjustment__c" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage}  min="100" message-when-range-underflow={label.minHundredErrorMessage} id={sectionRequest.Id} label="Adjustment (%)" value={sectionRequest.Adjustment__c}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonus__c" onchange={handleOnChangeInputValue} disabled={sectionRequest.disableNoClaimBonusPerc} id={sectionRequest.Id} label="No Claim Bonus (%)" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} value={sectionRequest.NoClaimBonus__c}></lightning-input>
+                                                            <lightning-input type="number" name="NoClaimBonusAmount__c" message-when-step-mismatch={label.NumberErrorMessage} onchange={handleOnChangeInputValue} disabled={sectionRequest.disableNoClaimBonusAmount} id={sectionRequest.Id} label="No Claim Bonus (Amount)" value={sectionRequest.NoClaimBonusAmount__c}></lightning-input>
+                                                            <lightning-input type="number" name="CededPremium__c" message-when-step-mismatch={label.NumberErrorMessage} disabled id={sectionRequest.Id} label="Ceded Premium" value={sectionRequest.CededPremium__c}></lightning-input>
+                                                            <lightning-input type="number" name="MDP__c" message-when-step-mismatch={label.NumberErrorMessage} disabled={sectionRequest.disableMDP} onchange={handleOnChangeInputValue} id={sectionRequest.Id} label="MDP" value={sectionRequest.MDP__c}></lightning-input>
+                                                            <lightning-input type="number" name="DepoPremium__c" message-when-step-mismatch={label.NumberErrorMessage} disabled={sectionRequest.disableDepoPremium} onchange={handleOnChangeInputValue} id={sectionRequest.Id} label="Depo. Premium" value={sectionRequest.DepoPremium__c}></lightning-input>
+                                                            <lightning-input type="number" name="MinPremium__c" message-when-step-mismatch={label.NumberErrorMessage} onchange={handleOnChangeInputValue} disabled={sectionRequest.disableMinPremium} id={sectionRequest.Id} label="Min. Premium" value={sectionRequest.MinPremium__c}></lightning-input>
+                                                        </div>
+                                                    </template>
+                                                    <template if:true={sectionRequest.isQuoteTypePerHead}>
+                                                        <div style="background-color:#f3f2f2;padding-top:0.5rem;padding-bottom:0.5rem;margin-top:0.5rem;margin-left:0.5rem;margin-right:1rem;"><lightning-tile type="media"><div class="slds-text-heading_small">Per Head</div></lightning-tile></div>
+                                                        <div style="margin-left:0.5rem;margin-right:1rem;margin-top:0.5rem;margin-bottom:0.5rem;padding-top:0.5rem;padding-bottom:0.5rem">
+                                                            <lightning-input type="number" name="PerHeadPremium__c" required class={sectionRequest.PerHeadPremium__cEmpty} id={sectionRequest.Id} label="Per Head Premium" step="0.01" message-when-step-mismatch={label.twoDpErrorMessage} value={sectionRequest.PerHeadPremium__c}></lightning-input>
+                                                            <lightning-input type="number" name="ProfitCommission__c" required class={sectionRequest.ProfitCommission__cEmpty} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Profit Commission (%)" value={sectionRequest.ProfitCommission__c}></lightning-input>
+                                                            <lightning-input type="number" name="LossCarryingForward__c" data-id={sectionRequest.Id} message-when-step-mismatch={label.NumberErrorMessage} id={sectionRequest.Id} label="Loss Carrying Forward" value={sectionRequest.LossCarryingForward__c}></lightning-input><br/>
+                                                            <lightning-input type="number" name="LossCorridorParticipation__c" id={sectionRequest.Id} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} label="Loss Corridor Participation(%)" value={sectionRequest.LossCorridorParticipation__c}></lightning-input>
+                                                            <lightning-input type="number" name="LossCorridorPart__c" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="999" message-when-range-overflow={label.maxThousandErrorMessage} id={sectionRequest.Id} label="Loss Corridor Part (%)" value={sectionRequest.LossCorridorPart__c}></lightning-input>
+                                                            <lightning-input type="number" name="ReinsurerExpenses__c" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} id={sectionRequest.Id} label="Reinsurer Expenses (%)" value={sectionRequest.ReinsurerExpenses__c}></lightning-input>
+                                                        </div>
+                                                    </template>
+                                                </lightning-layout-item>
+                                            </template>
+                                        </template>
+                                        <template if:true={isPhaseTypePlacement}>
+                                            <lightning-layout-item padding="around-small" size="6">
+                                                <c-lwc-28-respond-on-behalf-placement request-obj={sectionRequest} stage="Placement"></c-lwc-28-respond-on-behalf-placement>
+                                            </lightning-layout-item>
+                                        </template>
+                                    </lightning-layout>
+                                    <template if:true={isPhaseTypeQuote}>
+                                        <!--RRA ticket 0925 17112022
+                                        <div class="slds-bordertop slds-borderleft slds-borderright slds-borderbottom" style="margin-left: 0.5rem;margin-right: 0.5rem;">
+                                            <lightning-card title="Historical Exchange" icon-name="standard:product_item">
+                                                <div style="min-height:50px;"><table class="slds-table slds-table_bordered"><tr><th>Version</th><th>Email</th><th>Received Date</th></tr><tr><td>{sectionRequest.Version__c}</td><td>{sectionRequest.LastModifiedBy.Email}</td><td>{sectionRequest.recepDateFormat}</td></tr></table></div>
+                                            </lightning-card>
+                                        </div>-->
+                                    </template>
+                                </template>
+                            </div>
+                        </lightning-accordion-section>
+                    </lightning-accordion><br/>
+                </div>
+            </template>
+            <template if:true={isPhaseTypeLead}>
+                <template if:true={disableLeadPlacementInfo}>
+                    <lightning-layout class="slds-wrap" multiple-rows="true">
+                        <lightning-layout-item padding="around-small" size="12"><lightning-input type="number" name="WrittenShare__c" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} value={treatySectionRequest.parentRequest.WrittenShare__c} disabled label="Written Share"></lightning-input></lightning-layout-item>
+                        <lightning-layout-item padding="around-small" size="12"><lightning-textarea name="CommentsResponse__c" value={treatySectionRequest.parentRequest.CommentsResponse__c} label="Comments" disabled></lightning-textarea></lightning-layout-item>
+                    </lightning-layout>
+
+                    <lightning-layout multiple-rows horizontal-align="center">
+                        <lightning-layout-item size="6"><div class="slds-p-top--medium" style="text-align:center;"><lightning-input label="Accept" name="Accept__c" disabled checked={treatySectionRequest.parentRequest.Accept__c} type="checkbox"></lightning-input></div></lightning-layout-item>
+                    </lightning-layout>
+                </template>
+                <template if:false={disableLeadPlacementInfo}>
+                    <template if:true={treatySectionRequest.parentRequest.disableInfo}>
+                        <lightning-layout class="slds-wrap" multiple-rows="true">
+                            <lightning-layout-item padding="around-small" size="12"><lightning-input type="number" required name="WrittenShare__c" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} class={treatySectionRequest.parentRequest.isWrittenShareEmpty} id={treatySectionRequest.parentRequest.Id} value={treatySectionRequest.parentRequest.WrittenShare__c} label="Written Share"></lightning-input></lightning-layout-item>
+                            <lightning-layout-item padding="around-small" size="12">
+                                <template if:true={treatySectionRequest.parentRequest.doesLeadRequestSetupTimeout}>
+                                    <lightning-textarea name="CommentsResponse__c" id={treatySectionRequest.parentRequest.Id} disabled value={treatySectionRequest.parentRequest.CommentsResponse__c} label="Comments"></lightning-textarea>
+                                </template>
+                                <template if:false={treatySectionRequest.parentRequest.doesLeadRequestSetupTimeout}>
+                                    <lightning-textarea name="CommentsResponse__c" id={treatySectionRequest.parentRequest.Id} disabled={treatySectionRequest.parentRequest.Accept__c} value={treatySectionRequest.parentRequest.CommentsResponse__c} label="Comments"></lightning-textarea>
+                                </template>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        <lightning-layout multiple-rows horizontal-align="center">
+                            <lightning-layout-item size="6">
+                                <div class="slds-p-top--medium" style="text-align:center;">
+                                    <template if:true={treatySectionRequest.parentRequest.doesLeadRequestSetupTimeout}>
+                                        <lightning-input label="Accept" name="Accept__c" id={treatySectionRequest.parentRequest.Id} disabled checked={treatySectionRequest.parentRequest.Accept__c} type="checkbox"></lightning-input>
+                                    </template>
+                                    <template if:false={treatySectionRequest.parentRequest.doesLeadRequestSetupTimeout}>
+                                        <lightning-input label="Accept" name="Accept__c" id={treatySectionRequest.parentRequest.Id} disabled={treatySectionRequest.parentRequest.Accept__c} checked={treatySectionRequest.parentRequest.Accept__c} type="checkbox"></lightning-input>
+                                    </template>
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </template>
+                    <template if:false={treatySectionRequest.parentRequest.disableInfo}>
+                        <lightning-layout class="slds-wrap" multiple-rows="true">
+                            <lightning-layout-item padding="around-small" size="12"><lightning-input type="number" required name="WrittenShare__c" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} class={treatySectionRequest.parentRequest.isWrittenShareEmpty} id={treatySectionRequest.parentRequest.Id} value={treatySectionRequest.parentRequest.WrittenShare__c} label="Written Share"></lightning-input></lightning-layout-item>
+                            <lightning-layout-item padding="around-small" size="12">
+                                <template if:true={isProgRenewedAndIdentical}>
+                                    <lightning-textarea name="CommentsResponse__c" id={treatySectionRequest.parentRequest.Id} value={treatySectionRequest.parentRequest.CommentsResponse__c} label="Comments"></lightning-textarea>
+                                </template>
+                                <template if:false={isProgRenewedAndIdentical}>
+                                </template>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        <lightning-layout multiple-rows horizontal-align="center">
+                            <lightning-layout-item size="6">
+                                <div class="slds-p-top--medium" style="text-align:center;">
+                                    <template if:true={isProgRenewedAndIdentical}>
+                                        <lightning-input label="Accept" name="Accept__c" id={treatySectionRequest.parentRequest.Id} checked={treatySectionRequest.parentRequest.Accept__c} type="checkbox"></lightning-input>
+                                    </template>
+                                    <template if:false={isProgRenewedAndIdentical}>
+                                        <lightning-input label="Accept" name="Accept__c" id={treatySectionRequest.parentRequest.Id} disabled={treatySectionRequest.parentRequest.Accept__c} checked={treatySectionRequest.parentRequest.Accept__c} type="checkbox"></lightning-input>
+                                    </template>
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </template>
+                </template>
+            </template>
+            <template if:true={isPhaseTypePlacement}>
+                <div style="background-color:#f3f2f2;padding-top:0.5rem;padding-bottom:0.5rem;margin-left:0.5rem;margin-right:0.5rem;"><lightning-tile type="media"><div class="slds-text-heading_small">Placement</div></lightning-tile></div>
+                <template if:true={disableLeadPlacementInfo}>
+                    <lightning-layout multiple-rows horizontal-align="center">
+                        <lightning-layout-item size="6" padding="around-small">
+                            <lightning-combobox name="PlacementParticipation__c"  id={treatySectionRequest.parentRequest.Id} label="Placement participation" value={treatySectionRequest.parentRequest.PlacementParticipation__c} placeholder="--None--" options={placementParticipationOpt} disabled></lightning-combobox>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6" padding="around-small">
+                            <lightning-combobox name="ReasonRefusal__cPlacement" disabled id={treatySectionRequest.parentRequest.Id} label="Reason for refusal?" value={treatySectionRequest.parentRequest.ReasonRefusal__c} placeholder="--None--" options={reasonForRefusalOpt}></lightning-combobox>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="12" padding="around-small">
+                            <lightning-input type="number" name="WrittenShare__cPlacement" id={treatySectionRequest.parentRequest.Id} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} disabled value={treatySectionRequest.parentRequest.WrittenShare__c} label="Written Share"></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="12" padding="around-small">
+                            <lightning-textarea name="CommentsResponse__cPlacement" disabled id={treatySectionRequest.parentRequest.Id} value={treatySectionRequest.parentRequest.CommentsResponse__c} label="Comments"></lightning-textarea>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                </template>
+                <template if:false={disableLeadPlacementInfo}>
+                    <template if:true={treatySectionRequest.parentRequest.disableInfo}>
+                        <lightning-layout multiple-rows horizontal-align="center">
+                            <lightning-layout-item size="6" padding="around-small">
+                                <lightning-combobox name="PlacementParticipation__c" id={treatySectionRequest.parentRequest.Id} label="Placement participation" value={treatySectionRequest.parentRequest.PlacementParticipation__c} placeholder="--None--" options={placementParticipationOpt} disabled></lightning-combobox>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="6" padding="around-small">
+                                <lightning-combobox name="ReasonRefusal__cPlacement" disabled id={treatySectionRequest.parentRequest.Id} label="Reason for refusal?" value={treatySectionRequest.parentRequest.ReasonRefusal__c} placeholder="--None--" options={reasonForRefusalOpt}></lightning-combobox>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="12" padding="around-small">
+                                <lightning-input type="number" name="WrittenShare__cPlacement" id={treatySectionRequest.parentRequest.Id} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} disabled value={treatySectionRequest.parentRequest.WrittenShare__c} label="Written Share"></lightning-input>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="12" padding="around-small">
+                                <lightning-textarea name="CommentsResponse__cPlacement" disabled id={treatySectionRequest.parentRequest.Id} value={treatySectionRequest.parentRequest.CommentsResponse__c} label="Comments"></lightning-textarea>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </template>
+                    <template if:false={treatySectionRequest.parentRequest.disableInfo}>
+                        <lightning-layout multiple-rows horizontal-align="center">
+                            <lightning-layout-item size="6" padding="around-small">
+                                <lightning-combobox name="PlacementParticipation__c" onchange={handleChangePlacementRequest} disabled={isProgRenewedAndIdentical} id={treatySectionRequest.parentRequest.Id} label="Placement participation" value={treatySectionRequest.parentRequest.PlacementParticipation__c} placeholder="--None--" options={placementParticipationOpt} required></lightning-combobox>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="6" padding="around-small">
+                                <lightning-combobox name="ReasonRefusal__cPlacement" data-id={treatySectionRequest.parentRequest.reasonForRefusalParentId} class={treatySectionRequest.parentRequest.reasonForRefusalEmpty} disabled={treatySectionRequest.parentRequest.reasonForRefusalDisable} required={treatySectionRequest.parentRequest.reasonForRefusalRequired} id={treatySectionRequest.parentRequest.Id} label="Reason for refusal?" value={treatySectionRequest.parentRequest.ReasonRefusal__c} placeholder="--None--" options={reasonForRefusalOpt}></lightning-combobox>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="12" padding="around-small">
+                                <lightning-input type="number" name="WrittenShare__cPlacement" data-id={treatySectionRequest.parentRequest.writtenShareParentId} step="0.000001" disabled={treatySectionRequest.parentRequest.writtenSharePlacementDisable} message-when-step-mismatch={label.DecimalPlacesErrorMessage} min="0" max="100" message-when-range-overflow={label.maxHundredErrorMessage} class={treatySectionRequest.parentRequest.writtenSharePlacementEmpty} required={treatySectionRequest.parentRequest.writtenSharePlacementRequired} id={treatySectionRequest.parentRequest.Id} value={treatySectionRequest.parentRequest.WrittenShare__c} label="Written Share"></lightning-input>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="12" padding="around-small">
+                                <lightning-textarea name="CommentsResponse__cPlacement" id={treatySectionRequest.parentRequest.Id} value={treatySectionRequest.parentRequest.CommentsResponse__c} label="Comments"></lightning-textarea>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </template>
+                </template>
+                <!--RRA ticket 0925 17112022
+                <div class="slds-bordertop slds-borderleft slds-borderright slds-borderbottom" style="margin-left:0.5rem;margin-right:0.5rem;">
+                    <lightning-card title="Historical Exchange" icon-name="standard:product_item">
+                        <div style="min-height:50px;"><table class="slds-table slds-table_bordered"><tr><th>Version</th><th>Email</th><th>Received Date</th></tr><tr><td>{treatySectionRequest.parentRequest.Version__c}</td><td>{treatySectionRequest.parentRequest.LastModifiedBy.Email}</td><td>{treatySectionRequest.parentRequest.recepDateFormat}</td></tr></table></div>
+                    </lightning-card>
+                </div>-->
+            </template>
+        </div>
+    </template>
+    <div style="float:right;" class="slds-p-top--large">
+        <!-- AMI 130722: W-0949 Portal -Quote / Placement - Ajout d'un bouton "refuse all" -->
+        
+        <!--RRA - ticket 1541 and 1573-->
+        <template if:true={isPhaseTypeQuote}>
+                    <legend class="slds-form-element__legend slds-form-element__label slds-text-heading_small slds-var-m-bottom_xx-small">Quote Validity</legend>
+                    <lightning-input type="date" variant="label-hidden" name="quoteDeadline" max={maxDate} value={quoteDeadline} onchange={handleChangeQuoteDeadline} message-when-bad-input="Your entry does not match the allowed format DD MM YYYY."></lightning-input>
+        </template>
+        <br/>
+        <template if:true={showRefuseAllModal}>
+            <lightning-button class="slds-p-around--xxx-small" variant="destructive" label="Refuse All" slot="actions" disabled={disableSaveBtn} onclick={showRefuseAllHandler}></lightning-button>
+        </template>
+        <lightning-button class="slds-p-around--xxx-small" label="Cancel" slot="actions" onclick={handleCloseModal}></lightning-button>
+        <template if:true={activeAcc}>
+            <template if:true={disableLeadPlacementInfo}>
+                <lightning-button class="slds-p-around--xxx-small" variant="brand" label="Save" slot="actions" disabled={disableLeadPlacementInfo} onclick={handleSave}></lightning-button>
+            </template>
+            <template if:false={disableLeadPlacementInfo}>
+                <lightning-button class="slds-p-around--xxx-small" variant="brand" label="Save" slot="actions" disabled={disableSaveBtn} onclick={handleSave}></lightning-button>
+            </template>
+        </template>
+        <br/>
+    </div>
+    <br/><br/><br/>
+    <template if:true={displaySpinner}>
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </template>
+
+    <!-- AMI 130722: W-0949 Portal -Quote / Placement - Ajout d'un bouton "refuse all" Confirmation Modal for Refuse All -->
+    <template if:true={showRefuseAll}>
+        <c-lwc-29-Refuse-All-Confirmation-Modal refusal-options={reasonForRefusalOpt} 
+                all-requests={lstAllRequestSection}
+                section-req={lstSectionRequestByTreatyId}
+                phase={phaseStatus}
+                onclosecomponent={handleCloseModal}>
+        </c-lwc-29-Refuse-All-Confirmation-Modal>
+    </template>
+</template>

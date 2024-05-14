@@ -1,0 +1,11 @@
+.dualListboxCmp .slds-dueling-list > .slds-dueling-list__column {
+    display: none ;
+}
+
+.dualListboxCmp .slds-dueling-list > .slds-dueling-list__column ~ .slds-dueling-list__column {
+    display: block ;
+}
+
+.dualListboxCmp .slds-dueling-list .slds-dueling-list__column:nth-of-type(2) {
+    display: none;
+}

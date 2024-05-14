@@ -1,0 +1,503 @@
+<template>
+    <!--RRA - ticket 1381 - 16122022-->
+    <template if:true={spinnerPlacementRequest}>
+        <div class="">
+            <lightning-spinner variant="brand" size="medium" class="slds-align_absolute-center"></lightning-spinner>
+        </div>
+    </template>
+
+
+    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+        <lightning-tile type="media">
+            <div class="slds-text-heading_small">Brokers / Reinsurers</div>
+        </lightning-tile>
+    </div>
+
+    <lightning-layout multiple-rows>
+        <lightning-layout-item padding="around-small" size="6">
+            <lightning-combobox name="treaty"
+                                label="Treaty"
+                                value={valueTreaty}
+                                options={treatyOptions}
+                                onchange={handleChangeTreaty}
+                                placeholder="--None--">
+            </lightning-combobox>
+        </lightning-layout-item>
+
+        <lightning-layout-item padding="around-small" size="6">
+            <div class="slds-form-element">
+                <div class="slds-form-element__control">
+                    <div class="slds-combobox_container">
+                        <div class={txtBrokerLookupClassName} data-id="resultBox" aria-expanded="false" aria-haspopup="listbox" role="combobox">
+                            <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon slds-input-has-icon_left-right" role="none" style="padding-bottom: 8.5px;padding-right: 8px;">
+                                <div>
+                                    <span class="slds-icon_container slds-input__icon">
+                                        <lightning-icon class="slds-icon slds-icon slds-icon_small slds-align-middle slds-m-top_xxx-small slds-icon-text-default" icon-name="standard:account" size="small" alternative-text="icon" ></lightning-icon>
+                                    </span>
+                                </div>
+                                <lightning-input data-id="userinput" value={selectedBrokerText} label="Broker" name="selectedBrokerText" onchange={searchBrokerLookUpField} class="leftspace"></lightning-input>
+                                <span class="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_right iconheight">
+                                    <lightning-icon class="slds-icon slds-icon slds-icon_small slds-icon-text-default slds-align-middle slds-m-top_xx-small" icon-name="utility:search" size="x-small" alternative-text="icon" ></lightning-icon>
+                                </span>
+                            </div>
+
+                            <!-- Second part display result -->
+                            <div id="listbox-id-2" class="slds-dropdown slds-dropdown_length-with-icon-7 slds-dropdown_fluid" role="listbox">
+                                <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                    <template for:each={searchBrokerLookupRecords} for:item="record">
+                                        <li role="presentation" class="slds-listbox__item" key={record.recId}>
+                                            <div data-id={record.recId} data-name={record.recName} onclick={setSelectedBrokerLookupRecord} class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                                                <span class="slds-media__figure">
+                                                    <span class="slds-icon_container slds-icon-standard-account slds-align-middle">
+                                                        <lightning-icon icon-name="standard:account" class="slds-icon slds-icon slds-icon_small slds-icon-text-default" size="small"></lightning-icon>
+                                                    </span>
+                                                </span>
+                                                <span class="slds-media__body">
+                                                    <span class="slds-listbox__option-text slds-listbox__option-text_entity">{record.recName}</span>
+                                                    <span class="slds-listbox__option-meta slds-listbox__option-meta_entity">{objectName} • {record.recName}</span>
+                                                </span>
+                                            </div>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+                            <div if:true={messageFlag}>
+                                No result found.
+                            </div>
+                            <div if:true={loadingText}>
+                                Loading...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </lightning-layout-item>
+    </lightning-layout>
+
+    <br/>
+    <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-around_small">
+        <lightning-card title={titleCountFollower} icon-name="standard:contact">
+            <lightning-button-group slot="actions">
+                <lightning-button label='New' onclick={handleOpenNewFollowerModal} disabled={isTreatyNull}></lightning-button>
+                <lightning-button label='Load From Quote' onclick={loadFromQuoteBtn} disabled={isTreatyNull}></lightning-button>
+                <template if:true={isProgRenewedStandRene}>
+                    <lightning-button label={loadFromPrevYrTitle} onclick={loadFromPrevYearBtn}></lightning-button>
+                </template>
+                <lightning-button label='Delete' onclick={handleDeleteLeaderBtn}></lightning-button>
+            </lightning-button-group>
+
+            <div style="min-height: 100px;">
+                <table class="slds-table slds-table_bordered">
+                    <tr>
+                        <th></th>
+                        <th>Treaty</th>
+                        <th>Broker</th>
+                        <th>Reinsurer</th>
+                    </tr>
+
+                    <template for:each={lstLeader} for:item="leader">
+                        <tr key={leader.TreatyBrokerReinsurer} id={leader.TreatyBrokerReinsurer} class="slds-p-around--xxx-small">
+                            <td><lightning-input label="" name={leader.TreatyBrokerReinsurer} type="checkbox" onchange={handleChangeLeaderCheckbox}></lightning-input></td>
+                            <td>{leader.TECH_TreatyName__c}</td>
+                            <td>{leader.TECH_BrokerName__c}</td>
+                            <td>{leader.TECH_ReinsurerName__c}</td>
+                        </tr>
+                    </template>
+                </table>
+            </div>
+        </lightning-card>
+    </div>
+
+    <br/>
+       <template for:each={lstSectionRequestRetainToLead} for:item='section'>
+        <div key={section.Id}>
+            <lightning-accordion allow-multiple-sections-open="true">
+                <lightning-accordion-section name={section.Name} label={section.Name} class="collapsible_bg">
+                    <div style="background-color: #FFFFFF; margin-left: -1rem;margin-right:-1rem;padding-top: 1rem;padding-bottom: -1.5rem;">
+                        <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-left: 1rem;margin-right: 1rem;">
+                            <lightning-tile type="media">
+                                <div class="slds-text-heading_small">Price Structure Details</div>
+                            </lightning-tile>
+                        </div>
+
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item padding="around-small" size="6">
+                                <template if:true={section.isTreatyTypeQS}>
+                                    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 1rem;margin-right: 0.5rem;">
+                                        <lightning-tile type="media">
+                                            <div class="slds-text-heading_small">Quota Share Section</div>
+                                        </lightning-tile>
+                                    </div>
+                                    <div style="margin-left: 1rem;margin-right: 0.5rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem;">
+                                        <lightning-combobox name="Currency" label="Currency" value={section.Currency__c} placeholder="--None--" options={currencyOpt} disabled></lightning-combobox>
+                                        <lightning-input type="number" name="CapacityPerRisk" label="Capacity (per risk)" value={section.CapacityPerRisk__c} disabled></lightning-input><br/>
+                                        <lightning-input name="Unlimited" checked={section.Unlimited__c} type="checkbox" label="Or Unlimited" disabled></lightning-input>
+                                        <lightning-input type="number" name="EvenLimit" label="Event Limit" value={section.EventLimit__c} disabled></lightning-input>
+                                        <lightning-input type="number" name="CessionPerc" label="Cession (%)" value={section.Cession_Perc__c} disabled></lightning-input>
+                                        <lightning-input type="number" name="RetentionPerc" label="Retention (%)" value={section.Retention__c} disabled></lightning-input>
+                                        <lightning-input type="number" name="CessionAmount" label="Cession (amount)" value={section.CessionAmount__c} disabled></lightning-input>
+                                        <lightning-input type="number" name="RetensionAmount" label="Retension (amount)" value={section.RetentionAmount__c} disabled></lightning-input>
+                                        <lightning-input type="text" name="TotalEPI" label="Total EPI" value={section.TotalEPI__c} disabled></lightning-input>
+                                        <lightning-combobox name="Nature" label="Nature" value={section.Nature__c} placeholder="--None--" options={natureOpt} disabled></lightning-combobox>
+                                    </div>
+
+                                </template>
+
+                                <template if:true={section.isTreatyTypeSurplus}>
+                                    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 1rem;margin-right: 0.5rem;">
+                                        <lightning-tile type="media">
+                                            <div class="slds-text-heading_small">Surplus Section</div>
+                                        </lightning-tile>
+                                    </div>
+                                    <div style="margin-left: 1rem;margin-right: 0.5rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem;">
+                                        <lightning-combobox name="Currency" label="Currency" value={section.Currency__c} placeholder="--None--" options={currencyOpt} disabled></lightning-combobox>
+                                        <lightning-input type="number" name="LineAmount" label="Line (amount)" value={section.LineAmount__c} disabled></lightning-input>
+                                        <lightning-input type="number" name="EvenLimit" label="Event Limit" value={section.EventLimit__c} disabled></lightning-input>
+                                        <lightning-input type="number" name="CededLine" label="Ceded Line(s)" value={section.CededLines__c} disabled></lightning-input>
+                                        <lightning-input type="number" name="RetentionLine" label="Retention (line)" value={section.RetentionLine__c} disabled></lightning-input>
+                                        <lightning-input type="number" name="CessionAmount" label="Cession (amount)" value={section.CessionAmount__c} disabled></lightning-input>
+                                        <lightning-input type="number" name="RetensionAmount" label="Retension (amount)" value={section.RetentionAmount__c} disabled></lightning-input>
+                                        <lightning-input type="number" name="Capacity" label="Capacity" value={section.Capacity__c} disabled></lightning-input>
+                                        <lightning-input type="text" name="TotalEPI" label="Total EPI" value={section.TotalEPI__c} disabled></lightning-input>
+                                        <lightning-combobox name="Nature" label="Nature" value={section.Nature__c} placeholder="--None--" options={natureOpt} disabled></lightning-combobox>
+                                    </div>
+                                </template>
+
+                                <template if:true={section.isTreatyTypeXL}>
+                                    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 1rem;margin-right: 0.5rem;">
+                                        <lightning-tile type="media">
+                                            <div class="slds-text-heading_small">Excess of Loss Section</div>
+                                        </lightning-tile>
+                                    </div>
+                                    <div style="margin-left: 1rem;margin-right: 0.5rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem;">
+                                        <lightning-combobox name="Currency" label="Currency" value={section.Currency__c} placeholder="--None--" options={currencyOpt} disabled></lightning-combobox>
+                                        <lightning-input type="number" name="Limit" label="Limit" value={section.Limit__c} disabled></lightning-input><br/>
+                                        <lightning-input name="Unlimited" checked={section.Unlimited__c} type="checkbox" label="Or Unlimited" disabled></lightning-input>
+                                        <lightning-input type="number" name="Deductible" label="Deductible" value={section.Deductible__c} disabled></lightning-input>
+                                        <lightning-input type="number" name="AAD" label="AAD" value={section.AAD__c} disabled></lightning-input>
+                                        <lightning-input type="number" name="AAL" label="AAL" value={section.AAL__c} disabled></lightning-input>
+                                        <template if:true={section.LTAProgramYes}>
+                                            <lightning-input type="number" name="TAL" label="TAL" value={section.TAL__c} disabled></lightning-input>
+                                        </template>
+                                        <br/>
+                                        <lightning-input type="text" name="Reinstatements" label= "Reinstatements" value={section.ReinstatementStr} disabled></lightning-input>
+                                        <lightning-input type="number" name="AAL" label="AAL" value={section.AAL__c} disabled></lightning-input>
+                                        <br/>
+                                        <lightning-formatted-text value="Free and Unlimited"></lightning-formatted-text>
+                                        <lightning-input type="number" name="SearchMDPPerc" label="Search MDP (%)" value={section.ExpectedMDP__c} disabled></lightning-input>
+                                        <lightning-input type="number" name="SearchDepoPremiumPerc" label="Search Depo. Premium (%)" value={section.ExpectedDP__c} disabled></lightning-input>
+                                        <lightning-input type="number" name="SearchMinPremiumPerc" label="Search Min. Premium (%)" value={section.ExpectedMP__c} disabled></lightning-input>
+                                        <lightning-input type="text" name="TotalEPI" label="Total EPI" value={section.TotalEPI__c} disabled></lightning-input>
+                                        <lightning-combobox name="Nature" label="Nature" value={section.Nature__c} placeholder="--None--" options={natureOpt} disabled></lightning-combobox>
+                                    </div>
+                                </template>
+
+                                <template if:true={section.isTreatyTypeSL}>
+                                    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 1rem;margin-right: 0.5rem;">
+                                        <lightning-tile type="media">
+                                            <div class="slds-text-heading_small">Stop Loss Section</div>
+                                        </lightning-tile>
+                                    </div>
+                                    <div style="margin-left: 1rem;margin-right: 0.5rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem;">
+                                        <lightning-combobox name="Currency" label="Currency" value={section.Currency__c} placeholder="--None--" options={currencyOpt} disabled></lightning-combobox>
+                                        <lightning-input type="number" name="LimitPerc" label="Limit (%)" value={section.LimitPercent__c} disabled></lightning-input>
+                                        <lightning-input type="number" name="DeductiblePerc" label="Deductible (%)" value={section.DeductiblePercent__c} disabled></lightning-input>
+                                        <lightning-input type="number" name="MaxLimitAmount" label="Max. Limit Amount" value={section.MaxLimitAmount__c} disabled></lightning-input><br/>
+                                        <lightning-input name="Unlimited" checked={section.Unlimited__c} type="checkbox" label="Or Unlimited" disabled></lightning-input>
+                                        <lightning-input type="number" name="MinLimitAmount" label="Min. Limit Amount" value={section.MinLimitAmount__c} disabled></lightning-input>
+                                        <template if:true={section.LTAProgramYes}>
+                                            <lightning-input type="number" name="TAL" label="TAL" value={section.TAL__c} disabled></lightning-input>
+                                        </template>
+                                        <lightning-input type="number" name="SearchMDPPerc" label="Search MDP (%)" value={section.ExpectedMDP__c} disabled></lightning-input>
+                                        <lightning-input type="number" name="SearchDepoPremiumPerc" label="Search Depo. Premium (%)" value={section.ExpectedDP__c} disabled></lightning-input>
+                                        <lightning-input type="number" name="SearchMinPremiumPerc" label="Search Min. Premium (%)" value={section.ExpectedMP__c} disabled></lightning-input>
+                                        <lightning-input type="text" name="TotalEPI" label="Total EPI" value={section.TotalEPI__c} disabled></lightning-input>
+                                        <lightning-combobox name="Nature" label="Nature" value={section.Nature__c} placeholder="--None--" options={natureOpt} disabled></lightning-combobox>
+                                    </div>
+                                </template>
+
+                            </lightning-layout-item>
+
+                            <lightning-layout-item padding="around-small" size="6">
+                                <template if:true={section.isQuoteTypeFlatCommission}>
+                                    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;">
+                                        <lightning-tile type="media">
+                                            <div class="slds-text-heading_small">Quotes - Flat commission</div>
+                                        </lightning-tile>
+                                    </div>
+                                    <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem">
+                                        <lightning-input type="number" name="FixedCommission__c" id={section.Id} label="Fixed Commission (%)" value={section.request.FixedCommission__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="ProfitCommission__c" id={section.Id} label="Profit Commission (%)" value={section.request.ProfitCommission__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="ReinsurerExpenses__c" id={section.Id} label="Reinsurer Expenses (%)" value={section.request.ReinsurerExpenses__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="LossCarryingForward__c" id={section.Id} label="Loss Carrying Forward" value={section.request.LossCarryingForward__c} onchange={handleOnChangeInputValue}></lightning-input><br/>
+                                        <lightning-input name="OrUnlimited__c" id={section.Id} checked={section.request.OrUnlimited__c} type="checkbox" label="Or Unlimited" onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="LossCorridorPart__c" id={section.Id} label="Loss Corridor Part (%)" value={section.request.LossCorridorPart__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="LossCorridorMinLR__c" id={section.Id} label="Loss Corridor Min. L/R (%)" value={section.request.LossCorridorMinLR__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="LossCorridorMaxLR__c" id={section.Id} label="Loss Corridor Max. L/R (%)" value={section.request.LossCorridorMaxLR__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="NoClaimBonus__c" id={section.Id} label="No Claim Bonus (%)" value={section.request.NoClaimBonus__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="OverridingCommission__c" id={section.Id} label="Overriding Commission (%)" value={section.request.OverridingCommission__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="CededPremium__c" id={section.Id} label="Ceded Premium" value={section.request.CededPremium__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                    </div>
+                                </template>
+
+                                <template if:true={section.isQuoteTypeVariableCommission}>
+                                    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;">
+                                        <lightning-tile type="media">
+                                            <div class="slds-text-heading_small">Quotes - Variable commission</div>
+                                        </lightning-tile>
+                                    </div>
+                                    <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem">
+                                        <lightning-input type="number" name="ProvisionalCommission__c" id={section.Id} label="Provisional Commission (%)" value={section.request.ProvisionalCommission__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="MinVarCommission__c" id={section.Id} label="Min. Var. Commission (%)" value={section.request.MinVarCommission__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="MaxVarCommission__c" id={section.Id} label="Max. Var. Commission (%)" value={section.request.MaxVarCommission__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="MinLR__c" id={section.Id} label="Min. L/R (%)" value={section.request.MinLR__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="MaxLR__c" id={section.Id} label="Max. L/R (%)" value={section.request.MaxLR__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="ProfitCommission__c" id={section.Id} label="Profit Commission (%)" value={section.request.ProfitCommission__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="ReinsurerExpenses__c" id={section.Id} label="Reinsurer Expenses (%)" value={section.request.ReinsurerExpenses__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="LossCarryingForward__c" id={section.Id} label="Loss Carrying Forward" value={section.request.LossCarryingForward__c} onchange={handleOnChangeInputValue}></lightning-input><br/>
+                                        <lightning-input name="OrUnlimited__c" id={section.Id} checked={section.request.OrUnlimited__c} type="checkbox" label="Or Unlimited" onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="LossCorridorPart__c" id={section.Id} label="Loss Corridor Part (%)" value={section.request.LossCorridorPart__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="LossCorridorMinLR__c" id={section.Id} label="Loss Corridor Min. L/R (%)" value={section.request.LossCorridorMinLR__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="LossCorridorMaxLR__c" id={section.Id} label="Loss Corridor Max. L/R (%)" value={section.request.LossCorridorMaxLR__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="NoClaimBonus__c" id={section.Id} label="No Claim Bonus (%)" value={section.request.NoClaimBonus__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="OverridingCommission__c" id={section.Id} label="Overriding Commission (%)" value={section.request.OverridingCommission__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="CededPremium__c" id={section.Id} label="Ceded Premium" value={section.request.CededPremium__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                    </div>
+                                </template>
+
+                                <template if:true={section.isQuoteTypeRiskPremiumBasis}>
+                                    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;">
+                                        <lightning-tile type="media">
+                                            <div class="slds-text-heading_small">Proportional - Risk Premium Basis</div>
+                                        </lightning-tile>
+                                    </div>
+                                    <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem">
+                                        <lightning-input type="number" name="EstimatedReinsurancePremium__c" id={section.Id} label="Estimated Reinsurance Premium" value={section.request.EstimatedReinsurancePremium__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="EstimatedInsurancePremium__c" id={section.Id} label="Estimated Insurance Premium (100% basis)" value={section.request.EstimatedInsurancePremium__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="OverridingCommission__c" id={section.Id} label="Overriding Commission (%)" value={section.request.OverridingCommission__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="ProfitCommission__c" id={section.Id} label="Profit Commission (%)" value={section.request.ProfitCommission__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="ReinsurerExpenses__c" id={section.Id} label="Reinsurer Expenses (%)" value={section.request.ReinsurerExpenses__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="LossCarryingForward__c" id={section.Id} label="Loss Carrying Forward" value={section.request.LossCarryingForward__c} onchange={handleOnChangeInputValue}></lightning-input><br/>
+                                        <lightning-input name="OrUnlimited__c" id={section.Id} checked={section.request.OrUnlimited__c} type="checkbox" label="Or Unlimited" onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="CededPremium__c" id={section.Id} label="Ceded Premium" value={section.request.CededPremium__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                    </div>
+                                </template>
+
+                                <template if:true={section.isQuoteTypeFixedRate}>
+                                    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;">
+                                        <lightning-tile type="media">
+                                            <div class="slds-text-heading_small">Quotes - Fixed Rate</div>
+                                        </lightning-tile>
+                                    </div>
+                                    <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem">
+                                        <lightning-input type="number" name="FixedRate__c" id={section.Id} label="Fixed Rate (%)" value={section.request.FixedRate__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="NoClaimBonus__c" id={section.Id} label="No Claim Bonus (%)" value={section.request.NoClaimBonus__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="NoClaimBonusAmount__c" id={section.Id} label="No Claim Bonus (amount)" value={section.request.NoClaimBonusAmount__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="CededPremium__c" id={section.Id} label="Ceded Premium" value={section.request.CededPremium__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="MDP__c" id={section.Id} label="MDP" value={section.request.MDP__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="DepoPremium__c" id={section.Id} label="Depo. Premium" value={section.request.DepoPremium__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="MinPremium__c" id={section.Id} label="Min. Premium" value={section.request.MinPremium__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                    </div>
+                                </template>
+
+                                <template if:true={section.isQuoteTypeFlatPremium}>
+                                    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;">
+                                        <lightning-tile type="media">
+                                            <div class="slds-text-heading_small">Quotes - Flat Premium</div>
+                                        </lightning-tile>
+                                    </div>
+                                    <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem">
+                                        <lightning-input type="number" name="FlatPremium__c" id={section.Id} label="Flat Premium" value={section.request.FlatPremium__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="NoClaimBonus__c" id={section.Id} label="No Claim Bonus (%)" value={section.request.NoClaimBonus__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="NoClaimBonusAmount__c" id={section.Id} label="No Claim Bonus (amount)" value={section.request.NoClaimBonusAmount__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="CededPremium__c" id={section.Id} label="Ceded Premium" value={section.request.CededPremium__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                    </div>
+                                </template>
+
+                                <template if:true={section.isQuoteTypeMDP}>
+                                    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;">
+                                        <lightning-tile type="media">
+                                            <div class="slds-text-heading_small">Quotes - MDP</div>
+                                        </lightning-tile>
+                                    </div>
+                                    <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem">
+                                        <lightning-input type="number" name="MDP__c" id={section.Id} label="MDP" value={section.request.MDP__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="NoClaimBonus__c" id={section.Id} label="No Claim Bonus (%)" value={section.request.NoClaimBonus__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="NoClaimBonusAmount__c" id={section.Id} label="No Claim Bonus (amount)" value={section.request.NoClaimBonusAmount__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="CededPremium__c" id={section.Id} label="Ceded Premium" value={section.request.CededPremium__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                    </div>
+                                </template>
+
+                                <template if:true={section.isQuoteTypeVariableRate}>
+                                    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;">
+                                        <lightning-tile type="media">
+                                            <div class="slds-text-heading_small">Quotes - Variable rate</div>
+                                        </lightning-tile>
+                                    </div>
+                                    <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem">
+                                        <lightning-input type="number" name="MinRate__c" id={section.Id} label="Min. Rate (%)" value={section.request.MinRate__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="MaxRate__c" id={section.Id} label="Max. Rate (%)" value={section.request.MaxRate__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="ProvisionalRate__c" id={section.Id} label="Provisional Rate (%)" value={section.request.ProvisionalRate__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="Adjustment__c" id={section.Id} label="Adjustment (%)" value={section.request.Adjustment__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="NoClaimBonus__c" id={section.Id} label="No Claim Bonus (%)" value={section.request.NoClaimBonus__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="NoClaimBonusAmount__c" id={section.Id} label="No Claim Bonus (amount)" value={section.request.NoClaimBonusAmount__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="CededPremium__c" id={section.Id} label="Ceded Premium" value={section.request.CededPremium__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="MDP__c" id={section.Id} label="MDP" value={section.request.MDP__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="DepoPremium__c" id={section.Id} label="Depo. Premium" value={section.request.DepoPremium__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="MinPremium__c" id={section.Id} label="Min. Premium" value={section.request.MinPremium__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                    </div>
+                                </template>
+
+                                <template if:true={section.isQuoteTypePerHeadPremium}>
+                                    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;">
+                                        <lightning-tile type="media">
+                                            <div class="slds-text-heading_small">Quotes - Variable rate</div>
+                                        </lightning-tile>
+                                    </div>
+                                    <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem">
+                                        <lightning-input type="number" name="PerHeadPremium__c" id={section.Id} label="Per Head Premium" value={section.request.PerHeadPremium__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="NoClaimBonus__c" id={section.Id} label="No Claim Bonus (%)" value={section.request.NoClaimBonus__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="NoClaimBonusAmount__c" id={section.Id} label="No Claim Bonus (amount)" value={section.request.NoClaimBonusAmount__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="CededPremium__c" id={section.Id} label="Ceded Premium" value={section.request.CededPremium__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="MDP__c" id={section.Id} label="MDP" value={section.request.MDP__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="DepoPremium__c" id={section.Id} label="Depo. Premium" value={section.request.DepoPremium__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="MinPremium__c" id={section.Id} label="Min. Premium" value={section.request.MinPremium__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                    </div>
+                                </template>
+
+                                <template if:true={section.isQuoteTypePerHeadVariable}>
+                                    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;margin-left: 0.5rem;margin-right: 1rem;">
+                                        <lightning-tile type="media">
+                                            <div class="slds-text-heading_small">Quotes - Per Head Variable</div>
+                                        </lightning-tile>
+                                    </div>
+                                    <div style="margin-left: 0.5rem;margin-right: 1rem;margin-top: 0.5rem;margin-bottom: 0.5rem;padding-top: 0.5rem;padding-bottom: 0.5rem">
+                                        <lightning-input type="number" name="MinPerHeadAmount__c" id={section.Id} label="Min. Per Head amount" value={section.request.MinPerHeadAmount__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="MaxPerHeadAmount__c" id={section.Id} label="Max. Per Head amount" value={section.request.MaxPerHeadAmount__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="ProvisionalPerHeadPremium__c" id={section.Id} label="Provisional Per Head Premium" value={section.request.ProvisionalPerHeadPremium__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="Adjustment__c" id={section.Id} label="Adjustment (%)" value={section.request.Adjustment__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="NoClaimBonus__c" id={section.Id} label="No Claim Bonus (%)" value={section.request.NoClaimBonus__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="NoClaimBonusAmount__c" id={section.Id} label="No Claim Bonus (amount)" value={section.request.NoClaimBonusAmount__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="CededPremium__c" id={section.Id} label="Ceded Premium" value={section.request.CededPremium__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="MDP__c" id={section.Id} label="MDP" value={section.request.MDP__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="DepoPremium__c" id={section.Id} label="Depo. Premium" value={section.request.DepoPremium__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                        <lightning-input type="number" name="MinPremium__c" id={section.Id} label="Min. Premium" value={section.request.MinPremium__c} onchange={handleOnChangeInputValue}></lightning-input>
+                                    </div>
+                                </template>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </div>
+                </lightning-accordion-section>
+            </lightning-accordion>
+            <br/>
+        </div>
+    </template>
+    <br/>
+
+    <lightning-button class="slds-float--right slds-p-left--small" variant="brand" label="Save" slot="actions" onclick={handleSavePlacementRequest} disabled={disableLeaderSaveBtn}></lightning-button>
+    <lightning-button class="slds-float--right" label="Cancel" slot="actions" onclick={handleCloseNewPlacementRequestModal}></lightning-button>
+
+    <template if:true={isNewFollowerOpenModal}>
+        <div class="demo-only">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-02" aria-modal="true" aria-describedby="modal-content-id-2" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 60%; max-width: 70rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseNewLeaderModal}>
+                            <lightning-icon icon-name="utility:close" size="medium"></lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-heading-02" class="slds-text-heading_medium slds-hyphenate">New Leader</h2>
+                    </header>
+                    <div style="background-color: #f3f2f2;">
+                        <br/>
+                        <lightning-tile type="media">
+                            <div class="slds-text-heading_small">Search for Reinsurers</div>
+                        </lightning-tile>
+                        <br/>
+                    </div>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-2">
+                        <div style="height: 200px;">
+                            <c-lwc-22-new-request-leader prog-id={programId} phase-type="Placement" value-treaty={valueTreaty} treaty-options={treatyOptions} lst-leader-reinsurer-old={lstLeader} broker-id={selectedBrokerId}></c-lwc-22-new-request-leader>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+
+    <template if:true={isOpenConfirmation}>
+        <div>
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-01" aria-modal="true" aria-describedby="modal-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 50%; max-width: 65rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseConfirmationModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-01" class="slds-text-heading_medium slds-hyphenate">Save Lead Request</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-id-1">
+                        You are going to lose the previous Treaty informations. Do you want to save the Lead Requests before continue?
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button-group>
+                            <lightning-button label="Accept" onclick={acceptSavePlacementRequestBeforeTreatyChange}></lightning-button>
+                            <lightning-button label="Cancel" onclick={handleCloseConfirmationModal}></lightning-button>
+                        </lightning-button-group>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+
+    <template if:true={isLoadFromQuoteModalOpen}>
+        <div>
+            <!--RRA - ticket 1299 18112022-->
+            <template if:true={spinnerLoadPreviousYear}>
+                <div class="">
+                    <lightning-spinner variant="brand" size="small" class="slds-align_absolute-center"></lightning-spinner>
+                </div>
+            </template>
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-02" aria-modal="true" aria-describedby="modal-id-2" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 50%; max-width: 65rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseLoadFromQuoteModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-02" class="slds-text-heading_medium slds-hyphenate">
+                            {titleLoadFromQuotePrevYr}
+                        </h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-id-2">
+                        <!--Pop up body-->
+                        <template if:false={isLoadFromQuote}>
+                            <div class='slds-text-color_error'>Only active Broker/Reinsurer pairs are displayed</div>
+                            <br/>
+                        </template>
+                        Select Broker(s) / Reinsurer(s) to query
+                        <lightning-datatable key-field="selectedBrokerReinsurer"
+                                             data={dataLoadFromQuote}
+                                             columns={columnsLoadFromQuote}>
+                        </lightning-datatable>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button-group>
+                            <lightning-button label="Load" variant="brand" onclick={handleLoadPopUp}></lightning-button>
+                            <lightning-button label="Cancel" onclick={handleCloseLoadFromQuoteModal}></lightning-button>
+                        </lightning-button-group>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+
+</template>

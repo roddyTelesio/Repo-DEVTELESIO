@@ -1,0 +1,21 @@
+<template>
+    <div class="slds-theme_default">
+        <div style="">
+            <ul class="slds-path__nav" role="listbox" aria-orientation="horizontal">
+                <template if:true={picklistValues}>
+                    <template for:each={picklistValues} for:item="item">
+                        <li data-value={item.pItem.value} key={item.pItem.value} class={item.classList} role="presentation">
+                            <a data-value={item.pItem.value} onclick={handleSelect} aria-selected="true" class="slds-path__link" id={item.pItem.value} role="option"
+                               tabindex="0">
+                            <span class="slds-path__stage">
+                                <lightning-icon icon-name="utility:check" alternative-text="Warning!" variant="inverse" size="x-small"></lightning-icon>
+                            </span>
+                                <span class="slds-path__title">{item.pItem.label}</span>
+                            </a>
+                        </li>
+                    </template>
+                </template>
+            </ul>
+        </div>
+    </div>
+</template>

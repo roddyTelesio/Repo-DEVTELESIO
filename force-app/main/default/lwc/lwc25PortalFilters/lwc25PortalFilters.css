@@ -1,0 +1,15 @@
+/**
+ * Created by Naushine on 2/24/2020.
+ */
+ 
+ .slds-dropdown-trigger_click .slds-dropdown {
+    height: 1549px;
+}
+ 
+.THIS .slds-modal__content{
+    overflow: initial;
+}
+
+.THIS .slds-listbox {
+    z-index: 9002; 
+}

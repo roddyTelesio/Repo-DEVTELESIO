@@ -1,0 +1,159 @@
+<template>
+    <div class="slds-grid slds-gutters">
+        <div class="slds-col slds-size_3-of-12">
+            <lightning-combobox name="uwYear"
+                    label="Underwriting Year"
+                    value={selectedUwYear}
+                    placeholder="Select Underwriting Year"
+                    options={uwYearOpt}
+                    onchange={handleChangeUWYr}
+                    ></lightning-combobox>
+        </div>
+        <div class="slds-col slds-size_3-of-12">
+            <lightning-combobox name="company"
+                                            label={label.PrincipalCedingCompany}
+                                            value={selectedComp}
+                                            options={cedingAccOpt}
+                                            onchange={handleChangeCedingComp}></lightning-combobox>
+        </div>
+        <div class="slds-col slds-size_3-of-12"></div>
+        <div class="slds-col slds-size_3-of-12"></div>
+        
+    </div>
+
+    
+
+    <div class="slds-grid slds-gutters">
+        
+
+        <div class="slds-col slds-size_12-of-12">
+
+           
+                <lightning-card title="">
+                    <div class="slds-m-around_medium">
+                        <!-- <lightning-input 
+                            type="search" 
+                            onchange={handleKeyChange} 
+                            class="slds-m-bottom_small"           
+                            label="Search" 
+                            value={searchKey}>
+                        </lightning-input> -->
+                        
+                        <lightning-datatable 
+                            data-id="table" 
+                            key-field="Id" 
+                            data={data} 
+                            columns={columns} 
+                            sorted-by={sortedBy}
+                            sorted-direction={sortedDirection} 
+                            onrowselection ={onRowSelection} 
+                            selected-rows={allSelectedRows}
+                            onrowaction={handleRowAction} 
+                            onsort={sortColumns}>
+                       </lightning-datatable>
+                       </br>
+            
+                        <lightning-layout horizontal-align="space">
+                            <lightning-layout-item flexibility="auto">
+                                <lightning-button 
+                                    label="Previous" 
+                                    icon-name="utility:chevronleft" 
+                                    onclick={previousHandler}>
+                                </lightning-button>
+                            </lightning-layout-item>
+                            <lightning-layout-item flexibility="auto">
+                                Page {page} of {totalPage}
+                            </lightning-layout-item>
+                            <lightning-layout-item flexibility="auto">
+                                <lightning-button 
+                                    label="Next" 
+                                    icon-name="utility:chevronright" 
+                                    icon-position="right"
+                                    onclick={nextHandler}>
+                                </lightning-button>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </div>
+                </lightning-card>
+        </div>
+    </div>
+
+    <template if:true={isModalOpen}>
+        <!-- Modal/Popup Box LWC starts here -->
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <!-- Modal/Popup Box LWC header here -->
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closeModal}>
+                        <lightning-icon icon-name="utility:close"
+                            alternative-text="close"
+                            variant="inverse"
+                            size="small" ></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Refresh Excel</h2>
+                </header>
+                <!-- Modal/Popup Box LWC body starts here -->
+                <div class="slds-modal__content slds-p-around_medium modal-resized" id="modal-content-id-1">
+
+
+                    <div class="slds-align_absolute-center">
+                        <lightning-file-upload
+                            label="Click on the button below to refresh your quotation table"
+                            name="fileUploader"
+                            accept={acceptedFormats}
+                            record-id={myRecordId}
+                            onuploadfinished={handleUploadFinished}
+                            disabled={fileUploaded}
+                        >
+                        </lightning-file-upload>
+
+                    </div>
+                        
+                    
+                    
+
+                    <!-- <p> {fileUploaded} </p> -->
+
+                    <!-- <div class="exampleHolder">
+                        <lightning-spinner alternative-text="Excel Refresh In Progress" size="large"></lightning-spinner>
+                    </div> -->
+                    <template if:true={fileUploaded}>
+
+                        <div class="slds-align_absolute-center slds-p-top_xx-small">
+                            <p class="slds-p-horizontal_small">File Uploaded :
+                                <lightning-icon icon-name="doctype:excel" alternative-text="Excel file" title="Excel"></lightning-icon>
+                                {uploadedFile.name}
+                            </p> 
+                            <br />
+                            
+                        </div>
+
+                        <div class="slds-align_absolute-center slds-p-top_xx-small">
+                            <button class="slds-button slds-button_brand" title="Export" onclick={handleExportRefresh}>Export Excel</button>
+                        </div>
+                    </template>
+                    
+                    
+                </div>
+                <!-- Modal/Popup Box LWC footer starts here -->
+                <footer class="slds-modal__footer">
+                    <button class="slds-button slds-button_neutral" onclick={closeModal} title="Cancel">Cancel</button>
+                    <button class="slds-button slds-button_brand" onclick={handleAddTab} title="OK">OK</button>
+                </footer>
+            </div>
+
+            <template if:true={loading}>
+                <div class="slds-p-around_x-large">
+                    <lightning-spinner alternative-text="Loading" size="large" variant="brand"></lightning-spinner>
+                </div>
+            </template>
+            
+        </section>
+        
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    
+
+</template>

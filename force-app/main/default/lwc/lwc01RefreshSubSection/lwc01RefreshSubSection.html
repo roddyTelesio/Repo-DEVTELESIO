@@ -1,0 +1,10 @@
+<template>
+    <!-- loader -->
+
+    <div if:true={isLoading}>
+        <lightning-spinner
+            alternative-text="Loading..." variant="brand" class="slds-is-fixed">
+        </lightning-spinner>
+    </div>
+    <lightning-button-icon icon-name="utility:refresh" variant="brand-outline" class="slds-m-left_xx-small" alternative-text="refresh number SubSection" label="Refresh" onclick={refreshComponent}></lightning-button-icon>
+</template>

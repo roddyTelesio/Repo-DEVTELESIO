@@ -1,0 +1,347 @@
+<template>
+    <c-lwc-01-working-scope selected-comp={principleCedComp} selected-year={uwYear} is-modal-open="true"></c-lwc-01-working-scope>
+
+    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+        <lightning-tile type="media">
+            <div class="slds-text-heading_small">Program</div>
+        </lightning-tile>
+    </div>
+    <lightning-layout>
+        <lightning-layout-item padding="around-small" size="6">
+            <lightning-combobox name="year"
+                                label="Program"
+                                value={program}
+                                options={programOpt}
+                                disabled>
+            </lightning-combobox>
+        </lightning-layout-item>
+        <lightning-layout-item padding="around-small" size="6">
+        </lightning-layout-item>
+    </lightning-layout>
+
+    <template if:false={isRemindBtnClick}>
+        <lightning-layout>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="date" name="expectedAnsDate" data-id="expectedAnswerDate" value={expectedAnsDateValue} onchange={handleOnChangeExpectedAnsDate} required label="Expected Answer Date"></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+            </lightning-layout-item>
+        </lightning-layout>
+    </template>
+
+    <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small">
+        <lightning-card title="Apply To" icon-name="standard:calibration"> <br/>
+            <div style="height:200px;">
+                <template if:true={displayQuoteColumns}>
+                    <lightning-datatable
+                            key-field="id"
+                            data={selectedDataRequest}
+                            columns={columnsQuoteRequest}
+                            hide-checkbox-column="true">
+                    </lightning-datatable>
+                </template>
+                <template if:true={displayLeadSigningColumns}>
+                    <lightning-datatable
+                            key-field="id"
+                            data={applyToDataRequest}
+                            columns={columnsLeadSigningRequest}
+                            hide-checkbox-column="true">
+                    </lightning-datatable>
+                </template>
+                <template if:true={displayPlacementSendColumns}>
+                    <lightning-datatable
+                            key-field="Id"
+                            data={selectedDataRequest}
+                            columns={columnsPlacementRequestSend}
+                            suppress-bottom-bar="true"
+                            oncellchange={handlePlacementDataTableChange}
+                            hide-checkbox-column="true">
+                    </lightning-datatable>
+                </template>
+                <template if:true={displayPlacementUpdateRemindColumns}>
+                    <lightning-datatable
+                            key-field="id"
+                            data={selectedDataRequest}
+                            columns={columnsPlacementRequestUpdateRemind}
+                            hide-checkbox-column="true">
+                    </lightning-datatable>
+                </template>
+            </div>
+        </lightning-card>
+    </div>
+    <br/>
+
+    <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small">
+        <lightning-card title="Contacts" icon-name="standard:contact"> <br/>
+            <div style="height:200px;">
+                <lightning-datatable
+                        key-field="Id"
+                        data={dataContact}
+                        columns={columnsContact}
+                        selected-rows={preSelectedContact}
+                        onrowselection={getContactSelected}> <!--hide-checkbox-column="true" RRA - 955 --> 
+                </lightning-datatable>
+            </div>
+        </lightning-card>
+    </div>
+    <br/>
+    <!--SAU-->
+    <template if:true={displayPools}>
+        <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small">
+            <lightning-card title={poolTitle} icon-name="standard:contact">
+                <lightning-layout>
+                    <table class="slds-table slds-table_bordered slds-m-around--small">
+                        <tr class="slds-p-around--xxx-small">
+                            <th><b>Pool Name</b></th>
+                            <th><b>Assigned</b></th>
+                        </tr>
+                        <template for:each={lstPoolsData} for:item="pool">
+                            <tr class="slds-p-around--xxx-small" key={pool.Id} id={pool.Id}>
+                                <td>{pool.Name}</td>
+                                <td style="padding-bottom:20px;">
+                                    <lightning-combobox id={pool.Id}  name="Email" label="" placeholder="--None--" value={pool.Email} options={lstAssignedUsers} onchange={handleOnChangeEmail} disabled={isRemindBtnClick} required></lightning-combobox>
+                                </td>                           
+                            </tr>
+                        </template>
+                    </table>
+                </lightning-layout>
+            </lightning-card>
+        </div>
+        <br/>
+    </template>
+
+    <template if:false={isRemindBtnClick}>
+        <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small">
+            <lightning-card title="Contractual documents" icon-name="standard:document">
+                <lightning-layout>
+                    <table class="slds-table slds-table_bordered slds-m-around--small">
+                        <tr class="slds-p-around--xxx-small">
+                            <th>Type</th>
+                            <th>Document</th>
+                            <th>Selected B/R</th>
+                            <th>Actions</th>
+                        </tr>
+                        <template for:each={lstContractualDoc} for:item="contractualDoc">
+                            <tr class="slds-p-around--xxx-small" key={contractualDoc.Id} id={contractualDoc.Id}>
+                                <td>{contractualDoc.DocumentType__c}</td>
+                                <td class="wrap-text">{contractualDoc.Title}</td>
+                                <td>{contractualDoc.selectedBRLength}</td>
+                                <td>
+                                    <div class="slds-p-around--x-small">
+                                        <lightning-button name={contractualDoc} class="slds-p-around--xxx-small" icon-name="utility:multi_select_checkbox" label="Select" slot="actions" onclick={handleOpenSelectModal}></lightning-button>
+                                        <lightning-button name={contractualDoc} class="slds-p-around--xxx-small" icon-name="utility:add" label="Select All" slot="actions" onclick={handleOnClickSelectAll}></lightning-button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                    </table>
+                </lightning-layout>
+            </lightning-card>
+        </div>
+        <br/>
+
+        <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small">
+            <lightning-card title="Renewal documents" icon-name="standard:document">
+                <lightning-layout>
+                    <table class="slds-table slds-table_bordered slds-m-around--small">
+                        <tr class="slds-p-around--xxx-small">
+                            <th>Type</th>
+                            <th>Document</th>
+                            <th>Selected B/R</th>
+                            <th>Actions</th>
+                        </tr>
+
+                        <template for:each={lstRenewalDoc} for:item="renewalDoc">
+                            <tr class="slds-p-around--xxx-small" key={renewalDoc.Id} id={renewalDoc.Id}>
+                                <td>{renewalDoc.DocumentType__c}</td>
+                                <td>{renewalDoc.Title}</td>
+                                <td>{renewalDoc.selectedBRLength}</td>
+                                <td>
+                                    <div class="slds-p-around--x-small">
+                                        <lightning-button name={renewalDoc} class="slds-p-around--xxx-small" icon-name="utility:multi_select_checkbox" label="Select" slot="actions" onclick={handleOpenSelectModal}></lightning-button>
+                                        <lightning-button name={renewalDoc} class="slds-p-around--xxx-small" icon-name="utility:add" label="Select All" slot="actions" onclick={handleOnClickSelectAll}></lightning-button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                    </table>
+                </lightning-layout>
+            </lightning-card>
+        </div>
+        <br/>
+
+        <template if:true={isSendBtnClick}>
+            <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small" style="min-height: 200px;">
+                <lightning-card title="Email Template" icon-name="standard:list_email">
+                    <lightning-layout>
+                        <table style="width:100%; table-layout:fixed;" class="slds-m-around--small">
+                            <tr>
+                                <th class="slds-m-around--small slds-p-horizontal_x-small slds-text-align_center">{emailTempLabel1}</th>
+                                <th class="slds-m-around--small slds-p-horizontal_x-small slds-text-align_center">{emailTempLabel2}</th>
+                            </tr>
+                            <tr class="slds-p-around_x-small"> 
+                                <td class="slds-m-around--small slds-p-around_x-small slds-border--top slds-border--left slds-border--right slds-border--bottom" style="vertical-align: baseline; word-wrap:break-word;" width="50%" height="50%">
+                                    <lightning-formatted-rich-text value={emailTemp1} disable-linkify></lightning-formatted-rich-text>
+                                </td>
+                                <td class="slds-m-around--small slds-p-around_x-small slds-border--top slds-border--left slds-border--right slds-border--bottom" style="vertical-align: baseline; word-wrap:break-word;" width="50%" height="50%">
+                                    <lightning-formatted-rich-text value={emailTemp2} disable-linkify></lightning-formatted-rich-text>
+                                </td>
+                            </tr>
+                            <template if:true={displayFourEmailTemp}>
+                                <tr>
+                                    <th class="slds-m-around--small slds-p-horizontal_x-small slds-text-align_center"><br/>{emailTempLabel3}</th>
+                                    <th class="slds-m-around--small slds-p-horizontal_x-small slds-text-align_center"><br/>{emailTempLabel4}</th>
+                                </tr>
+                                <tr class="slds-p-around_x-small"> 
+                                    <td class="slds-m-around--small slds-p-around_x-small slds-border--top slds-border--left slds-border--right slds-border--bottom" style="vertical-align: baseline; word-wrap:break-word;" width="50%" height="50%">
+                                        <lightning-formatted-rich-text value={emailTemp3} disable-linkify></lightning-formatted-rich-text>
+                                    </td>
+                                    <td class="slds-m-around--small slds-p-around_x-small slds-border--top slds-border--left slds-border--right slds-border--bottom" style="vertical-align: baseline; word-wrap:break-word;" width="50%" height="50%">
+                                        <lightning-formatted-rich-text value={emailTemp4} disable-linkify></lightning-formatted-rich-text>
+                                    </td>
+                                </tr>
+                            </template>
+                            <template if:true={displayEmailTemp5}>
+                                <tr>
+                                    <th colspan="2" class="slds-m-around--small slds-p-horizontal_x-small slds-text-align_center"><br/>{emailTempLabel5}</th>
+                                </tr>
+                                <tr class="slds-p-around_x-small">
+                                    <td colspan="2" class="slds-m-around--small slds-p-around_x-small slds-border--top slds-border--left slds-border--right slds-border--bottom" style="vertical-align: baseline; word-wrap:break-word;" width="50%" height="50%">
+                                        <lightning-formatted-rich-text value={emailTemp5} disable-linkify></lightning-formatted-rich-text>
+                                    </td>
+                                </tr>
+                            </template>
+                        </table>
+                    </lightning-layout>
+                </lightning-card>
+            </div>
+            <br/>
+        </template>
+    </template>
+
+    <template if:true={isUpdateRemindBtnClick}>
+        <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small" style="min-height: 200px;">
+            <lightning-card title="Email Template" icon-name="standard:list_email">
+                <lightning-layout>
+                    <table style="width:100%; table-layout:fixed;" class="slds-m-around--small">
+                        <template if:true={isSigningEmailTemp}>
+                            <tr>
+                                <th class="slds-m-around--small slds-p-horizontal_x-small slds-text-align_center">{updateRemindTempForBrokReinLabel}</th>
+                                <th class="slds-m-around--small slds-p-horizontal_x-small slds-text-align_center">{updateRemindTempForSignForPoolLabel}</th>
+                            </tr>
+                            <tr class="slds-p-around_x-small">
+                                <td class="slds-m-around--small slds-p-around_x-small slds-border--top slds-border--left slds-border--right slds-border--bottom" style="vertical-align: baseline; word-wrap:break-word;" width="50%" height="50%">
+                                    <lightning-formatted-rich-text value={updateRemindTempForBrokRein} disable-linkify></lightning-formatted-rich-text>
+                                </td>
+                                <td class="slds-m-around--small slds-p-around_x-small slds-border--top slds-border--left slds-border--right slds-border--bottom" style="vertical-align: baseline; word-wrap:break-word;" width="50%" height="50%">
+                                    <lightning-formatted-rich-text value={updateRemindTempForSignForPool} disable-linkify></lightning-formatted-rich-text>
+                                </td>
+                            </tr>
+                        </template>
+                        <template if:false={isSigningEmailTemp}>
+                            <tr>
+                                <th colspan="2" class="slds-m-around--small slds-p-horizontal_x-small slds-text-align_center"><br/>{updateRemindTempForBrokReinLabel}</th>
+                            </tr>
+                            <tr class="slds-p-around_x-small">
+                                <td colspan="2" class="slds-m-around--small slds-p-around_x-small slds-border--top slds-border--left slds-border--right slds-border--bottom" style="vertical-align: baseline; word-wrap:break-word;" width="50%" height="50%">
+                                    <lightning-formatted-rich-text value={updateRemindTempForBrokRein} disable-linkify></lightning-formatted-rich-text>
+                                </td>
+                            </tr>
+                        </template>
+                    </table>
+                </lightning-layout>
+            </lightning-card>
+        </div>
+        <br/>
+    </template>
+
+    <template if:false={isRemindBtnClick}>
+        <lightning-textarea label="Comment" value={commentValue} name="Comment" data-id="comment" onchange={handleOnChangeComment}></lightning-textarea>
+        <br/>
+    </template>
+
+    <div style="float: right;">
+        <lightning-button class="slds-p-around--xxx-small" label="Cancel" slot="actions" onclick={handleCloseSendUpdateRemindReqModal}></lightning-button>
+        <lightning-button class="slds-p-around--xxx-small" variant="brand" label={btnNameLabel} disabled={isContactNull} slot="actions" onclick={handleSendUpdateRemindRequest}></lightning-button>
+        <br/>
+    </div>
+    <br/>
+    <br/>
+
+    <template if:true={isSelectModalOpen}>
+        <div class="demo-only">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseSelectModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Select Brokers/Reinsurers</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <c-lwc-01-working-scope selected-comp={principleCedComp} selected-year={uwYear} is-modal-open="true"></c-lwc-01-working-scope>
+                        <br/>
+
+                        <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small slds-p-around_small" style="height: 80px;">
+                            <div class="slds-text-heading_medium slds-p-bottom--small">Document</div>
+                            <lightning-formatted-text value={selectedDocument.Title}></lightning-formatted-text>
+                        </div>
+                        <br/>
+
+                        <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small">
+                            <lightning-card title="Broker(s) / Reinsurer(s)" icon-name="standard:contact"> <br/>
+                                <lightning-layout>
+                                    <table class="slds-table slds-table_bordered slds-m-around--small">
+                                        <tr class="slds-p-around--xxx-small">
+                                            <th></th>
+                                            <th>Broker</th>
+                                            <th>Reinsurer</th>
+                                        </tr>
+
+                                        <template for:each={dataBrokerReinsurer} for:item="brokerReins">
+                                            <tr class="slds-p-around--xxx-small" key={brokerReins.Id} id={brokerReins.Id}>
+                                                <td><lightning-input label="" name={brokerReins} checked={brokerReins.isChecked} disabled={brokerReins.isDisabled} type="checkbox" onchange={handleChangeBrokerReinsurerCheckbox}></lightning-input></td>
+                                                <td>{brokerReins.TECH_BrokerName__c}</td>
+                                                <td>{brokerReins.TECH_ReinsurerName__c}</td>
+                                            </tr>
+                                        </template>
+                                    </table>
+                                </lightning-layout>
+                            </lightning-card>
+                        </div>
+                        <br/>
+
+                        <div style="float: right;">
+                            <lightning-button class="slds-p-around--xxx-small" label="Cancel" slot="actions" onclick={handleCloseSelectModal}></lightning-button>
+                            <lightning-button class="slds-p-around--xxx-small" variant="brand" label="Save" slot="actions" onclick={handleSaveBrokerReins}></lightning-button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+    <template if:true={displaySpinner}>
+        <div class="slds-spinner_container">
+            <div role="status" class="slds-spinner slds-spinner_medium slds-spinner_delayed">
+              <span class="slds-assistive-text">Loading...</span>
+              <div class="slds-spinner__dot-a"></div>
+              <div class="slds-spinner__dot-b"></div>
+            </div>
+          </div>
+    </template>
+    <!--MRA W-822 Confirmation Modal 24/08/2022-->
+    <!--MRA W-956 8/9/2022 Transvsersal - Send/Update/Remind - Message prévenant qu'un réassureur n'a pas de contact-->
+    <c-lwc18-Confirmation-Modal title='Confirmation Title'
+                           message={confirmMessage}
+                           confirm-label={confirmLabel}
+                           cancel-label={cancelLabel}
+                           visible={isDialogVisible}
+                           original-message={originalMessage}
+                           name="confirmModal"
+                           onclick={handleConfirmationModal}>
+    </c-lwc18-Confirmation-Modal>
+</template>

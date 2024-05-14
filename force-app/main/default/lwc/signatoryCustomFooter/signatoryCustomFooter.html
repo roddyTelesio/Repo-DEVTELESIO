@@ -1,0 +1,21 @@
+<template>
+    <lightning-card>
+        <!--Add New Contact-->
+        <lightning-button
+            variant="Neutral"
+            label={newContactLabel} 
+            disabled={disableNext} 
+            onclick={handleCreateNewContact}
+            slot="actions">
+        </lightning-button>
+        <!--Next-->
+        <lightning-button 
+            variant="Brand"
+            label={nextLabel} 
+            disabled={disableNext} 
+            onclick={handleNext}
+            slot="actions">
+        </lightning-button>
+    </lightning-card>
+
+</template>

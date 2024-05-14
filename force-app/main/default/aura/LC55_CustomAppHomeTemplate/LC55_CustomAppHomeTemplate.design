@@ -1,0 +1,15 @@
+<design:component label="Custom CRM Tab">
+    <flexipage:template>
+        <flexipage:region name="header" defaultWidth="Large" />
+        <flexipage:region name="column1" defaultWidth="Medium" />
+        <flexipage:region name="column2" defaultWidth="Medium" />
+        <flexipage:region name="column3" defaultWidth="Medium" />
+        <flexipage:region name="column4" defaultWidth="Medium" />
+        <flexipage:region name="row1" defaultWidth="Large" />
+        <flexipage:region name="footer" defaultWidth="Large" />
+    </flexipage:template>
+    <design:supportedFormFactors>
+        <design:supportedFormFactor type="Large" />
+        <design:supportedFormFactor type="Small" />
+    </design:supportedFormFactors>
+</design:component>

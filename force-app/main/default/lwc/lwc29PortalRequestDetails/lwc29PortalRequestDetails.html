@@ -1,0 +1,28 @@
+<template>
+    
+<!--    REQUEST DETAILS PAGE-->
+
+    <template if:true={isEndorsement}>
+        Endorsement Page
+    </template>
+
+    <template if:true={isSigning}>
+       <!--Signing page-->
+       <c-lwc-33-market-submission program-id={valProgramId} reinsurer-id={valReinsurerId} broker-id={valBrokerId} selected-request-id={selectedRequestId}></c-lwc-33-market-submission>
+    </template>
+
+    <template if:true={isPlacement}>
+<!--        Placement Page-->
+        <c-lwc-29-answer-requests program-id={valProgramId} reinsurer-id={valReinsurerId} broker-id={valBrokerId} stage-name={valStageName}></c-lwc-29-answer-requests>
+    </template>
+
+    <template if:true={isLead}>
+<!--        Lead Page-->
+        <c-lwc-29-answer-requests program-id={valProgramId} reinsurer-id={valReinsurerId} broker-id={valBrokerId} stage-name={valStageName}></c-lwc-29-answer-requests>
+    </template>
+
+    <template if:true={isQuote}>
+<!--        Quote Page-->
+        <c-lwc-29-answer-requests program-id={valProgramId} reinsurer-id={valReinsurerId} broker-id={valBrokerId} stage-name={valStageName}></c-lwc-29-answer-requests>
+    </template>
+</template>

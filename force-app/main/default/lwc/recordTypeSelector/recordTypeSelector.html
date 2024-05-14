@@ -1,0 +1,18 @@
+<template>
+    <lightning-card title="Record Type Selection">
+        <div class="slds-p-around_medium">
+            <template if:true={recordTypes}>
+                <lightning-radio-group
+                    name="recordTypeRadio"
+                    label="Select Record Type"
+                    options={radioOptions}
+                    value={selectedRecordType}
+                    onchange={handleRecordTypeChange}
+                ></lightning-radio-group>
+            </template>
+            <template if:true={error}>
+                <p>Error: {error}</p>
+            </template>
+        </div>
+    </lightning-card>
+</template>

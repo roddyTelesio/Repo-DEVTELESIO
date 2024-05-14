@@ -1,0 +1,756 @@
+<!-- LWC01_NewSection -->
+<template>
+    <!-- Working Scope -->
+    <c-lwc-01-working-scope selected-comp={compOpenModal} selected-year={uwYearOpenModal} is-modal-open="true"></c-lwc-01-working-scope>
+
+    <!-- Information About Section -->
+    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+        <lightning-tile type="media">
+            <div class="slds-text-heading_small">Information about Section</div>
+        </lightning-tile>
+    </div>
+    <lightning-layout multiple-rows>
+        <lightning-layout-item padding="around-small" size="6">
+            <lightning-input type="text" name="ProgramName" label="Program Name" value={ProgramName} disabled></lightning-input>
+        </lightning-layout-item>
+        <lightning-layout-item padding="around-small" size="6">
+            <lightning-input type="text" name="TreatyName" label="Treaty Name" value={TreatyName} disabled></lightning-input>
+        </lightning-layout-item>
+
+        <lightning-layout-item padding="around-small" size="6">
+            <lightning-input type="text" name="SectionName" label="Name" value={SectionName} required disabled ></lightning-input>
+        </lightning-layout-item>
+
+        <lightning-layout-item padding="around-small" size="6">
+            <lightning-input type="text" name="SectionNum" label="Section Number" value={sectionNumber} disabled></lightning-input>
+        </lightning-layout-item>
+
+        <lightning-layout-item padding="around-small" size="6">
+            <lightning-combobox name="Option" label="Option" value={Option} placeholder="--None--" options={OptionOpt} disabled></lightning-combobox>
+        </lightning-layout-item>
+        <lightning-layout-item padding="around-small" size="6">
+            <lightning-input type="text" name="RelatedSection" label="Related Section" value={RelatedSection} disabled></lightning-input>
+        </lightning-layout-item>
+
+        <lightning-layout-item padding="around-small" size="6">
+        </lightning-layout-item>
+        <lightning-layout-item padding="around-small" size="6">
+            <lightning-combobox name="Renewed" label={label.RenewedFromSection_Option} value={Renewed} options={lstAllSectionOptions} onchange={handleChangeRenew} disabled></lightning-combobox>
+        </lightning-layout-item>
+
+        <lightning-layout-item padding="around-small" size="6">
+            <lightning-combobox name="LOB" label="L.o.B" value={selectedLOB} placeholder="--None--" disabled options={controllingLOBValues} onchange={handleLOBChange} required></lightning-combobox>
+        </lightning-layout-item>
+        <lightning-layout-item padding="around-small" size="6">
+            <lightning-combobox name="SubLOB" label="Sub L.o.B" data-id="subLOB" required value={selectedSubLOB} placeholder="--None--" options={dependentSubLOBValues} onchange={handleSubLOBChange} disabled></lightning-combobox>
+        </lightning-layout-item>
+
+        <lightning-layout-item padding="around-small" size="6">
+            <lightning-combobox name="Reinsurance" label={label.NonTraditionalReinsurance_FiniteRe} required disabled value={ReinsuranceValue} placeholder="--None--" onchange={handleReinsuranceChange} options={ReinsuranceOpt}></lightning-combobox>
+        </lightning-layout-item>
+    </lightning-layout>
+
+    <!-- Conditions -->
+    <template if:true={displaySection}>
+        <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+            <lightning-tile type="media">
+                <div class="slds-text-heading_small">Conditions</div>
+            </lightning-tile>
+        </div>
+        <lightning-layout multiple-rows>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-combobox name="MethodDistribution" disabled label={label.MethodOfDistribution} value={MethodDistribution} placeholder="--None--" options={MethodDistributionOpt} onchange={handleMethodDistributionChange}></lightning-combobox>
+            </lightning-layout-item>
+        </lightning-layout>
+        <template if:true={isMethodDistributionProrata}>
+            <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom">
+                <lightning-card title={titleCoveredCedingCompaniesProrata} icon-name="standard:account"><br/>
+                    <div style="min-height:200px;">
+                        <table class="slds-table slds-table_bordered">
+                            <tr>
+                                <th></th>
+                                <th>Name</th>
+                                <th style="text-align: center;">EPI</th>
+                                <th style="text-align: center;">Allocation Key</th>
+                            </tr>
+                            <template for:each={dataCedingCompanyProrata} for:item="covCedCom">
+                                <tr key={covCedCom.Id} id={covCedCom.Id} class="slds-p-around--xxx-small">
+                                    <td>
+                                        <lightning-input label="" checked={covCedCom.Checked} id={covCedCom.Id} name='CheckboxProrata' type="checkbox" onchange={handleProrataValueChange}></lightning-input>
+                                    </td>
+                                    <td>{covCedCom.AccountName}</td>
+                                    <td style="padding-bottom:20px;">
+                                        <lightning-input disabled class="alignRight" label="" type="number" onchange={handleProrataValueChange} message-when-step-mismatch={label.NumberErrorMessage} value={covCedCom.EPI} name="EPI" id={covCedCom.Id}></lightning-input>
+                                    </td>
+                                    <td style="padding-bottom:20px;">
+                                        <lightning-input disabled class="alignRight" label="" type="number" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} value={covCedCom.AllocationKeyFloat} name="AllocationKey" id={covCedCom.Id}></lightning-input>
+                                    </td>
+                                </tr>
+                            </template>
+                        </table>
+                    </div>
+                </lightning-card>
+            </div>
+        </template>
+
+        <template if:false={isMethodDistributionProrata}>
+            <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom">
+                <lightning-card title={titleCoveredCedingCompaniesFixedKeys} icon-name="standard:account"><br/>
+                    <div style="min-height:200px;">
+                        <table class="slds-table slds-table_bordered">
+                            <tr>
+                                <th></th>
+                                <th>Name</th>
+                                <th style="text-align: center;">EPI</th>
+                                <th style="text-align: center;">Allocation Key</th>
+                            </tr>
+                            <template for:each={dataCedingCompanyFixedKeys} for:item="covCedComFix">
+                                <tr key={covCedComFix.Id} id={covCedComFix.Id} class="slds-p-around--xxx-small">
+                                    <td>
+                                        <lightning-input label="" checked={covCedComFix.Checked} id={covCedComFix.Id} name='CheckboxFixed' type="checkbox" onchange={handleFixedValueChange}></lightning-input>
+                                    </td>
+                                    <td>{covCedComFix.AccountName}</td>
+                                    <td style="padding-bottom:20px;">
+                                        <lightning-input disabled class="alignRight" label="" type="number" onchange={handleFixedValueChange} value={covCedComFix.EPI} name="EPI" id={covCedComFix.Id}></lightning-input>
+                                    </td>
+                                    <td style="padding-bottom:20px;">
+                                        <lightning-input disabled class="alignRight" label="" type="number" onchange={handleFixedValueChange} step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} value={covCedComFix.AllocationKey} name="AllocationKey" id={covCedComFix.Id}></lightning-input>
+                                    </td>
+                                </tr>
+                            </template>
+                        </table>
+                    </div>
+                </lightning-card>
+            </div>
+        </template>
+
+        <br/>
+        <lightning-layout multiple-rows>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="TotalEPI" label="Total EPI" value={TotalEPIValue} onchange={handleChangeTotalEPI} disabled></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-combobox name="Nature" label="Nature" value={NatureValue} onchange={handleNatureChange} disabled placeholder="--None--" options={NatureOpt} required></lightning-combobox>
+            </lightning-layout-item>
+        </lightning-layout>
+    </template>
+
+    <!-- Pools -->
+    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+        <lightning-tile type="media">
+            <div class="slds-text-heading_small">Pools</div>
+            <template if:true={closePreviousPhasesClick}>
+<!--                <p><lightning-formatted-text value="Pools cannot be modified because Program is in Signing Phase." style="color:red;font-size:x-small;"></lightning-formatted-text></p>-->
+            </template>
+        </lightning-tile>
+    </div>
+    <lightning-layout multiple-rows>
+        <lightning-layout-item padding="around-small" size="12">
+            <lightning-combobox name="IsPooled" label="Pooled" value={isPooled} disabled onchange={handleChangePooledValue} placeholder="--None--" options={PooledOpt}></lightning-combobox>
+        </lightning-layout-item>
+    </lightning-layout>
+
+    <template if:true={PooledValue}>
+
+        <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom">
+            <lightning-card title={titlePool} icon-name="standard:entitlement_process">
+                <div style="min-height:200px;">
+                    <table class="slds-table slds-table_bordered">
+                        <tr>
+                            <th></th>
+                            <th>Name</th>
+                            <th>Pool Share (%)</th>
+                            <th>Pool Share From Treaty Level</th>
+                            <th>EPI Share Ceded to Pool</th>
+                            <th>EPI Ceded to Pool</th>
+                            <th>Sub L.o.B</th>
+                        </tr>
+
+                        <template for:each={lstPools} for:item="pool">
+                            <tr key={pool.Id} id={pool.Id} class="slds-p-around--xxx-small">
+                                <td>
+                                    <template if:true={pool.showPicklist}>
+                                        <lightning-input label="" checked={pool.Checked} name={pool.Id} type="checkbox" disabled onchange={handleChangePoolCheckbox}></lightning-input>
+                                    </template>
+                                    <template if:false={pool.showPicklist}>
+                                    </template>
+                                </td>
+                                <td>{pool.Name}</td>
+                                <template if:true={pool.showPicklist}>
+                                    <template if:true={pool.Checked}>
+                                        <td>{pool.PoolShare}%</td>
+                                    </template>
+                                    <template if:false={pool.Checked}>
+                                        <td></td>
+                                    </template>
+                                </template>
+                                <template if:false={pool.showPicklist}>
+                                    <td></td>
+                                </template>
+                                <template if:true={pool.Checked}>
+                                    <td>{pool.TreatyShareRate__c}%</td>
+                                    <td>{pool.SectionEpiSharedCeded__c}%</td>
+                                    <td style="text-align: right;padding-right: 6vh;">{pool.SectionEpiCededToPool__c}</td>
+                                </template>
+                                <template if:false={pool.Checked}>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </template>
+
+                                <td style="padding-bottom:20px;">
+                                    <template if:true={pool.showPicklist}>
+                                        <template if:true={closePreviousPhasesClick}>
+                                            <lightning-combobox id={pool.Id} label="" placeholder="--None--" value={pool.SubLoB__c} disabled options={subLoBPoolOpt} name="SubLoB__c" onchange={handleChangeSubLoBPool}></lightning-combobox>
+                                        </template>
+                                        <template if:false={closePreviousPhasesClick}>
+                                            <lightning-combobox id={pool.Id} label="" placeholder="--None--" value={pool.SubLoB__c} disabled options={subLoBPoolOpt} name="SubLoB__c" onchange={handleChangeSubLoBPool}></lightning-combobox>
+                                        </template>
+                                    </template>
+                                    <template if:false={pool.showPicklist}>
+                                    </template>
+                                </td>
+                            </tr>
+                        </template>
+                    </table>
+                </div>
+            </lightning-card>
+        </div>
+    </template>
+    <br/>
+
+    <!-- Excess of Loss Section -->
+    <template if:true={isTypeOfTreatyXL}>
+        <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+            <lightning-tile type="media">
+                <div class="slds-text-heading_small">Excess of Loss Section</div>
+            </lightning-tile>
+        </div>
+        <lightning-layout multiple-rows>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-combobox name="LimitType" label="Limit Type" value={LimitTypeValue} placeholder="--None--" required disabled options={LimitTypeOpt}></lightning-combobox>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-combobox name="Currency" label="Currency" value={CurrencyValue} placeholder="--None--" disabled required options={CurrencyOpt}></lightning-combobox>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input name="Unlimited" type="checkbox" checked={UnlimitedValue} label="Unlimited" disabled onchange={handleUnlimitedChange}></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="Limit" data-id="limitXL" label="Limit" disabled required value={LimitValue} message-when-step-mismatch={label.NumberErrorMessage}></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="Deductible" label="Deductible" required disabled value={DeductibleValue} onchange={handleChangeDeductible} message-when-step-mismatch={label.NumberErrorMessage}></lightning-input>
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="AAL" label="AAL" value={AALValue} disabled message-when-step-mismatch={label.NumberErrorMessage}></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="AAD" label="AAD" value={AADValue} disabled message-when-step-mismatch={label.NumberErrorMessage}></lightning-input>
+            </lightning-layout-item>
+
+            <template if:true={showTAL}>
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-input type="number" label={label.TAL} name="TAL" disabled value={TALValue} message-when-step-mismatch={label.NumberErrorMessage}></lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small" size="6">
+                </lightning-layout-item>
+            </template>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="ExpectedMDP" data-id="ExpectedMDP" disabled label={label.ExpectedMDP} min="0" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} value={ExpectedMDPValue} onchange={handleDisableDPandMD} ></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="ExpectedDP" data-id="ExpectedDP" label={label.ExpectedDP} min="0" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} value={ExpectedDPValue} disabled onchange={handleChangeDP}></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="ExpectedMP" data-id="ExpectedMP" label={label.ExpectedMP} min="0" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} value={ExpectedMPValue} disabled onchange={handleChangeMP}></lightning-input>
+            </lightning-layout-item>
+        </lightning-layout>
+    </template>
+
+    <!-- Quota Share Section for QS Only 1966-->
+    <template if:true={isTypeOfTreatyQS}>
+        <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+            <lightning-tile type="media">
+                <div class="slds-text-heading_small">Quota Share Section</div>
+            </lightning-tile>
+        </div>
+        <lightning-layout multiple-rows>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-combobox name="LimitType" label="Limit Type" value={LimitTypeValue} placeholder="--None--" required disabled options={LimitTypeOpt}></lightning-combobox>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-combobox name="Currency" label="Currency" value={CurrencyValue} placeholder="--None--" required disabled options={CurrencyOpt}></lightning-combobox>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input name="Unlimited" checked={UnlimitedValue} type="checkbox" label="Unlimited" disabled onchange={handleUnlimitedChange}></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="CapacityPerRisk" label="Capacity per risk" required value={CapacityPerRiskValue}  message-when-step-mismatch={label.NumberErrorMessage} onchange={changeCapacityRisk} disabled></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="EvenLimit" label="Event Limit" disabled value={EvenLimitValue} message-when-step-mismatch={label.NumberErrorMessage} ></lightning-input>
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="CessionPerc" label="Cession (%)" required disabled value={CessionPercValue} min="0" max="100" step="0.000001" message-when-range-overflow={label.maxHundredErrorMessage} message-when-step-mismatch={label.DecimalPlacesErrorMessage} onchange={changeCessionPerc}></lightning-input>
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="RetentionPerc" required label="Retention (%)" disabled value={RetentionPercValue} min="0" max="100" step="0.000001" message-when-range-overflow={label.maxHundredErrorMessage} message-when-step-mismatch={label.DecimalPlacesErrorMessage} onchange={changeRetentionPerc}></lightning-input>
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="CessionAmount" label="Cession (amount)" required value={CessionAmountValue} message-when-step-mismatch={label.NumberErrorMessage} disabled></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+                <template if:true={unlimitedSelected}>
+                    <lightning-input type="number" name="RetensionAmount" data-id="RetensionAmount" label="Retention (amount)" value={RetensionAmountValue} message-when-step-mismatch={label.NumberErrorMessage} disabled></lightning-input>
+                </template>
+                <template if:false={unlimitedSelected}>
+                    <lightning-input type="number" name="RetensionAmount" data-id="RetensionAmount" disabled label="Retention (amount)" required value={RetensionAmountValue} message-when-step-mismatch={label.NumberErrorMessage}></lightning-input>
+                </template>
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="CededPremium" label="Ceded Premium" value={CededPremiumValue} disabled></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+            </lightning-layout-item>
+        </lightning-layout>
+    </template>
+    
+     <!-- Quota Share Section for AXA XL QC 1966-->
+    <template if:true={isTypeOfTreatyAXAXLQS}>
+        <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+            <lightning-tile type="media">
+                <div class="slds-text-heading_small">Quota Share Section</div>
+            </lightning-tile>
+        </div>
+        <lightning-layout multiple-rows>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-combobox name="LimitType" label="Limit Type" value={LimitTypeValue} placeholder="--None--" required disabled options={LimitTypeOpt}></lightning-combobox>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-combobox name="Currency" label="Currency" value={CurrencyValue} placeholder="--None--" required disabled options={CurrencyOpt}></lightning-combobox>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input name="Unlimited" checked={UnlimitedValue} type="checkbox" label="Unlimited" disabled onchange={handleUnlimitedChange}></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="CapacityPerRisk" label="Capacity per risk" required value={CapacityPerRiskValue}  message-when-step-mismatch={label.NumberErrorMessage} onchange={changeCapacityRisk} disabled></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="EvenLimit" label="Event Limit" disabled value={EvenLimitValue} message-when-step-mismatch={label.NumberErrorMessage} ></lightning-input>
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="CessionPerc" label="Cession (%)" required disabled value={CessionPercValue} min="0" max="100" step="0.000001" message-when-range-overflow={label.maxHundredErrorMessage} message-when-step-mismatch={label.DecimalPlacesErrorMessage} onchange={changeCessionPerc}></lightning-input>
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="RetentionPerc" required label="Retention (%)" disabled value={RetentionPercValue} min="0" max="100" step="0.000001" message-when-range-overflow={label.maxHundredErrorMessage} message-when-step-mismatch={label.DecimalPlacesErrorMessage} onchange={changeRetentionPerc}></lightning-input>
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="CessionAmount" label="Cession (amount)" required value={CessionAmountValue} message-when-step-mismatch={label.NumberErrorMessage} disabled></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+                <template if:true={unlimitedSelected}>
+                    <lightning-input type="number" name="RetensionAmount" data-id="RetensionAmount" label="Retention (amount)" value={RetensionAmountValue} message-when-step-mismatch={label.NumberErrorMessage} disabled></lightning-input>
+                </template>
+                <template if:false={unlimitedSelected}>
+                    <lightning-input type="number" name="RetensionAmount" data-id="RetensionAmount" disabled label="Retention (amount)" required value={RetensionAmountValue} message-when-step-mismatch={label.NumberErrorMessage}></lightning-input>
+                </template>
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="CededPremium" label="Ceded Premium" value={CededPremiumValue} disabled></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+            </lightning-layout-item>
+        </lightning-layout>
+    </template>
+
+    <!-- Surplus Section -->
+    <template if:true={isTypeOfTreatySurplus}>
+        <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+            <lightning-tile type="media">
+                <div class="slds-text-heading_small">Surplus Section</div>
+            </lightning-tile>
+        </div>
+        <lightning-layout multiple-rows>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-combobox name="LimitType" label="Limit Type" value={LimitTypeValue} placeholder="--None--" disabled required options={LimitTypeOpt}></lightning-combobox>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-combobox name="Currency" label="Currency" value={CurrencyValue} disabled placeholder="--None--" required options={CurrencyOpt}></lightning-combobox>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="LineAmount" label="Line (amount)" disabled required value={LineAmountValue} message-when-step-mismatch={label.NumberErrorMessage} onchange={handleChangeLineAmount}></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="EvenLimit" label="Event Limit" value={EvenLimitValue} message-when-step-mismatch={label.NumberErrorMessage}></lightning-input>
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" step="0.000001" disabled message-when-step-mismatch={label.DecimalPlacesErrorMessage} name="CededLine" label="Ceded Line(s)" required value={CededLineValue} onchange={calculateCession}></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="RetentionLine" label="Retention (Line)" disabled required value={RetentionLineValue} message-when-step-mismatch={label.NumberErrorMessage} onchange={calculateRetention}></lightning-input>
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="CessionAmount" label="Cession (amount)" value={CessionAmountValue} message-when-step-mismatch={label.NumberErrorMessage} disabled={disableWhenUnlimited} onchange={calculateCapacity}></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="RetensionAmount" label="Retention (amount)" disabled required value={RetensionAmountValue} message-when-step-mismatch={label.NumberErrorMessage} onchange={calculateCapacity} ></lightning-input>
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="Capacity" label="Capacity" value={CapacityValue} disabled></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+            </lightning-layout-item>
+        </lightning-layout>
+    </template>
+
+    <!-- Stop Loss Section -->
+    <template if:true={isTypeOfTreatyStopLoss}>
+        <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+            <lightning-tile type="media">
+                <div class="slds-text-heading_small">Stop Loss Section</div>
+            </lightning-tile>
+        </div>
+        <lightning-layout multiple-rows>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-combobox name="LimitType" label="Limit Type" disabled value={LimitTypeValue} placeholder="--None--" required options={LimitTypeOpt}></lightning-combobox>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-combobox name="Currency" label="Currency" disabled value={CurrencyValue} placeholder="--None--" required options={CurrencyOpt}></lightning-combobox>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input name="Unlimited" checked={UnlimitedValue} disabled type="checkbox" label="Unlimited" onchange={handleUnlimitedChange}></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <template if:true={unlimitedSelected}>
+                    <lightning-input type="number" name="LimitPerc" data-id="LimitPerc" label="Limit %" value={LimitValue} min="0" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} disabled></lightning-input>
+                </template>
+                <template if:false={unlimitedSelected}>
+                    <lightning-input type="number" name="LimitPerc" disabled data-id="LimitPerc" label="Limit %" required value={LimitValue} min="0" step="0.000001"  onchange={handleOnChangeLimit} message-when-step-mismatch={label.DecimalPlacesErrorMessage} ></lightning-input>
+                </template>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="DeductiblePerc" data-id="deductValue" disabled label="Deductible %" value={DeductibleValue} required min="0" step="0.000001" onchange={handleOnChangeDeduc} message-when-step-mismatch={label.DecimalPlacesErrorMessage} ></lightning-input>
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="MaxLimitAmount" data-id="maxLimit" label="Maximum Limit Amount" value={MaxLimitAmountValue} message-when-step-mismatch={label.NumberErrorMessage} disabled></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="MinLimitAmount" data-id="minLimit" label="Minimum Limit Amount" value={MinLimitAmountValue} message-when-step-mismatch={label.NumberErrorMessage} disabled ></lightning-input>
+            </lightning-layout-item>
+
+            <template if:true={showTAL}>
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-input type="number" label={label.TAL} value={TALValue} disabled name="TAL" message-when-step-mismatch={label.NumberErrorMessage}></lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small" size="6">
+                </lightning-layout-item>
+            </template>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="ExpectedMDP" data-id="ExpectedMDP" min="0" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} label={label.ExpectedMDP} value={ExpectedMDPValue} onchange={handleDisableDPandMD} disabled></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="ExpectedDP" data-id="ExpectedDP" min="0" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} label={label.ExpectedDP} value={ExpectedDPValue} disabled onchange={handleChangeDP} ></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input type="number" name="ExpectedMP" data-id="ExpectedMP" min="0" step="0.000001" message-when-step-mismatch={label.DecimalPlacesErrorMessage} label={label.ExpectedMP} value={ExpectedMPValue} disabled onchange={handleChangeMP}></lightning-input>
+            </lightning-layout-item>
+        </lightning-layout>
+    </template>
+
+
+    <!-- Reinstatements -->
+    <template if:true={isTypeOfTreatyXL}>
+        <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+            <lightning-tile type="media">
+                <div class="slds-text-heading_small">{label.Reinstatement}</div>
+            </lightning-tile>
+        </div>
+        <lightning-layout multiple-rows>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-combobox name="Reinstatements" label={label.Reinstatements} disabled data-id="reinstatements" required value={TypeOfReinstatement} onchange={handleChangeReinstatementValue} placeholder="--None--" options={ReinstatementOpt}></lightning-combobox>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+            </lightning-layout-item>
+        </lightning-layout>
+        <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom">
+            <lightning-card title={titleReinstatement} icon-name="standard:entitlement_process"><br/>
+                <lightning-button-group slot="actions">
+                    <lightning-button label="New" onclick={handleOpenReinstatementsModal} disabled></lightning-button>
+                    <lightning-button label="Delete" onclick={handleDeleteReinstatements} disabled></lightning-button>
+                </lightning-button-group>
+                <div>
+                    <lightning-datatable
+                            key-field="ReinstatementDatatable"
+                            data-id="test"
+                            data={dataReinstatements}
+                            columns={columnsReinstatements}
+                            onrowselection={handleReinstatementsRowSelection}
+                    >
+                    </lightning-datatable>
+                </div>
+            </lightning-card>
+        </div>
+        <br/>
+    </template>
+
+    <template if:true={openNewReinstatementModal}>
+        <div class="demo-only">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseReinstatementsModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">New Reinstatement</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item padding="around-small" size="6">
+                                <lightning-input type="number" name="orderReins" label="Order" value={orderReins} message-when-step-mismatch={label.NumberErrorMessage}></lightning-input>
+                            </lightning-layout-item>
+                            <lightning-layout-item padding="around-small" size="6">
+                                <lightning-input type="number" name="percentageReins" disabled={disablePercentageReins} onchange={handleChangePercentageReins} label="Percentage" value={percentageReins} message-when-step-mismatch={label.NumberErrorMessage}></lightning-input>
+                            </lightning-layout-item>
+                            <lightning-layout-item padding="around-small" size="6">
+                                <lightning-combobox name="prorataReins" label="Prorata" disabled={disableProrataReins} onchange={handleChangeProrataReins} value={prorataReins} placeholder="--None--" options={prorataReinsOpt}></lightning-combobox>
+                            </lightning-layout-item>
+                            <lightning-layout-item padding="around-small" size="6">
+                                <div class="slds-p-around_large">
+                                    <lightning-input type="checkbox" name="Free" label="Free" onchange={handleChangeFreeCheck}></lightning-input>
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+
+                        <div style="float: right;">
+                            <lightning-button class="slds-p-around--xxx-small" label="Cancel" disabled slot="actions" onclick={handleCloseReinstatementsModal}></lightning-button>
+                            <lightning-button class="slds-p-around--xxx-small" variant="brand" disabled label="Add" slot="actions" onclick={handleAddReinstatement}></lightning-button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+
+    <!-- For Reports Purpose -->
+    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem; color: rgb(175, 171, 171);">
+        <lightning-tile type="media">
+            <div class="slds-text-heading_small">For Reports Purpose</div>
+        </lightning-tile>
+    </div>
+    <div style="color:gray;">
+        <lightning-layout multiple-rows>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input name="isLimit" class="textReports" checked={limitFlag} data-id="inRep" type="checkbox" disabled label="Limit"></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-input name="isDeductible" class="textReports" checked={deductibleFlag} data-id="inRep" type="checkbox"  disabled label="Deductible"></lightning-input>
+            </lightning-layout-item>
+        </lightning-layout>
+    </div>
+
+    <!-- Inclusion of Catastrophic Guarantees -->
+    <template if:false={isTechNatureProgramLife}>
+        <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+            <lightning-tile type="media">
+                <div class="slds-text-heading_small">Inclusion of Catastrophic Guarantees</div>
+            </lightning-tile>
+        </div>
+        <lightning-layout multiple-rows>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-combobox name="Inclusion" label="Inclusion of Catastrophic Guarantee" value={isInclusion} disabled onchange={handleChangeInclusionValue} placeholder="--None--" options={InclusionOpt} required></lightning-combobox>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+            </lightning-layout-item>
+
+            <template if:true={InclusionValue}>
+                <!--RRA Projet NEREE : Call Screen Flow -->
+                <lightning-layout-item padding="around-small" size="6">
+                    <c-lwc-01-call-flow-hazard-bassin record-id={recordId}></c-lwc-01-call-flow-hazard-bassin>
+                    </lightning-layout-item>
+                    
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-input name="InEarthquake" checked={InEarthquakeValue} disabled data-id="InEx" type="checkbox" label="Earthquake, volcanic eruption, tidal wave, etc"  onchange={deselectCheckboxAll}></lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-input name="InTerrorism" checked={InTerrorismValue} disabled data-id="InEx" type="checkbox" label="Terrorism" onchange={deselectCheckboxAll}></lightning-input>
+                </lightning-layout-item>
+
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-input name="InFlood" checked={InFloodValue} disabled data-id="InEx" type="checkbox" label="Flood" onchange={deselectCheckboxAll}></lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-input name="InSRCC" checked={InSRCCValue} disabled data-id="InEx" type="checkbox" label="SRCC (strikes, riots, civil, commotion), sabotage, popular uprising" onchange={deselectCheckboxAll}></lightning-input>
+                </lightning-layout-item>
+
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-input name="InHurricane" checked={InHurricaneValue} disabled data-id="InEx" type="checkbox" label="Hurricane, Windstorm, etc" onchange={deselectCheckboxAll}></lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-input name="InOthers" checked={InOthersValue} disabled data-id="InEx" type="checkbox" label="Others" onchange={deselectCheckboxAll}></lightning-input>
+                </lightning-layout-item>
+
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-input name="InOtherRisks" checked={InOtherRisksValue} disabled data-id="InEx" type="checkbox" label="Other risks such as freese, hall, strong wind" onchange={deselectCheckboxAll}></lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-input name="InAll" checked={InAllValue} disabled data-id="InExAll" type="checkbox" label="All" onchange={deselectAllCheckbox}></lightning-input>
+                </lightning-layout-item>
+            </template>
+        </lightning-layout>
+    </template>
+
+
+    <!-- Exclusion of Catastrophic Guarantees -->
+    <template if:true={isTechNatureProgramLife}>
+        <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+            <lightning-tile type="media">
+                <div class="slds-text-heading_small">Exclusion of Catastrophic Guarantees</div>
+            </lightning-tile>
+        </div>
+        <lightning-layout multiple-rows>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-combobox name="Exclusion" label="Exclusion of Catastrophic Guarantee" disabled value={isExclusion} onchange={handleChangeExclusionValue} placeholder="--None--" options={ExclusionOpt} required></lightning-combobox>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+            </lightning-layout-item>
+
+            <template if:true={ExclusionValue}>
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-input name="ExWar" checked={ExWarValue} disabled data-id="InEx" type="checkbox" label="War" onchange={deselectCheckboxAll}></lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-input name="ExNuclearRisks" checked={ExNuclearRisksValue} disabled data-id="InEx" type="checkbox" label="Nuclear Risks" onchange={deselectCheckboxAll}></lightning-input>
+                </lightning-layout-item>
+
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-input name="ExTerrorism" checked={ExTerrorismValue} disabled data-id="InEx" type="checkbox" label="Terrorism" onchange={deselectCheckboxAll}></lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-input name="ExBiological" checked={ExBiologicalValue} disabled data-id="InEx" type="checkbox" label='Biological Chemical Risks' onchange={deselectCheckboxAll}></lightning-input>
+                </lightning-layout-item>
+
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-input name="ExNuclearBiologicalChemical" disabled data-id="InEx" checked={ExNuclearBiologicalChemicalValue} type="checkbox" label="Nuclear, Biological and Chemical Terrorism" onchange={deselectCheckboxAll}></lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-input name="ExOthers" type="checkbox" disabled data-id="InEx" checked={ExOthersValue} label="Others" onchange={deselectCheckboxAll}></lightning-input>
+                </lightning-layout-item>
+
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-input name="ExEpidemicPandemic" disabled data-id="InEx" checked={ExEpidemicPandemicValue} type="checkbox" label="Epidemic and Pandemic Risks" onchange={deselectCheckboxAll}></lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-input name="ExAll" checked={ExAllValue} disabled data-id="InExAll" type="checkbox" label="All" onchange={deselectAllCheckbox}></lightning-input>
+                </lightning-layout-item>
+            </template>
+        </lightning-layout>
+    </template>
+
+    <!-- Comments -->
+    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+        <lightning-tile type="media">
+            <div class="slds-text-heading_small">Comments</div>
+        </lightning-tile>
+    </div>
+    <lightning-layout multiple-rows>
+        <lightning-layout-item padding="around-small" size="12">
+            <lightning-textarea name="Comments" value={CommentsValue} disabled label="Comments"></lightning-textarea>
+        </lightning-layout-item>
+    </lightning-layout>
+
+    <!-- Type of Quotes -->
+    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+        <lightning-tile type="media">
+            <div class="slds-text-heading_small">Type of Quotes</div>
+        </lightning-tile>
+    </div>
+    <lightning-layout multiple-rows>
+        <lightning-layout-item padding="around-small" size="6">
+            <lightning-combobox name="QuoteRequestType" disabled label="Quote Request Type" value={QuoteRequestTypeValue} placeholder="--None--" options={QuoteRequestTypeOpt}></lightning-combobox>
+        </lightning-layout-item>
+    </lightning-layout>
+    <br/>
+    <template if:true={displaySpinner}>
+        <div class="slds-spinner_container">
+            <div role="status" class="slds-spinner slds-spinner_medium slds-spinner_delayed">
+                <span class="slds-assistive-text">Saving...</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </template>
+    <div style="float: right;">
+        <lightning-button class="slds-p-around--xxx-small" label="Cancel" slot="actions" onclick={handleCloseSectionModal}></lightning-button>
+        <lightning-button class="slds-p-around--xxx-small" variant="brand" label="Save" disabled slot="actions" onclick={handleSaveSection}></lightning-button>
+        <br/>
+        <br/>
+    </div>
+</template>

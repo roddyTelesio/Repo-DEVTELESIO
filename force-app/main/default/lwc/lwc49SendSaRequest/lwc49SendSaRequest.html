@@ -1,0 +1,242 @@
+<template>
+    <template if:true={spinnerRequest}>
+        <div class=""><lightning-spinner variant="brand" size="medium" class="slds-align_absolute-center"></lightning-spinner></div>
+    </template>
+    <c-lwc-46-working-scope-special-acceptance value-uw-year={uwYearVal} value-principal-ced-comp={principalCedCompVal}></c-lwc-46-working-scope-special-acceptance>
+    <br/>
+
+    <div class="slds-border_top slds-border_bottom slds-border_right slds-border_left">
+        <lightning-card title="Program">
+            <lightning-layout multiple-rows>
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-input type="text" name="program" label='Program' value={programNameVal} disabled></lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small" size="6">
+                </lightning-layout-item>
+
+                <template if:false={isRemindNotifyBtn}>
+                    <template if:false={isInformCedComBtn}>
+                        <lightning-layout-item padding="around-small" size="6">
+                            <lightning-input type="date" name="expectedAnsDate" value={expectedAnsDateValue} data-id="expectedAnswerDate" onchange={handleOnChangeExpectedAnsDate} required label="Expected Answer Date"></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item padding="around-small" size="6">
+                        </lightning-layout-item>
+                    </template>
+                </template>
+            </lightning-layout>
+        </lightning-card>
+    </div><br/>
+
+    <template if:true={isInformCedComBtn}>
+        <div class="slds-border_top slds-border_bottom slds-border_right slds-border_left">
+            <lightning-card title="Inform Ceding Company">
+                <lightning-layout multiple-rows>
+                    <template if:true={agreedRequest}>
+                    <!-- MRA W-1229 - 12/08/2022 - SA Declaration Type another email template : START-->
+                    <template if:true={isSubmission}>
+                        <lightning-layout-item padding="around-small" size="6">
+                            <lightning-input type="number" name="BindRemainingDays__c" label='Bind Remaining Days' value={selectedSa.BindRemainingDays__c} onchange={handleOnChangeValue}></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item padding="around-small" size="6">
+                            <lightning-input type="date" name="BindExpectedAnswerDate__c" label='Bind Expected Answer Date' value={selectedSa.BindExpectedAnswerDate__c} disabled></lightning-input>
+                        </lightning-layout-item>
+                    </template>
+                      <!-- MRA W-1229 - 12/08/2022 - SA Declaration Type another email template : END-->  
+                        <lightning-layout-item padding="around-small" size="6">
+                            <lightning-input type="number" name="AdditionalPremium__c" label='Additional Premium' value={selectedSa.AdditionalPremium__c} onchange={handleOnChangeValue}></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item padding="around-small" size="6">
+                            <lightning-textarea label="Rationale" name="Rationale__c" value={selectedSa.Rationale__c} onchange={handleOnChangeValue} max-length="1000"></lightning-textarea>
+                        </lightning-layout-item>
+            
+                        <lightning-layout-item padding="around-small" size="6">
+                            <lightning-combobox name="ProposedToFac__c" label='Proposed to fac' value={selectedSa.ProposedToFac__c} placeholder="--None--" options={proposedToFacOption} disabled></lightning-combobox>
+                        </lightning-layout-item>
+                        <lightning-layout-item padding="around-small" size="6">
+                        </lightning-layout-item>
+                    </template>
+                    <template if:true={refusedRequest}>
+                        <lightning-layout-item padding="around-small" size="6">
+                            <lightning-input type="number" name="BindRemainingDays__c" label='Bind Remaining Days' value={selectedSa.BindRemainingDays__c} disabled></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item padding="around-small" size="6">
+                            <lightning-input type="date" name="BindExpectedAnswerDate__c" label='Bind Expected Answer Date' value={selectedSa.BindExpectedAnswerDate__c} disabled></lightning-input>
+                        </lightning-layout-item>
+            
+                        <lightning-layout-item padding="around-small" size="6">
+                            <lightning-input type="number" name="AdditionalPremium__c" label='Additional Premium' value={selectedSa.AdditionalPremium__c} disabled></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item padding="around-small" size="6">
+                            <lightning-textarea label="Rationale" name="Rationale__c" value={selectedSa.Rationale__c} onchange={handleOnChangeValue} max-length="1000"></lightning-textarea>
+                        </lightning-layout-item>
+            
+                        <lightning-layout-item padding="around-small" size="6">
+                            <lightning-combobox name="ProposedToFac__c" label='Proposed to fac' value={selectedSa.ProposedToFac__c} placeholder="--None--" options={proposedToFacOption} onchange={handleOnChangeValue}></lightning-combobox>
+                        </lightning-layout-item>
+                        <lightning-layout-item padding="around-small" size="6">
+                        </lightning-layout-item>
+                    </template>
+                </lightning-layout>
+            </lightning-card>
+        </div><br/>
+    </template>
+
+    <template if:false={isInformCedComBtn}>
+        <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small">
+            <lightning-card title="Apply To" icon-name="standard:calibration"> <br/>
+                <div style="height:200px;">
+                    <lightning-datatable
+                            key-field="id"
+                            data={lstSaApplyToRequest}
+                            columns={columnsSARequest}
+                            hide-checkbox-column="true">
+                    </lightning-datatable>
+                </div>
+            </lightning-card>
+        </div><br/>
+    </template>
+
+    <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small">
+        <template if:true={isInformCedComBtn}>
+            <lightning-card title="Ceding Contacts" icon-name="standard:contact"><br/>
+                <div style="height:200px;">
+                    <lightning-datatable
+                            key-field="Id"
+                            data={dataCovCedContact}
+                            columns={columnsCovCedContact}
+                            selected-rows={preSelectedContact}
+                            onrowselection={getContactSelected}> <!--MRA W-1230 10/08/2022-->
+                    </lightning-datatable>
+                </div>
+            </lightning-card>
+        </template>
+        <template if:false={isInformCedComBtn}>
+            <lightning-card title="Contacts" icon-name="standard:contact"><br/>
+                <div style="height:200px;">
+                    <lightning-datatable
+                            key-field="Id"
+                            data={dataContact}
+                            selected-rows={defaultContactSelection}
+                            columns={columnsContact}
+                            data-id="contactselectionform">
+                    </lightning-datatable>
+                </div>
+            </lightning-card>
+        </template>   
+    </div><br/>
+
+    <template if:false={isNotifyBtn}>
+        <template if:false={isInformCedComBtn}>
+            <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small" style="min-height: 200px;">
+                <lightning-card title={poolTitle} icon-name="standard:contact">
+                    <lightning-layout>
+                        <table class="slds-table slds-table_bordered">
+                            <tr>
+                                <th>Pool Name</th>
+                                <th>Assigned</th>
+                            </tr>
+                            <template for:each={lstPoolsData} for:item="pool">
+                                <tr key={pool.Id} id={pool.Id} class="slds-p-around--xxx-small">
+                                    <td>{pool.Name}</td>
+                                    <td style="padding-bottom:20px;">
+                                        <lightning-input type="text" id={pool.Id} name="Email" value={pool.SA_Email__c} disabled></lightning-input>
+                                    </td>   
+                                </tr>
+                            </template>
+                        </table>
+                    </lightning-layout>
+                </lightning-card>
+            </div><br/>
+        </template>
+    </template>
+
+    <template if:false={isRemindNotifyBtn}>
+        <template if:false={isInformCedComBtn}>
+            <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small" style="min-height: 200px;">
+                <lightning-card title={titleCountDocument} icon-name="standard:account">
+                    <lightning-layout>
+                        <table class="slds-table slds-table_bordered">
+                            <tr>
+                                <th>Name</th>
+                                <th>Nature</th>
+                                <th>Status</th>
+                            </tr>
+                            <template for:each={lstPublicDocument} for:item="doc">
+                                <tr key={doc.Id} id={doc.Id} class="slds-p-around--xxx-small">
+                                    <td><a href={doc.DocumentUrl} target="_blank">{doc.Name}</a></td>
+                                    <td>{doc.Nature__c}</td>
+                                    <td>{doc.Status__c}</td>
+                                </tr>
+                            </template>
+                        </table>
+                    </lightning-layout>
+                </lightning-card>
+            </div><br/>
+        </template>
+    </template>
+
+    <lightning-textarea label="Comment" name="Comment" data-id="comment" value={commentValue} onchange={handleOnChangeComment}></lightning-textarea>
+    <br/>
+
+    <template if:true={sendUpdRemindBtn}>
+        <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small" style="min-height: 200px;">
+            <lightning-card title="Email Template" icon-name="standard:list_email">
+                <lightning-layout>
+                    <table style="width:100%; table-layout:fixed;" class="slds-m-around--small">
+                        <tr>
+                            <th class="slds-m-around--small slds-p-horizontal_x-small slds-text-align_center">Broker email to be sent</th>
+                            <th class="slds-m-around--small slds-p-horizontal_x-small slds-text-align_center">Reinsurer email to be sent</th>
+                            <th class="slds-m-around--small slds-p-horizontal_x-small slds-text-align_center">Pool email to be sent</th>
+                        </tr>
+                        <tr class="slds-p-around_x-small"> 
+                            <td class="slds-m-around--small slds-p-around_x-small slds-border--top slds-border--left slds-border--right slds-border--bottom" style="vertical-align: baseline; word-wrap:break-word;" width="33%" height="33%">
+                                <lightning-formatted-rich-text value={brokerEmailTemplateValue} disable-linkify></lightning-formatted-rich-text>
+                            </td>
+                            <td class="slds-m-around--small slds-p-around_x-small slds-border--top slds-border--left slds-border--right slds-border--bottom" style="vertical-align: baseline; word-wrap:break-word;" width="33%" height="33%">
+                                <lightning-formatted-rich-text value={reinsurerEmailTemplateValue} disable-linkify></lightning-formatted-rich-text>
+                            </td>
+                            <td class="slds-m-around--small slds-p-around_x-small slds-border--top slds-border--left slds-border--right slds-border--bottom" style="vertical-align: baseline; word-wrap:break-word;" width="34%" height="34%">
+                                <lightning-formatted-rich-text value={poolEmailTemplateValue} disable-linkify></lightning-formatted-rich-text>
+                            </td>
+                        </tr>
+                    </table>
+                </lightning-layout>
+            </lightning-card>
+        </div><br/>
+    </template>
+
+    <template if:true={isNotifyInformCedCom}>
+        <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small" style="min-height: 200px;">
+            <lightning-card title="Email Template" icon-name="standard:list_email">
+                <lightning-layout>
+                    <table style="width:100%; table-layout:fixed;" class="slds-m-around--small">
+                        <tr>
+                            <template if:true={isNotifyBtn}>
+                                <th class="slds-m-around--small slds-p-horizontal_x-small slds-text-align_center">Broker email to be sent</th>
+                                <th class="slds-m-around--small slds-p-horizontal_x-small slds-text-align_center">Reinsurer email to be sent</th>
+                            </template>
+                            <template if:true={isInformCedComBtn}>
+                                <th class="slds-m-around--small slds-p-horizontal_x-small slds-text-align_center">Agreed email to be sent</th>
+                                <th class="slds-m-around--small slds-p-horizontal_x-small slds-text-align_center">Refused email to be sent</th>   
+                            </template>
+                        </tr>
+                        <tr class="slds-p-around_x-small"> 
+                            <td class="slds-m-around--small slds-p-around_x-small slds-border--top slds-border--left slds-border--right slds-border--bottom" style="vertical-align: baseline; word-wrap:break-word;" width="50%" height="50%">
+                                <lightning-formatted-rich-text value={brokerEmailTemplateValue} disable-linkify></lightning-formatted-rich-text>
+                            </td>
+                            <td class="slds-m-around--small slds-p-around_x-small slds-border--top slds-border--left slds-border--right slds-border--bottom" style="vertical-align: baseline; word-wrap:break-word;" width="50%" height="50%">
+                                <lightning-formatted-rich-text value={reinsurerEmailTemplateValue} disable-linkify></lightning-formatted-rich-text>
+                            </td>
+                        </tr>
+                    </table>
+                </lightning-layout>
+            </lightning-card>
+        </div><br/>
+    </template>
+
+    <div style="float: right;">
+        <lightning-button class="slds-p-around--xxx-small" label="Cancel" slot="actions" onclick={handleCloseSendUpdateSaReqModal}></lightning-button>
+        <lightning-button class="slds-p-around--xxx-small" label={btnNameLabel} slot="actions" onclick={handleSendUpdateSaRequest} variant="brand" disabled={isContactNull}></lightning-button>
+    </div>
+    <br/><br/>
+</template>

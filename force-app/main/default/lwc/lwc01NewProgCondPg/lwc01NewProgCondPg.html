@@ -1,0 +1,423 @@
+<template>
+    <template if:true={spinner}>
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </template>
+    <!-- Working Scope Section -->
+    <template if:true={allowEditableFields}>
+        <c-lwc-01-working-scope selected-comp={compOpenModal} selected-year={uwYearOpenModal} is-modal-open={falseValue} show-tiles="true" create-prog={allowEditableFields}></c-lwc-01-working-scope>
+    </template>
+    <!-- RRA - ticket 0050 25082023-->
+    <!--<template if:false={allowEditableFields}>
+        <c-lwc-01-working-scope selected-comp={compOpenModal} selected-year={uwYearOpenModal} is-modal-open="true"></c-lwc-01-working-scope>
+    </template>-->
+
+    <!-- Information About Program Section -->
+    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+        <lightning-tile type="media">
+            <div class="slds-text-heading_small">{label.InformationAboutProgram}</div>
+        </lightning-tile>
+    </div>
+    <lightning-layout multiple-rows>
+        <lightning-layout-item padding="around-small" size="12">
+            <template if:true={nameEmpty}>
+                <lightning-input type="text" class="slds-has-error" data-id="ProgramName" name="Name" label={label.Name} value={Name} disabled={allReadOnly} required></lightning-input>
+            </template>
+            <template if:false={nameEmpty}>
+                <lightning-input type="text" name="Name" data-id="ProgramName" label={label.Name} value={Name} disabled={allReadOnly} required></lightning-input>
+            </template>
+        </lightning-layout-item>
+
+        <lightning-layout-item size="12">
+            <div class="slds-p-right--small slds-p-left--small slds-p-top--small">
+                <lightning-input type="text" name="WordingName" value={WordingName1} label={label.WordingName} disabled={allReadOnly} ></lightning-input>
+            </div>
+        </lightning-layout-item>
+
+        <lightning-layout-item size="12">
+            <div class="slds-p-right--small slds-p-left--small">
+                <lightning-input type="text" name="WordingName2" value={WordingName2} disabled={allReadOnly}></lightning-input>
+            </div>
+        </lightning-layout-item>
+
+        <lightning-layout-item size="12">
+            <div class="slds-p-right--small slds-p-left--small">
+                <lightning-input type="text" name="WordingName3" value={WordingName3} disabled={allReadOnly}></lightning-input>
+            </div>
+        </lightning-layout-item>
+
+        <lightning-layout-item size="12">
+            <div class="slds-p-right--small slds-p-left--small slds-p-bottom--small">
+                <lightning-input type="text" name="WordingName4" value={WordingName4} disabled={allReadOnly}></lightning-input>
+            </div>
+        </lightning-layout-item>
+
+        <lightning-layout-item padding="around-small" size="6">
+            <template if:true={disableInceptionDateRenew}>
+                <lightning-input type="date" name="InceptionDate" disabled value={InceptionDate} label={label.InceptionDate}></lightning-input>
+            </template>
+            <template if:false={disableInceptionDateRenew}>
+                <template if:true={inceptionDateEmpty}>
+                    <lightning-input type="date" class="slds-has-error" required name="InceptionDate" disabled={allReadOnly} max={maxDate} value={InceptionDate} label={label.InceptionDate} onchange={handleChangeInceptionDt} message-when-bad-input="Your entry does not match the allowed format DD MM YYYY"></lightning-input>
+                </template>
+                <template if:false={inceptionDateEmpty}>
+                    <lightning-input type="date" required name="InceptionDate" value={InceptionDate} disabled={allReadOnly} max={maxDate} label={label.InceptionDate} onchange={handleChangeInceptionDt} message-when-bad-input="Your entry does not match the allowed format DD MM YYYY"></lightning-input>
+                </template>
+            </template>
+        </lightning-layout-item>
+
+        <lightning-layout-item padding="around-small" size="6">
+            <template if:true={expiryDateEmpty}>
+                <lightning-input type="date" class="slds-has-error" message-when-bad-input="Your entry does not match the allowed format DD MM YYYY" required name="ExpiryDate" max={maxDate} value={Expirydate} disabled={allReadOnly} label={label.ExpiryDate} onchange={handleChangeExpDate}></lightning-input>
+            </template>
+            <template if:false={expiryDateEmpty}>
+                <lightning-input type="date" required name="ExpiryDate" message-when-bad-input="Your entry does not match the allowed format DD MM YYYY" value={Expirydate} max={maxDate} label={label.ExpiryDate} disabled={allReadOnly} onchange={handleChangeExpDate}></lightning-input>
+            </template>
+        </lightning-layout-item>
+
+        <!-- AMI 15/06/22 W:0779
+        control "nature" on program visibility -->
+        <lightning-layout-item padding="around-small" size="6">
+            <template if:true={natureEmpty}>
+                <lightning-combobox name="Nature" class="slds-has-error" label={label.Nature} value={NatureValue} disabled={disableNature} placeholder="--None--" onchange={handleNatureChange} options={controllingNatureValues} required></lightning-combobox>
+            </template>
+            <template if:false={natureEmpty}>
+                <lightning-combobox name="Nature" label={label.Nature} value={NatureValue} placeholder="--None--" onchange={handleNatureChange} disabled={disableNature} options={controllingNatureValues} required></lightning-combobox>
+            </template>
+        </lightning-layout-item>
+        <lightning-layout-item padding="around-small" size="6">
+            <template if:true={lossDepositEmpty}>
+                <lightning-combobox name="LossDeposit" class="slds-has-error" label={label.LossDeposit} value={LossDepositValue} disabled={allReadOnly} placeholder="--None--" options={lossDepositOpt} onchange={lossDepositChange} required></lightning-combobox>
+            </template>
+            <template if:false={lossDepositEmpty}>
+                <lightning-combobox name="LossDeposit" label={label.LossDeposit} value={LossDepositValue} placeholder="--None--" disabled={allReadOnly} options={lossDepositOpt} onchange={lossDepositChange} required></lightning-combobox>
+            </template>
+        </lightning-layout-item>
+
+        <lightning-layout-item padding="around-small" size="6">
+            <template if:true={macroLobEmpty}>
+                <lightning-combobox name="MacroLoB" class="slds-has-error" label={label.MacroLOB} value={MacroLOBValue} disabled={allReadOnly} placeholder="--None--" onchange={handleMLobChange} options={dependentMLobValues} required></lightning-combobox>
+            </template>
+            <template if:false={macroLobEmpty}>
+                <lightning-combobox name="MacroLoB" label={label.MacroLOB} value={MacroLOBValue} placeholder="--None--" disabled={allReadOnly} onchange={handleMLobChange} options={dependentMLobValues} required></lightning-combobox>
+            </template>
+        </lightning-layout-item>
+        <lightning-layout-item padding="around-small" size="6">
+            <template if:true={lossDepositLevelEmpty}>
+                <lightning-combobox name="LossDepositLevel" class="slds-has-error lossDepLevel" label={label.LossDepositLevel} value={LossDepositLevelValue} onchange={handleLossDepLevel} disabled={disabledLossDepoLevel} placeholder="--None--" options={lossDepositLevelOpt} required={lossDeptLevelRequired}></lightning-combobox>
+            </template>
+            <template if:false={lossDepositLevelEmpty}>
+                <lightning-combobox name="LossDepositLevel" label={label.LossDepositLevel} value={LossDepositLevelValue} placeholder="--None--" options={lossDepositLevelOpt} disabled={disabledLossDepoLevel} onchange={handleLossDepLevel} class="lossDepLevel" required={lossDeptLevelRequired}></lightning-combobox>
+            </template>
+        </lightning-layout-item>
+
+        <lightning-layout-item padding="around-small" size="6">
+            <template if:true={stltEmpty}>
+                <lightning-combobox name="STLT" class="slds-has-error" label={label.STLT} value={STLTValue} disabled={allReadOnly} placeholder="--None--" options={stltOpt} required></lightning-combobox>
+            </template>
+            <template if:false={stltEmpty}>
+                <lightning-combobox name="STLT" label={label.STLT} value={STLTValue} placeholder="--None--" disabled={allReadOnly} options={stltOpt} required></lightning-combobox>
+            </template>
+        </lightning-layout-item>
+        <lightning-layout-item padding="around-small" size="6">
+            <template if:false={disabledLossDepoMode}>
+                <template if:true={lossDepositModeEmpty}>
+                    <lightning-dual-listbox name="LossDepositMode"
+                                            label={label.LossDepositMode}
+                                            source-label="Available"
+                                            selected-label="Selected"
+                                            options={lossDepositModeOpt}
+                                            value={LossDepositModeValue}
+                                            required={lossDepModeRequired}
+                                            class="slds-has-error" disabled={disabledLossDepoMode}></lightning-dual-listbox>
+                </template>
+                <template if:false={lossDepositModeEmpty}>
+                    <lightning-dual-listbox name="LossDepositMode"
+                                            label={label.LossDepositMode}
+                                            source-label="Available"
+                                            selected-label="Selected"
+                                            options={lossDepositModeOpt}
+                                            value={LossDepositModeValue}
+                                            required={lossDepModeRequired} disabled={disabledLossDepoMode} class="lossDepMode"></lightning-dual-listbox>
+                </template>
+            </template>
+            <template if:true={disabledLossDepoMode}>
+                <lightning-dual-listbox name="LossDepositMode"
+                label={label.LossDepositMode}
+                source-label="Available"
+                selected-label="Selected"
+                options={lossDepositModeOpt}
+                disabled class="lossDepMode"></lightning-dual-listbox>
+            </template>
+        </lightning-layout-item>
+    </lightning-layout>
+
+    <!-- LTA Information Section -->
+    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+        <lightning-tile type="media">
+            <template if:true={disableLTARenew}>
+                <div style="margin-left: 121px;margin-bottom: -17px;">
+                    <lightning-helptext content="LTA Fields are disabled because program has been renewed"></lightning-helptext>
+                </div> 
+            </template>
+            <div class="slds-text-heading_small">{label.LTAInformation}</div>
+        </lightning-tile>
+    </div>
+    <lightning-layout multiple-rows>
+        <lightning-layout-item padding="around-small" size="6">
+            <template if:true={disableLTARenew}>
+                <lightning-combobox name="LTA" disabled label={label.LTA} value={LTAValue} placeholder="--None--" options={ltaOpt} class="lta"></lightning-combobox>
+            </template>
+            <template if:false={disableLTARenew}>
+                <template if:true={ltaEmpty}>
+                    <lightning-combobox name="LTA" class="slds-has-error lta" label={label.LTA} disabled={allReadOnly} value={LTAValue} onchange={handleLTAValue} placeholder="--None--" options={ltaOpt} required></lightning-combobox>
+                </template>
+                <template if:false={ltaEmpty}>
+                    <template if:true={disableLTA}>
+                        <div class="slds-p-around_medium" style="margin-top: -12px;margin-left: 14px;margin-bottom: -35px;">
+                            <lightning-helptext content={label.LTAhelpText}></lightning-helptext>
+                        </div>
+                    </template>
+                    <lightning-combobox name="LTA" label={label.LTA} value={LTAValue} onchange={handleLTAValue} placeholder="--None--" options={ltaOpt} class="lta" required disabled={disableLTA}></lightning-combobox>
+                </template>
+            </template>
+
+        </lightning-layout-item>
+        <lightning-layout-item padding="around-small" size="6">
+        </lightning-layout-item>
+
+        <template if:true={showLTA}>
+            <lightning-layout-item padding="around-small" size="6">
+                <template if:true={disableLTA}>
+                    <div class="slds-p-around_medium" style="margin-top: -12px;margin-left: 90px;margin-bottom: -35px;">
+                        <lightning-helptext content={label.LTAhelpText}></lightning-helptext>
+                    </div>     
+                </template>
+                <template if:true={disableLTAInceptionDateRenew}>
+                    <lightning-input type="date" disabled name="LTA_InceptionDate" value={LTAInceptionDate} max={maxDate} label={label.LTA_InceptionDate}></lightning-input>
+                </template>
+                <template if:false={disableLTAInceptionDateRenew}>
+                    <lightning-input type="date" name="LTA_InceptionDate" message-when-bad-input="Your entry does not match the allowed format DD MM YYYY" value={LTAInceptionDate} max={maxDate} label={label.LTA_InceptionDate} disabled={disableLTA}></lightning-input>
+                </template>
+
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+                <template if:true={disableLTAExpiryDateRenew}>
+                    <lightning-input type="date" disabled name="LTA_ExpiryDate" max={maxDate} value={LTAExpiryDate} label={label.LTA_ExpiryDate}></lightning-input>
+                </template>
+                <template if:false={disableLTAExpiryDateRenew}>
+                    <template if:true={ltaExpiryDateEmpty}>
+                        <lightning-input type="date" class="slds-has-error" disabled={allReadOnly} message-when-bad-input="Your entry does not match the allowed format DD MM YYYY" max={maxDate} name="LTA_ExpiryDate" value={LTAExpiryDate} label={label.LTA_ExpiryDate} onchange={handleChangeLTAExpDate} required></lightning-input>
+                    </template>
+                    <template if:false={ltaExpiryDateEmpty}>
+                        <lightning-input type="date" name="LTA_ExpiryDate" disabled={allReadOnly} message-when-bad-input="Your entry does not match the allowed format DD MM YYYY" max={maxDate} value={LTAExpiryDate} label={label.LTA_ExpiryDate} onchange={handleChangeLTAExpDate} required></lightning-input>
+                    </template>
+                </template>
+            </lightning-layout-item>
+
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-combobox name="LTARenegotiation" disabled={allReadOnly} label={label.LTA_Renegotiation} onchange={handleRenegotiationChange} value={LTARenegotiationValue} placeholder="--None--" options={ltaRenegotiationOpt} required></lightning-combobox>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+                <template if:true={ltaEarlyTerminationDateEmpty}>
+                    <lightning-input type="date" class="slds-has-error" message-when-bad-input="Your entry does not match the allowed format DD MM YYYY" name="EarlyTerminationDate" required min={minEarlyTermDate} max={maxEarlyTermDate} value={EarlyTerminationDate} label={label.EarlyTerminationDate} disabled={disableEarlyTerminationDate}></lightning-input>
+                </template>
+                <template if:false={ltaEarlyTerminationDateEmpty}>
+                    <lightning-input type="date" name="EarlyTerminationDate" message-when-bad-input="Your entry does not match the allowed format DD MM YYYY" required min={minEarlyTermDate} max={maxEarlyTermDate} value={EarlyTerminationDate} label={label.EarlyTerminationDate} disabled={disableEarlyTerminationDate}></lightning-input>
+                </template>
+            </lightning-layout-item>
+        </template>
+    </lightning-layout>
+
+    <!-- Tacit Renewal Information Section -->
+    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+        <lightning-tile type="media">
+            <template if:true={disableTRRenew}>
+                <div style="margin-left: 200px;margin-bottom: -18px;">
+                    <lightning-helptext content="TR Fields are disabled because program has been renewed"></lightning-helptext>
+                </div> 
+            </template>
+            <div class="slds-text-heading_small">{label.TacitRenewalInformation}</div>
+        </lightning-tile>
+    </div>
+    <lightning-layout multiple-rows>
+        <lightning-layout-item padding="around-small" size="6">
+
+            <template if:false={allReadOnly}>
+                <template if:true={disableTRRenew}>
+                    <lightning-combobox name="TacitRenewal" label={label.TacitRenewal} disabled value={TacitRenewalValue} placeholder="--None--" options={tacitRenewalOpt} class="tacitRenewal"></lightning-combobox>
+                </template>
+                <template if:false={disableTRRenew}>
+                    <template if:true={tacitRenewEmpty}>
+                        <lightning-combobox name="TacitRenewal" class="slds-has-error tacitRenewal" label={label.TacitRenewal} value={TacitRenewalValue} onchange={handleTRValue} placeholder="--None--" options={tacitRenewalOpt} required></lightning-combobox>
+                    </template>
+                    <template if:false={tacitRenewEmpty}>
+                        <lightning-combobox name="TacitRenewal" label={label.TacitRenewal} value={TacitRenewalValue} onchange={handleTRValue} placeholder="--None--" options={tacitRenewalOpt} class="tacitRenewal" required></lightning-combobox>
+                    </template>
+                </template>
+            </template>
+
+            <template if:true={allReadOnly}>
+                <template if:true={disableTRRenew}>
+                    <lightning-combobox name="TacitRenewal" label={label.TacitRenewal} disabled value={TacitRenewalValue} placeholder="--None--" options={tacitRenewalOpt} class="tacitRenewal"></lightning-combobox>
+                </template>
+                <template if:false={disableTRRenew}>
+                    <template if:true={tacitRenewEmpty}>
+                        <lightning-combobox name="TacitRenewal" class="slds-has-error tacitRenewal" label={label.TacitRenewal} value={TacitRenewalValue} onchange={handleTRValue} disabled placeholder="--None--" options={tacitRenewalOpt} required></lightning-combobox>
+                    </template>
+                    <template if:false={tacitRenewEmpty}>
+                        <lightning-combobox name="TacitRenewal" label={label.TacitRenewal} value={TacitRenewalValue} onchange={handleTRValue} placeholder="--None--" disabled options={tacitRenewalOpt} class="tacitRenewal" required></lightning-combobox>
+                    </template>
+                </template>
+            </template>
+
+        </lightning-layout-item>
+        <lightning-layout-item padding="around-small" size="6">
+        </lightning-layout-item>
+
+        <template if:true={showTR}>
+            <lightning-layout-item padding="around-small" size="6">
+                <template if:true={advanceNoticeEmpty}>
+                    <lightning-input type="date" class="slds-has-error" disabled={allReadOnly} required name="AdvanceNotice" message-when-bad-input="Your entry does not match the allowed format DD MM YYYY" max={maxDate} value={AdvanceNotice} label={label.AdvanceNotice}></lightning-input>
+                </template>
+                <template if:false={advanceNoticeEmpty}>
+                    <lightning-input type="date" required name="AdvanceNotice" disabled={allReadOnly} message-when-bad-input="Your entry does not match the allowed format DD MM YYYY" max={maxDate} value={AdvanceNotice} label={label.AdvanceNotice}></lightning-input>
+                </template>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+                <template if:true={disableTRInceptionDateRenew}>
+                    <lightning-input type="date" value={InceptionDate} disabled label={label.TR_date}></lightning-input>
+                </template>
+                <template if:false={disableTRInceptionDateRenew}>
+                    <lightning-input type="date" value={InceptionDate} message-when-bad-input="Your entry does not match the allowed format DD MM YYYY" label={label.TR_date} disabled></lightning-input>
+                </template>
+            </lightning-layout-item>
+        </template>
+    </lightning-layout>
+
+    <!-- Covered Ceding Companies Section -->
+    <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom">
+        <!-- <lightning-card title={titleCoveredCedingCompanies} icon-name="standard:account"><br/> -->
+            <lightning-card>
+                <h3 slot="title">
+                    <lightning-icon icon-name="standard:account" size="small"></lightning-icon>
+                    <lightning-formatted-text value=" *" style="color: red; font-size: small;"></lightning-formatted-text>
+                    <lightning-formatted-text value={titleCoveredCedingCompanies}></lightning-formatted-text>
+                </h3>
+            <lightning-button-group slot="actions">
+                <lightning-button label={label.New} onclick={handleOpenCompanyModal} disabled={allReadOnly}></lightning-button>
+                <lightning-button label={label.Delete} onclick={handleRemoveCompany} disabled={allReadOnly}></lightning-button>
+            </lightning-button-group>
+            
+            <template if:false={allReadOnly}>
+                <lightning-datatable
+                        key-field="id"
+                        data={covData}
+                        columns={columns}
+                        onrowselection={handleRowSelection}>
+                </lightning-datatable>
+            </template>
+            <template if:true={allReadOnly}>
+                <lightning-datatable
+                        key-field="id"
+                        data={covData}
+                        columns={columns}
+                        onrowselection={handleRowSelection}
+                        hide-checkbox-column="true">
+                </lightning-datatable>
+            </template>
+
+            </lightning-card>
+    </div>
+    <br/>
+    <template if:false={conditionPage}>
+        <div style="float: right;">
+            <lightning-button class="slds-p-around--xxx-small" label={label.Cancel} slot="actions" onclick={handleCloseProgramModal}></lightning-button>
+            <lightning-button class="slds-p-around--xxx-small" variant="brand" label={label.Save} slot="actions" onclick={handleSaveProgram} disabled={allReadOnly}></lightning-button>
+        </div>
+    </template>
+
+    <template if:true={isCompanyModalOpen}>
+        <div class="demo-only">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 60%; max-width: 70rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseCompanyModal}>
+                            <lightning-icon icon-name="utility:close" size="medium"></lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">{label.NewCoveredCedingCompany}</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <div style="height: 200px;">
+                            <lightning-card>
+                                <div slot="footer"></div>
+                                <div>
+                                    <div class="slds-form-element">
+                                        <div class="slds-form-element__control">
+                                            <div class="slds-combobox_container">
+                                                <div class={txtclassname} data-id="resultBox" aria-expanded="false" aria-haspopup="listbox" role="combobox">
+                                                    <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon slds-input-has-icon_left-right" role="none" style="padding-bottom: 8.5px;padding-right: 8px;">
+                                                        <div>
+                                                            <span class="slds-icon_container slds-input__icon">
+                                                                <lightning-icon class="slds-icon slds-icon slds-icon_small slds-icon-text-default" icon-name={iconName} size="small" alternative-text="icon" ></lightning-icon>
+                                                            </span>
+                                                        </div>
+                                                        <lightning-input required={required} data-id="userinput" value={searchText} label={Label} name="searchText" onchange={searchField} class="leftspace"></lightning-input>
+                                                        <span class="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_right iconheight">
+                                                            <lightning-icon class="slds-icon slds-icon slds-icon_small slds-icon-text-default slds-align-middle" icon-name="utility:search" size="x-small" alternative-text="icon" ></lightning-icon>
+                                                        </span>
+                                                    </div>
+                                                    <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon slds-input-has-icon_left-right" role="none">
+                                                        <template for:each={selectedRecords} for:item="serecord">
+                                                        <span key={serecord.recId}>
+                                                            <lightning-pill label={serecord.recName} name={serecord.recId} onremove={removeRecord}>
+                                                                <lightning-icon alternative-text={serecord.recName}></lightning-icon>
+                                                                <!--                                                                <lightning-icon icon-name={iconName} variant="circle" alternative-text={serecord.recName}></lightning-icon>-->
+                                                            </lightning-pill>
+                                                        </span>
+                                                        </template>
+                                                    </div>
+
+                                                    <!-- Second part display result -->
+                                                    <div id="listbox-id-1" class="slds-dropdown slds-dropdown_length-with-icon-7 slds-dropdown_fluid" role="listbox">
+                                                        <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                            <template for:each={searchRecords} for:item="serecord">
+                                                                <li role="presentation" class="slds-listbox__item" key={serecord.recId}>
+                                                                    <div data-id={serecord.recId} data-name={serecord.recName} onclick={setSelectedRecord} class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                                                                    <span class="slds-media__figure">
+                                                                        <span class="slds-icon_container slds-icon-standard-account slds-align-middle">
+                                                                            <lightning-icon icon-name={iconName} class="slds-icon slds-icon slds-icon_small slds-icon-text-default" size="small"></lightning-icon>
+                                                                        </span>
+                                                                    </span>
+                                                                        <span class="slds-media__body">
+                                                                        <span class="slds-listbox__option-text slds-listbox__option-text_entity">{serecord.recName}</span>
+                                                                        <span class="slds-listbox__option-meta slds-listbox__option-meta_entity">{objectName} • {serecord.recName}</span>
+                                                                    </span>
+                                                                    </div>
+                                                                </li>
+                                                            </template>
+                                                        </ul>
+                                                    </div>
+                                                    <div if:true={messageFlag}>
+                                                        No result found.
+                                                    </div>
+                                                    <div if:true={LoadingText}>
+                                                        Loading...
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </lightning-card>
+                            <lightning-button class="slds-float--right slds-p-left--small" variant="brand" label={label.Add} slot="actions" onclick={handleSubmitCompany}></lightning-button>
+                            <lightning-button class="slds-float--right" label={label.Cancel} slot="actions" onclick={handleCloseCompanyModal}></lightning-button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+</template>

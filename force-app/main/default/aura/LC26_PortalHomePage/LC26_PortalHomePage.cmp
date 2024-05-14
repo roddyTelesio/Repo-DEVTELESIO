@@ -1,0 +1,15 @@
+<aura:component controller="LWC26_PortalHomePage" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes" >
+    <aura:attribute type="Account[]" name="acctList"/>
+    <aura:attribute name="mycolumns" type="List"/>
+
+    <aura:handler name="init" value="{!this}" action="{!c.fetchAccounts}"/>
+
+    <lightning:datatable data="{! v.acctList }"
+                         columns="{! v.mycolumns }"
+                         keyField="id"
+                         hideCheckboxColumn="true"/>
+
+    <lightning:button variant="Neutral" label="Navigate" title="Navigate" onclick="{! c.navigate }"/>
+
+
+</aura:component>

@@ -1,0 +1,20 @@
+<!--
+  @description       : 
+  @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+  @group             : 
+  @last modified on  : 08-14-2023
+  @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+-->
+<template>
+    <div class="container">
+        <div class="pdf-container">
+            <div class="pdf-wrapper">
+                <div class="pdf-overlay" onclick={handlePdfClick}></div>
+                <iframe src={pdfUrl} width="100%" height="500"></iframe>
+            </div>
+        </div>
+        <div class="coordinates">
+            <p>X: {xCoordinate}, Y: {yCoordinate}</p>
+        </div>
+    </div>
+</template>

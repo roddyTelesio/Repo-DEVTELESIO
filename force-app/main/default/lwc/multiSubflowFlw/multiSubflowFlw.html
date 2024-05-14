@@ -1,0 +1,30 @@
+<!--
+  @description       : 
+  @author            : Patrick Randrianarisoa
+  @group             : 
+  @last modified on  : 26-01-2024
+  @last modified by  : Patrick Randrianarisoa 
+  Modifications Log
+  Ver   Date         Author                   Modification
+  1.0   26-01-2024   Patrick Randrianarisoa   Initial Version
+-->
+<template>
+    Sync with CLM in progress
+    <div class="">
+        <!-- <template for:each={flowInstances} for:item="flowInstance">
+            <lightning-flow if:true={renderFlow} key={flowInstance.key}
+                            flow-input-variables={flowInstance.inputVariables}
+                            flow-api-name="CLM_Subflow_update_treatyref_on_agreement"
+                            onstatuschange={handleFlowStatusChange}
+                            data-key={flowInstance.key}>
+            </lightning-flow>
+          </template> -->
+
+          <lightning-flow if:true={renderFlow}
+                            flow-input-variables={inputVariable}
+                            flow-api-name="CLM_Subflow_update_fields_on_Agreement_by_fields_on_AGL"
+                            onstatuschange={handleFlowStatusChange}
+                            >
+          </lightning-flow>
+    </div>
+  </template>

@@ -1,0 +1,10 @@
+.tableWidth{
+   width: 7.1%!important;
+}
+
+.th, td{
+   padding: 4px!important;
+}
+.cancelButton{
+   padding-right: 10px;
+}

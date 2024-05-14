@@ -1,0 +1,45 @@
+<!--
+  @description       : 
+  @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+  @group             : 
+  @last modified on  : 08-25-2022
+  @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+-->
+<template>
+    <lightning-card  >
+        <!--Previous-->
+            <lightning-button 
+            icon-name="utility:back"
+            label={previousLabel} 
+            disabled={disablePrevious} 
+            slot="actions" 
+            onclick={handlePrevious}
+            class={HidePreviousButton}>
+        </lightning-button>
+
+        <!--Finish-->   
+            <lightning-button 
+            icon-name="utility:check"
+            label={finishLabel} 
+            disabled={disableFinish} 
+            slot="actions" 
+            onclick={handleFinish}
+            class={HideFinishButton}>
+        </lightning-button>
+        
+        <!--Next-->
+        <lightning-button 
+            variant="Brand"
+            label={nextLabel} 
+            disabled={disableNext} 
+            onclick={handleNext}
+            class={HideNextButton}
+            slot="actions">
+        </lightning-button>
+        
+         <!-- Spinner -->
+         <div if:true={showLoadingSpinner}>
+            <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+        </div>
+    </lightning-card>
+</template>

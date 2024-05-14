@@ -1,0 +1,92 @@
+<template>
+
+    <template if:true={spinner}>
+        <div class="slds-spinner_container">
+            <div role="status" class="slds-spinner slds-spinner_medium slds-spinner_delayed">
+                <span class="slds-assistive-text">Loading...</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </template>
+
+    <div class="slds-theme_default" style="margin-left:-12px;">
+        <div style="background-color: #ffffff;">
+            <lightning-tile type="media">
+                <lightning-card title="Signing" icon-name="standard:contact_list" > <br/>
+                    <lightning-button-group slot="actions">
+                        <lightning-button label="Open" name="Signing" onclick={openBtn} disabled={disableOpenBtnSigning}></lightning-button>
+                    </lightning-button-group>
+                    <div style="height:200px;">
+                        <lightning-datatable
+                                key-field="id"
+                                data={signingData}
+                                columns={signingColumns}
+                                hide-checkbox-column>
+                        </lightning-datatable>
+                    </div>
+                </lightning-card>
+            </lightning-tile>
+        </div>
+    </div>
+    <br/>
+    <div class="slds-theme_default" style="margin-left:-12px;">
+        <div style="background-color: #ffffff;">
+            <lightning-tile type="media">
+                <lightning-card title="Placement" icon-name="standard:contact_list" > <br/>
+                    <lightning-button-group slot="actions">
+                        <lightning-button label="Open" name="Placement" onclick={openBtn} disabled={disableOpenBtnPlacement}></lightning-button>
+                    </lightning-button-group>
+                    <div style="height:200px;">
+                        <lightning-datatable
+                                key-field="id"
+                                data={placementData}
+                                columns={placementColumns}
+                                hide-checkbox-column>
+                        </lightning-datatable>
+                    </div>
+                </lightning-card>
+            </lightning-tile>
+        </div>
+    </div>
+    <br/>
+    <div class="slds-theme_default" style="margin-left:-12px;">
+        <div style="background-color: #ffffff;">
+            <lightning-tile type="media">
+                <lightning-card title="Lead" icon-name="standard:contact_list" > <br/>
+                    <lightning-button-group slot="actions">
+                        <lightning-button label="Open" name="Lead" onclick={openBtn} disabled={disableOpenBtnLead}></lightning-button>
+                    </lightning-button-group>
+                    <div style="height:200px;">
+                        <lightning-datatable
+                                key-field="id"
+                                data={leadData}
+                                columns={leadColumns}
+                                hide-checkbox-column>
+                        </lightning-datatable>
+                    </div>
+                </lightning-card>
+            </lightning-tile>
+        </div>
+    </div>
+    <br/>
+    <div class="slds-theme_default" style="margin-left:-12px;">
+        <div style="background-color: #ffffff;">
+            <lightning-tile type="media">
+                <lightning-card title="Quote" icon-name="standard:contact_list" > <br/>
+                    <lightning-button-group slot="actions">
+                        <lightning-button label="Open" name="Quote" onclick={openBtn} disabled={disableOpenBtnQuote}></lightning-button>
+                    </lightning-button-group>
+                    <div style="height:200px;">
+                        <lightning-datatable
+                                key-field="id"
+                                data={quoteData}
+                                columns={quoteColumns}
+                                hide-checkbox-column>
+                        </lightning-datatable>
+                    </div>
+                </lightning-card>
+            </lightning-tile>
+        </div>
+    </div>
+</template>

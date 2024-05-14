@@ -1,0 +1,5 @@
+.my-modal-header {
+    --slds-c-modal-header-color-background: Orange;
+    text-decoration-color: blue;
+    font-weight: bold;
+}

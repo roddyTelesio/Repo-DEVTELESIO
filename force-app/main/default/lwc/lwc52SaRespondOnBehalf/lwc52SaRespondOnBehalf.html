@@ -1,0 +1,240 @@
+<template>
+    <div class="demo-only">
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-02" aria-modal="true" aria-describedby="modal-content-id-2" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseRespondOnBehalfModal}>
+                        <lightning-icon icon-name="utility:close" size="medium"></lightning-icon><span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-02" class="slds-text-heading_medium slds-hyphenate">{pageTitle}</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-2">
+                    <template if:true={spinnerRespondOnBehalf}>
+                        <div class="">
+                            <lightning-spinner variant="brand" size="medium" class="slds-align_absolute-center"></lightning-spinner>
+                        </div>
+                    </template>
+                    <template if:true={isPortalBR}>
+                        <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small">
+                            <lightning-card title="Working Scope">
+                                <lightning-layout>
+                                    <lightning-layout-item padding="around-small" size="6">
+                                        <lightning-input type="text" 
+                                                         name="year" 
+                                                         label='Underwriting Year' 
+                                                         value={valueUwYear} 
+                                                         disabled>
+                                        </lightning-input>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item padding="around-small" size="6">
+                                        <lightning-input type="text" 
+                                                         name="company" 
+                                                         label='Principal Ceding Company' 
+                                                         value={pccName} 
+                                                         disabled>
+                                        </lightning-input>
+                                    </lightning-layout-item>    
+                                </lightning-layout>
+                            </lightning-card>
+                        </div><br/>
+
+                        <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small">
+                            <lightning-card title="Filters">
+                                <lightning-layout>
+                                    <lightning-layout-item padding="around-small" size="6">
+                                        <lightning-input type="text" 
+                                                         name="reinsurer" 
+                                                         label='Reinsurer' 
+                                                         value={reinsurerName} 
+                                                         disabled>
+                                        </lightning-input>
+                                    </lightning-layout-item>
+
+                                    <lightning-layout-item padding="around-small" size="6">
+                                        <template if:true={isBroker}>
+                                            <lightning-input type="text" 
+                                                         name="broker" 
+                                                         label='Broker' 
+                                                         value={brokerName} 
+                                                         disabled>
+                                            </lightning-input>
+                                        </template>
+                                    </lightning-layout-item>
+                                </lightning-layout>
+                                <lightning-layout>
+                                    <lightning-layout-item padding="around-small" size="6">
+                                        <lightning-input type="text" 
+                                                         name="program" 
+                                                         label='Program' 
+                                                         value={selectedProgramName} 
+                                                         disabled>
+                                        </lightning-input>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item padding="around-small" size="6">
+                                        <lightning-input type="text" 
+                                                         name="nature" 
+                                                         label='Nature' 
+                                                         value={selectedProgramNature} 
+                                                         disabled>
+                                        </lightning-input>
+                                    </lightning-layout-item>
+                                </lightning-layout>
+                            </lightning-card>
+                        </div><br/>
+
+                        <template if:true={isPortalBR}>
+                            <c-lwc-50-s-a-read-only sa-obj={specialAcceptanceObj} macro-lob-from-program-val={macroLobFromProgram} sa-record-type-id={typeOfSARecordTypeId} cov-ced-com-option-val={covCedComOption} selected-sub-lob-val={selectedSubLOB} 
+                                    display-auto-fac-form={displayAutoFacFormVal} display-pc-form={displayPCFormVal} display-life-form={displayLifeFormVal} sa-type-val={saType} is-ugp={isUgp}> 
+                            </c-lwc-50-s-a-read-only>
+                        </template>
+
+                        <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small">
+                            <lightning-card title="Apply To" icon-name="standard:calibration"> <br/>
+                                <div style="height:200px;">
+                                    <lightning-datatable
+                                            key-field="id"
+                                            data={lstSaApplyToRequest}
+                                            columns={columnsSARequestBRPortal}
+                                            hide-checkbox-column="true">
+                                    </lightning-datatable>
+                                </div>
+                            </lightning-card>
+                        </div><br/>
+
+                        <!-- AXA Documents(Public Document sent from Ce Internal) -->
+                        <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small" style="min-height: 200px;">
+                            <lightning-card title={titleCountAXADocument} icon-name="standard:account">
+                                <lightning-layout>
+                                    <table class="slds-table slds-table_bordered" style="width:100%">
+                                        <tr>
+                                            <th></th>
+                                            <th>Name</th>
+                                        </tr>
+                                        <template for:each={lstAXADocuments} for:item="doc">
+                                            <tr key={doc.Id} id={doc.Id} class="slds-p-around--xxx-small">
+                                                <td width="10%"><lightning-input label="" name={doc.Id} type="checkbox"></lightning-input></td>
+                                                <td width="90%">
+                                                    <a href={doc.DocumentUrl} target="_blank">{doc.Name}</a>
+                                                </td>              
+                                            </tr>
+                                        </template>
+                                    </table>
+                                </lightning-layout>
+                            </lightning-card>
+                        </div><br/>
+
+                        <!-- My Documents(Broker/Reinsurer) -->
+                        <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small" style="min-height: 200px;">
+                            <lightning-card title={titleCountMyDocument} icon-name="standard:account">
+                                <lightning-button-group slot="actions">
+                                    <lightning-button label="New" onclick={handleOpenNewDocumentModal} disabled={disableAddDocBtn}></lightning-button>
+                                    <lightning-button label="Delete" onclick={handleDeleteDocument} disabled={disableDeleteBtn}></lightning-button>
+                                </lightning-button-group>
+                                <lightning-layout>
+                                    <table class="slds-table slds-table_bordered" style="width:100%">
+                                        <tr>
+                                            <th></th>
+                                            <th>Name</th>
+                                        </tr>
+                                        <template for:each={lstDocuments} for:item="doc">
+                                            <tr key={doc.Id} id={doc.Id} class="slds-p-around--xxx-small">
+                                                <td width="10%"><lightning-input label="" name={doc.Id} type="checkbox" onchange={handleChangeDocCheckbox}></lightning-input></td>
+                                                <td width="90%">
+                                                    <a href={doc.DocumentUrl} target="_blank">{doc.Name}</a>
+                                                </td>              
+                                            </tr>
+                                        </template>
+                                    </table>
+                                </lightning-layout>
+                            </lightning-card>
+                        </div><br/>
+
+                        <template if:true={isOpenDocModal}>
+                            <div class="demo-only">
+                                <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-doc" aria-modal="true" aria-describedby="modal-content-id-doc" class="slds-modal slds-fade-in-open">
+                                    <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                                        <header class="slds-modal__header">
+                                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseUploadModal}>
+                                                <lightning-icon icon-name="utility:close" size="medium">
+                                                </lightning-icon>
+                                                <span class="slds-assistive-text">Close</span>
+                                            </button>
+                    
+                                            <h2 id="modal-heading-doc" class="slds-text-heading_medium slds-hyphenate">New Documents</h2>
+                                        </header>
+                                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-doc">
+                                            <div style="margin-top: 0.5rem;" class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-around--medium">
+                                                <lightning-file-upload name="documentUpload"
+                                                                       label="Drag & Drop or select your new files in the file selector below"
+                                                                       onuploadfinished={handleUploadFinished}
+                                                                       record-id={selectedProgram}
+                                                                       multiple>
+                                                </lightning-file-upload>
+                                                <lightning-formatted-text value={documentNames}></lightning-formatted-text>
+                                            </div>
+                    
+                                            <div style="float: right;" class="slds-p-top--small">
+                                                <lightning-button class="slds-p-around--xxx-small" label="Cancel" slot="actions" onclick={handleCloseUploadModal}></lightning-button>
+                                                <lightning-button class="slds-p-around--xxx-small" variant="brand" label="Save" slot="actions" onclick={handleSaveUploadDoc}></lightning-button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                                <div class="slds-backdrop slds-backdrop_open"></div>
+                            </div>
+                        </template>
+
+                        <lightning-textarea name="CommentsResponse__c" value={commentsResponseVal} label="Comments" onchange={handleOnChangeValue} disabled={isRespondOnBehalfReadOnly} required={isCommentRequired}></lightning-textarea>
+                        <lightning-combobox name="SpecialAcceptanceAnswer__c" label="Response" value={saAnswerVal} placeholder="&#45;&#45;None&#45;&#45;" options={saAnswerOpt} required onchange={handleOnChangeValue} disabled={isRespondOnBehalfReadOnly}></lightning-combobox>
+                        <div class="slds-p-bottom--large"></div>
+
+                        <br/><br/><br/><br/><br/>
+
+                        <div style="float: right;" class="slds-p-top--small">
+                            <lightning-button class="slds-p-around--xxx-small" variant="brand" label="Save" slot="actions" name="Save" onclick={handleSaveSendRespondOnBehalf} disabled={isRespondOnBehalfReadOnly}></lightning-button>
+                            <lightning-button class="slds-p-around--xxx-small" variant="brand" label="Send" slot="actions" name="Send" onclick={handleSaveSendRespondOnBehalf} disabled={isRespondOnBehalfReadOnly}></lightning-button>
+                            <lightning-button class="slds-p-around--xxx-small" label="Cancel" slot="actions" onclick={handleCloseRespondOnBehalfModal}></lightning-button>
+                        </div>
+                        <br/><br/>
+                    </template>
+
+                    <template if:false={isPortalBR}>
+                        <template if:true={displayErrorMsg}>
+                            <div style="text-align: center;">
+                                {errorMsg}
+                            </div>
+                            <div style="float: right;" class="slds-p-top--xxx-small">
+                                <lightning-button class="slds-p-around--xxx-small" label="Close" slot="actions" onclick={handleCloseRespondOnBehalfModal}></lightning-button>
+                            </div>
+                        </template>
+                        <template if:false={displayErrorMsg}>
+                            <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small">
+                                <lightning-card title="Apply To" icon-name="standard:calibration"> <br/>
+                                    <div style="height:200px;">
+                                        <lightning-datatable
+                                                key-field="id"
+                                                data={lstSaApplyToRequest}
+                                                columns={columnsSARequest}
+                                                hide-checkbox-column="true">
+                                        </lightning-datatable>
+                                    </div>
+                                </lightning-card>
+                            </div><br/>
+
+                            <lightning-textarea name="CommentsResponse__c" value={commentsResponseVal} label="Comments" onchange={handleOnChangeValue} disabled={disableField}></lightning-textarea>
+                            <lightning-combobox name="SpecialAcceptanceAnswer__c" label="Response" value={saAnswerVal} placeholder="&#45;&#45;None&#45;&#45;" options={saAnswerOpt} required onchange={handleOnChangeValue} disabled={disableField}></lightning-combobox>
+                            <div class="slds-p-bottom--large"></div>
+                            <br/><br/><br/><br/><br/>
+        
+                            <div style="float: right;" class="slds-p-top--small">
+                                <lightning-button class="slds-p-around--xxx-small" variant="brand" label="Send" name="Send" slot="actions" onclick={handleSaveSendRespondOnBehalf} disabled={disableField}></lightning-button>
+                                <lightning-button class="slds-p-around--xxx-small" label="Cancel" slot="actions" onclick={handleCloseRespondOnBehalfModal}></lightning-button>
+                            </div>
+                            <br/><br/>
+                        </template>
+                    </template>
+                </div>
+            </div>
+        </section><div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+</template>

@@ -1,0 +1,54 @@
+name: DeployToUAT
+
+on:
+  pull_request:
+    types: [closed]
+    branches: uat
+jobs:
+    deploy-uat:
+        runs-on: ubuntu-latest
+        steps: 
+        # Checkout the source code
+            - name: 'Checkout source code'
+              uses: actions/checkout@v3
+              with:
+                fetch-depth: 0                           
+          #Install Salesforce CLI
+            - name: 'Install Salesforce CLI'
+              run: |
+                npm install @salesforce/cli --location=global
+                nodeInstallPath=$(npm config get prefix)
+                echo "$nodeInstallPath/bin" >> $GITHUB_PATH
+                sf --version
+           #Install sfdxGit delta
+            - name: Install sfdxGit delta
+              run: |
+                  echo y | sfdx plugins:install sfdx-git-delta
+                  echo x | sfdx sgd:source:delta --to "HEAD" --from "HEAD^" --output changedSources/ --generate-delta
+                  echo "--- package.xml generated with added and modified metadata ---"
+                  cat changedSources/package/package.xml
+                  echo "--- destructiveChanges.xml generated with deleted metadata ---"
+                  cat changedSources/destructiveChanges/destructiveChanges.xml
+            - uses: sfdx-actions/setup-sfdx@v1
+              with:
+                    sfdx-auth-url: ${{ secrets.DEVHUB_SFDX_URL }}                    
+        # Load secret for dev hub
+            - name: "Populate auth file with UAT_URL secret"
+              shell: bash
+              run: "echo ${{ secrets.UAT_SFDX_URL}} > ./UAT_URL_STORE.txt"
+              
+        #Authenticate UAT
+            - name: 'Authenticate UAT'
+              run: sf org login sfdx-url -f ./UAT_URL_STORE.txt -a devhubUAT -d
+            
+        # Validate Source DEV to UAT Org 
+            - name: 'Validate source before deploy UAT org'
+              #run: sf project deploy start --source-dir changed-sources/ -l 'RunLocalTests' -o roddy.randrianarison@axa-re.com.uat
+              run:  sf project deploy start --verbose -x changedSources/package/package.xml -o roddy.randrianarison@axa-re.com.uat --dry-run
+        
+        # Deploy DEV to UAT Org 
+            - name: 'Deploy source dev to UAT org'
+             #run: sf project deploy start --source-dir changed-sources/ -l 'RunLocalTests' -o roddy.randrianarison@axa-re.com.uat
+              run:  sf project deploy start --verbose -x changedSources/package/package.xml -o roddy.randrianarison@axa-re.com.uat
+
+

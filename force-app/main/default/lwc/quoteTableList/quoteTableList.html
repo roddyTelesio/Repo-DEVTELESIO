@@ -1,0 +1,29 @@
+<template>
+
+    <lightning-card  title="Quote Table List">
+        
+        
+        <div class="slds-p-horizontal_small">
+            <div class="slds-grid slds-gutters">
+                <div class="slds-col slds-size_12-of-12">
+                    
+                    <c-classeurs-list></c-classeurs-list>
+                        
+                </div>
+            </div>
+        </div>
+        <div slot="footer">
+            <div class="slds-grid slds-gutters">
+                <div class="slds-col slds-size_4-of-12"></div>
+                <div class="slds-col slds-size_4-of-12">    
+                    <lightning-button label="Export Excel" title="Export Excel" onclick={handleClickExport} class="slds-m-left_x-small"></lightning-button>
+                    <lightning-button label="New Quote Table" title="New Quote Table" onclick={handleNouveauClasseur} class="slds-m-left_x-small"></lightning-button>
+                    <!-- <lightning-button label="Programmation de demande de MAJ" title="Programmation de demande de MAJ" onclick={handleProgrammationMaj} class="slds-m-left_x-small"></lightning-button> -->
+                </div>
+                <div class="slds-col slds-size_4-of-12"></div>
+            </div>
+        </div>
+    </lightning-card>
+
+    
+</template>

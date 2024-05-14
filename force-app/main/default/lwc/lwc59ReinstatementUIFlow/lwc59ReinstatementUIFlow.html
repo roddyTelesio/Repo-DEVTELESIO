@@ -1,0 +1,92 @@
+<template>
+
+    <!-- Reinstatements -->
+        <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+            <lightning-tile type="media">
+                <div class="slds-text-heading_small">{label.Reinstatement}</div>
+            </lightning-tile>
+        </div>
+        <lightning-layout multiple-rows>
+            <lightning-layout-item padding="around-small" size="6">
+                <template if:true={reinstatementsEmpty}>
+                    <lightning-combobox  class={valTypeReinsRequired} required name="Reinstatements" label={label.Reinstatements} data-id="reinstatements"  value={TypeOfReinstatement} onchange={handleChangeReinstatementValue} placeholder="--None--" options={ReinstatementOpt}></lightning-combobox>
+                </template> <!--class="slds-has-error" -->
+                <template if:false={reinstatementsEmpty}>
+                    <lightning-combobox class={valTypeReinsRequired} required name="Reinstatements" label={label.Reinstatements} data-id="reinstatements" value={TypeOfReinstatement} onchange={handleChangeReinstatementValue} placeholder="--None--" options={ReinstatementOpt}></lightning-combobox>
+                </template>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+            </lightning-layout-item>
+        </lightning-layout>
+        <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom">
+            <lightning-card title={titleReinstatement} icon-name="standard:entitlement_process"><br/>
+                <lightning-button-group slot="actions">
+                    <lightning-button label="New" onclick={handleOpenReinstatementsModal} disabled={isNewReinstatementDisable}></lightning-button>
+                    <lightning-button label="Delete" onclick={handleDeleteReinstatements}></lightning-button>
+                </lightning-button-group>
+                <div>
+                    <lightning-datatable
+                            key-field="LstReinstatementtable"
+                            data-id="test"
+                            data={lstReinstatement}
+                            columns={columnsReinstatements}
+                            onrowselection={handleReinstatementsRowSelection} 
+                            >
+                    </lightning-datatable><!-- selected-rows={selectedRows}-->
+                </div>
+            </lightning-card>
+        </div>
+        <br/>
+
+    <template if:true={openNewReinstatementModal}>
+        <div class="demo-only">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseReinstatementsModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">New Reinstatement</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+
+                        <lightning-layout multiple-rows>
+                            <lightning-layout-item padding="around-small" size="6">
+                                <lightning-input type="number" name="orderReins" label="Order" value={orderReins} message-when-step-mismatch={label.NumberErrorMessage}></lightning-input>
+                            </lightning-layout-item>
+                            <lightning-layout-item padding="around-small" size="6">
+                                <lightning-input type="number" data-id="percentageReins" name="percentageReins" disabled={disablePercentageReins} onchange={handleOnChangeValue} label="Percentage" value={percentageReins} message-when-step-mismatch={label.NumberErrorMessage}></lightning-input>
+                            </lightning-layout-item>
+                            <lightning-layout-item padding="around-small" size="6">
+                                <lightning-combobox name="prorataReins" label="Prorata" disabled={disableProrataReins} onchange={handleOnChangeValue} value={prorataReins} placeholder="--None--" options={prorataReinsOpt}></lightning-combobox>
+                            </lightning-layout-item>
+                            <lightning-layout-item padding="around-small" size="6">
+                                <div class="slds-p-around_large">
+                                    <lightning-input type="checkbox" name="Free" label="Free" onchange={handleChangeFreeCheck}></lightning-input>
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+
+                        <div style="float: right;">
+                            <lightning-button class="slds-p-around--xxx-small" label="Cancel" slot="actions" onclick={handleCloseReinstatementsModal}></lightning-button>
+                            <lightning-button class="slds-p-around--xxx-small" variant="brand" label="Add" slot="actions" onclick={handleAddReinstatement}></lightning-button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+
+     <!-- Loading spinner display -->
+     <template if:true={isLoadingReinstatement}>
+        <div style="height:120px;">
+            <lightning-spinner alternative-text="Loading" size="medium">
+            </lightning-spinner>
+        </div>
+    </template> 
+
+</template>

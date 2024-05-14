@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>55.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>lwc59ReinstatementUIFlow</masterLabel>
+    <description>lwc59ReinstatementUIFlow</description>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__RecordPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <propertyType name="PT" extends="SObject" label="Select a sObject" description="Select a sObject" />
+            <property name="lstReinstatement" type="{PT[]}" label="Input Records" description="Record List Variable"  role="inputOnly" />
+            <property name="recordId" type="String" label="Id Section" description="record Id of Section"  role="inputOnly" />
+            <property name="typeReinsFlow" type="String" label="Type Reins" description="Type of Reinstatement"  role="inputOnly" />
+            <property name="TypeOfReinstatement" type="String" label="Type Reins" description="Type of Reinstatement"  role="outputOnly" />
+            <property   name="outputList"
+                        label="Output Record List"
+                        role="outputOnly"
+                        type="{PT[]}"
+                        description="Possibly updated Record list."/>
+            <property   name="preselectionList"
+                        label="Preselected Records"
+                        role="inputOnly"
+                        type="{PT[]}"
+                        description="Records preselected in the list."/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

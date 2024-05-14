@@ -1,0 +1,134 @@
+<template>
+    <template if:true={allowCedingPortalAccess}>
+        <lightning-card title="Filters">
+            <lightning-layout multiple-rows>
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-combobox name="program"
+                                        label="Program"
+                                        value={valueCedingProgram}
+                                        options={programOptions}
+                                        placeholder="--None--"
+                                        disabled={disableProgram}
+                                        onchange={handleOnChangeProgramCeding}>
+                    </lightning-combobox>
+                </lightning-layout-item>
+
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-input type="text" name="Nature" label='Nature' value={natureProgram} disabled></lightning-input>
+                </lightning-layout-item>
+            </lightning-layout>
+        </lightning-card>
+    </template>
+    <template if:true={isBroker}>
+        <lightning-card title="Filters">
+
+            <template if:true={showDocs}>
+                <lightning-button-group slot="actions">
+                    <lightning-button variant="brand" label="Documents" title="Documents" icon-name="utility:file" disabled={disableDocuments} class="slds-m-left_x-small" onclick={handleOpenDocuments}></lightning-button>
+                </lightning-button-group>
+            </template>
+
+            <lightning-layout multiple-rows="true">
+                <template if:true={isSummaryPage}>
+                    <lightning-layout-item padding="around-small" size="6">
+                        <lightning-combobox name="program"
+                                            label="Program"
+                                            value={valueProgram}
+                                            options={programOptions}
+                                            placeholder="--None--"
+                                            disabled>
+                        </lightning-combobox>
+                    </lightning-layout-item>
+                    <lightning-layout-item padding="around-small" size="6">
+                        <lightning-combobox name="reinsurer1"
+                                            label="Reinsurer"
+                                            value={valueReinsurerSummary}
+                                            options={reinsurerOptions}
+                                            onchange={handleChangeReinsurer}
+                                            disabled
+                                            placeholder="--None--">
+                        </lightning-combobox>
+                    </lightning-layout-item>
+                </template>
+                <template if:false={isSummaryPage}>
+                    <lightning-layout-item padding="around-small" size="4">
+                        <!--RRA - ticket 1518 - 04052023
+                        <lightning-combobox name="reinsurer2"
+                                            dropdown-alignment="auto"
+                                            label="Reinsurer"
+                                            value={valueReinsurer}
+                                            options={reinsurerOptionsAll}
+                                            onchange={handleChangeReinsurer}
+                                            placeholder="None">
+                        </lightning-combobox>-->
+                        
+                        <!--RRA - ticket 1518 - 12052023-->
+                        <select class="slds-select" name="reinsurer2" onchange={handleChangeReinsurer} >
+                            <template for:each = {reinsurerOptionsAll} for:item="listViewItem">
+                                <option key={listViewItem.key} value={listViewItem.value}>{listViewItem.label}</option>
+                             </template>
+                        </select>
+                        
+                    </lightning-layout-item>
+                </template>
+                <lightning-layout-item padding="around-small" size="6">
+                </lightning-layout-item>
+            </lightning-layout>
+        </lightning-card>
+    </template>
+
+    <template if:false={isBroker}>
+        <template if:true={isSummaryPage}>
+            <lightning-card title="Filters">
+                <template if:true={showDocs}>
+                    <lightning-button-group slot="actions">
+                        <lightning-button variant="brand" label="Documents" title="Documents" icon-name="utility:file" disabled={disableDocuments} class="slds-m-left_x-small" onclick={handleOpenDocuments}></lightning-button>
+                    </lightning-button-group>
+                </template>
+
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item padding="around-small" size="6">
+                        <lightning-combobox name="program"
+                                            label="Program"
+                                            value={valueProgram}
+                                            options={programOptions}
+                                            placeholder="--None--"
+                                            disabled>
+                        </lightning-combobox>
+                    </lightning-layout-item>
+
+                    <lightning-layout-item padding="around-small" size="6">
+                    </lightning-layout-item>
+                </lightning-layout>
+            </lightning-card>
+        </template>
+    </template>
+
+    <template if:true={isOpenModal}>
+        <div class="demo-only">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Documents</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <!--SRA - 1045-->
+                        <template if:true={isSummaryPage}>
+                            <c-lwc-28-portal-documents uw-year={valueUWYear} principal-ceding-company={valuePrincipalCedComp} value-reinsurer={valueReinsurerSummary} value-program={valueProgram}  selected-broker={selectedBroker} selected-reinsurer={valueReinsurerSummary} program-options={programOptions}></c-lwc-28-portal-documents>
+                        </template>
+                        <template if:false={isSummaryPage}>
+                            <c-lwc-28-portal-documents uw-year={valueUWYear} principal-ceding-company={valuePrincipalCedComp} value-reinsurer={valueReinsurer} value-program={valueProgram} selected-broker={selectedBroker} selected-reinsurer={valueReinsurerSummary}  program-options={programOptions}></c-lwc-28-portal-documents>
+                        </template>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+</template>

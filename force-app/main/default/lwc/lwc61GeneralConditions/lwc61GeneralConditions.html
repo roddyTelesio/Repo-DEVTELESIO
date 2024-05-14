@@ -1,0 +1,47 @@
+<!--**************************************************************************************
+- Author        : Telesio
+- Description   : Controller for Lightning Web Component LWC61_PreviewDownloadFile
+-  Maintenance History:
+
+ Date         Name  Version  Remarks
+- 17-OCT-2023  RRA   1.0      Ticket 1675 - Initial version
+**************************************************************************************-->
+<template>
+    <lightning-card variant="Narrow"  title="File Infos and Download" icon-name="utility:file" >
+      <table class="slds-table slds-table_cell-buffer slds-no-row-hover slds-table_bordered" aria-label="Example table of Opportunities with no row hovers">
+        <thead>
+           <tr class="slds-line-height_reset ">
+              <th class="" scope="col">
+                 <div class="slds-truncate " title="Name of File">File Name</div>
+              </th>
+              <th class="" scope="col">
+                 <div class="slds-truncate" title="Size of file">Size</div>
+              </th>
+              <th class="" scope="col">
+                 <div class="slds-truncate" title="Download Actions">Action</div>
+              </th>
+           </tr>
+        </thead>
+        <tbody>
+        
+          <template for:each={filesList} for:item="file">
+            <tr class="slds-hint-parent" key={file.value}>
+               <th data-label="Label" scope="row">
+                  <div class="slds-truncate" title="Name">
+                    <p style="font-size:small;"><strong>{file.label}</strong></p>
+                  </div>
+               </th>
+               <td data-label="Size">
+                  <div style="font-size:small;"><strong>{file.size}</strong></div>
+               </td>
+               <td data-label="Download Action">
+                  <div class="slds-truncate" title="Download Action">
+                    <a href={file.url} style="font-size: small;"><strong>Download</strong></a>
+                  </div>
+               </td>
+            </tr>
+         </template>
+        </tbody>
+      </table>
+    </lightning-card> 
+ </template>

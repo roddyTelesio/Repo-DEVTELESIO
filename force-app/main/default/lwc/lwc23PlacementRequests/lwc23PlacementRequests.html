@@ -1,0 +1,241 @@
+<template>
+    <lightning-card title={titleCountPlacementRequest} icon-name="standard:lead_list"> <br/>
+        <lightning-button-group slot="actions">
+            <template if:false={allReadOnly}>
+                <lightning-button label='New Placement Request(s)' onclick={handleOpenNewPlacementRequestModal} disabled={disablePlacementInfo}></lightning-button>
+                <lightning-button label='View Placement Table' onclick={viewPlacementTable} disabled={disablePlacementInfo}></lightning-button>
+                <lightning-button label='Send' name='Send' onclick={handleOpenSendUpdateRemindModal} disabled={disablePlacementInfo}></lightning-button>
+                <lightning-button label='Update' name='Update' onclick={handleOpenSendUpdateRemindModal} disabled={disableUpdateRemind}></lightning-button>
+                <lightning-button label='Remind' name='Remind' onclick={handleOpenSendUpdateRemindModal} disabled={disableUpdateRemind}></lightning-button>
+                <lightning-button label='Delete' onclick={handleDeleteBtn} disabled={disablePlacementInfo}></lightning-button>
+            </template>
+            <template if:true={allReadOnly}>
+                <lightning-button label='New Placement Request(s)' onclick={handleOpenNewPlacementRequestModal} disabled></lightning-button>
+                <lightning-button label='View Placement Table' onclick={viewPlacementTable} disabled></lightning-button>
+                <lightning-button label='Send' name='Send' onclick={handleOpenSendUpdateRemindModal} disabled></lightning-button>
+                <lightning-button label='Update' name='Update' onclick={handleOpenSendUpdateRemindModal} disabled></lightning-button>
+                <lightning-button label='Remind' name='Remind' onclick={handleOpenSendUpdateRemindModal} disabled></lightning-button>
+                <lightning-button label='Delete' onclick={handleDeleteBtn} disabled></lightning-button>
+            </template>
+        </lightning-button-group>
+
+        <template if:true={spinnerPlacementRequest}>
+            <div class="">
+                <lightning-spinner variant="brand" size="medium" class="slds-align_absolute-center"></lightning-spinner>
+            </div>
+        </template>
+
+        <div style="height:400px;">
+            <lightning-datatable
+                    key-field="id"
+                    data={dataPlacementRequest}
+                    columns={columnsPlacementRequest}
+                    onrowselection={handleRowSelection}>
+            </lightning-datatable>
+        </div>
+    </lightning-card>
+
+    <template if:true={isNewPlacementRequestModalOpen}>
+        <div class="demo-only">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 60%; max-width: 70rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseNewPlacementRequestModal}>
+                            <lightning-icon icon-name="utility:close" size="medium"></lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">New Placement Request(s)</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <template if:true={displayErrorMsg}>
+                            <div class="slds-text-align--center">
+                                Cannot create new Placement Request for Renewed Program.
+                            </div>
+                        </template>
+                        <template if:false={displayErrorMsg}>
+                            <c-lwc-24-new-placement-request program-id={selectedProgram} pcc={valuePrincipalCedComp}></c-lwc-24-new-placement-request> <!--RRA 1299-->
+                        </template>
+                    </div>
+                    <template if:true={displayErrorMsg}>
+                        <footer class="slds-modal__footer">
+                            <lightning-button-group>
+                                <lightning-button label="Close" onclick={handleCloseNewPlacementRequestModal}></lightning-button>
+                            </lightning-button-group>
+                        </footer>
+                    </template>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+
+    <template if:true={isSendUpdateRemindPlacementReqOpenModal}>
+        <div class="demo-only">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-04" aria-modal="true" aria-describedby="modal-content-id-4" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseSendUpdateRemindModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-heading-04" class="slds-text-heading_medium slds-hyphenate">{titlePopUp}</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-4">
+                        <c-lwc-18-send-update-remind  uw-year={valueUWYear} principle-ced-comp={valuePrincipalCedComp} program={selectedProgram} stage="Placement" selected-data-request={selectedPlacementRequest} selected-data-requestss={selectedPlacementRequest1} btn-name-click={btnNameSendUpdateRemind}></c-lwc-18-send-update-remind>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+
+    <template if:true={isReqTypeOpen}>
+        <div>
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-del01" aria-modal="true" aria-describedby="modal-id-del1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 50%; max-width: 65rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-del10" class="slds-text-heading_medium slds-hyphenate">Simulated / Definitive</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-id-del11">
+                        You are going to change the Type of the selected Placement Request(s). Do you want to continue?
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button-group>
+                            <lightning-button label="Accept" onclick={acceptToggleReqType}></lightning-button>
+                            <lightning-button label="Cancel" onclick={handleCloseModal}></lightning-button>
+                        </lightning-button-group>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+
+    <template if:true={isOpenConfirmation}>
+        <div>
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-01" aria-modal="true" aria-describedby="modal-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 50%; max-width: 65rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-01" class="slds-text-heading_medium slds-hyphenate">{statusModalTitle}</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-id-1">
+                        {status}
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button-group>
+                            <lightning-button label="Accept" onclick={acceptStatusChange}></lightning-button>
+                            <lightning-button label="Cancel" onclick={handleCloseModal}></lightning-button>
+                        </lightning-button-group>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+
+    <template if:true={isDeleteOpen}>
+        <div>
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-del01" aria-modal="true" aria-describedby="modal-id-del1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 50%; max-width: 65rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-del01" class="slds-text-heading_medium slds-hyphenate">{delMsgTitle}</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-id-del1">
+                        {delMessage}
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button-group>
+                            <lightning-button label="Accept" onclick={acceptDelete}></lightning-button>
+                            <lightning-button label="Cancel" onclick={handleCloseModal}></lightning-button>
+                        </lightning-button-group>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+
+    <template if:true={isPlacementTableOpen}>
+        <div class="demo-only">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 85%; max-width: 70rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-table1" class="slds-text-heading_medium slds-hyphenate">Placement Table</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-table2">
+                        <table>
+                            <thead>
+                                <th> &nbsp;Layer</th>
+                                <th> &nbsp;Treaty ref</th>
+                                <th> &nbsp;Treaty</th>
+                                <th> &nbsp;Broker</th>
+                                <th> &nbsp;Reinsurer/Pool </th>
+                                <th> &nbsp;Written share</th>
+                                <th> &nbsp;Reinsurer Status</th>
+                                <th> &nbsp;Last sent date</th>
+                                <th> &nbsp;Expected answer date</th>
+                                <th> &nbsp;Response Date</th>
+                            </thead>
+                            <tbody>
+                                <template for:each={placementTableData} for:item="rowData">
+                                    <tr key={rowData.Id} class={rowData.rowStyle} style={rowData.colorStyle}>
+                                        <td style={rowData.boldStyle}>
+                                            <span style={rowData.nameStyle}>
+                                                <lightning-icon	icon-name={rowData.iconName} 
+                                                size=x-small 
+                                                onclick={showOrHideChildrenRows} 
+                                                data-rowid={rowData.id}
+                                                data-expanded="false">
+                                                </lightning-icon>
+                                            </span>
+                                            &nbsp;{rowData.layer}
+                                        </td>
+                                        <td style={rowData.boldStyle}> &nbsp;{rowData.treatyRef} </td>
+                                        <td style={rowData.boldStyle}> &nbsp;{rowData.treatyName} </td>
+                                        <td style={rowData.boldStyle}> &nbsp;{rowData.broker} </td>
+                                        <td style={rowData.boldStyle}> &nbsp;{rowData.reinsurerPool} </td>
+                                        <td style={rowData.boldStyle} class={rowData.totalColorCss}> &nbsp;{rowData.writtenShare}</td> 
+                                        <td style={rowData.boldStyle}> &nbsp;{rowData.reinsurerStatus} </td>
+                                        <td style={rowData.boldStyle}> &nbsp;{rowData.lastSentDate}  </td>
+                                        <td style={rowData.boldStyle}> &nbsp;{rowData.expectedAnswerDate} </td>
+                                        <td style={rowData.boldStyle}> &nbsp;{rowData.responseDate} </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                          </table>
+                        <br/>
+                        <lightning-button class="slds-float--right" label="Close" slot="actions" onclick={handleCloseModal}></lightning-button>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+</template>

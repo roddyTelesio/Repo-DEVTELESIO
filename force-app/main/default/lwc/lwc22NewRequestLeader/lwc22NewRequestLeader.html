@@ -1,0 +1,64 @@
+<template>
+    <lightning-card>
+        <div slot="footer"></div>
+        <div>
+            <div class="slds-form-element">
+                <div class="slds-form-element__control">
+                    <div class="slds-combobox_container">
+                        <div class={txtReinsurerLookUpclassName} data-id="resultBox" aria-expanded="false" aria-haspopup="listbox" role="combobox">
+                            <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon slds-input-has-icon_left-right" role="none" style="padding-bottom: 8.5px;padding-right: 8px;">
+                                <div>
+                                    <span class="slds-icon_container slds-input__icon">
+                                        <lightning-icon class="slds-icon slds-icon slds-icon_small slds-icon-text-default" icon-name={iconName} size="small" alternative-text="icon" ></lightning-icon>
+                                    </span>
+                                </div>
+                                <lightning-input data-id="userinput" value={searchText} label="" name="searchText" onchange={searchReinsurerLookupField} class="leftspace"></lightning-input>
+                                <span class="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_right iconheight">
+                                    <lightning-icon class="slds-icon slds-icon slds-icon_small slds-icon-text-default slds-align-middle" icon-name="utility:search" size="x-small" alternative-text="icon" ></lightning-icon>
+                                </span>
+                            </div>
+                            <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon slds-input-has-icon_left-right slds-m-top_xx-small" role="none">
+                                <template for:each={selectedRein} for:item="record">
+                                    <span key={record.recId}>
+                                        <lightning-pill label={record.recName} name={record.recId} onremove={removeReinsurerLookupRecord}>
+                                            <lightning-icon alternative-text={record.recName}></lightning-icon>
+                                        </lightning-pill>
+                                    </span>
+                                </template>
+                            </div>
+
+                            <!-- Second part display result -->
+                            <div id="listbox-id-1" class="slds-dropdown slds-dropdown_length-with-icon-7 slds-dropdown_fluid" role="listbox">
+                                <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                    <template for:each={searchReinsurerLookupRecords} for:item="record">
+                                        <li role="presentation" class="slds-listbox__item" key={record.recId}>
+                                            <div data-id={record.recId} data-name={record.recName} onclick={setSelectedReinsurerLookupRecord} class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                                                <span class="slds-media__figure">
+                                                    <span class="slds-icon_container slds-icon-standard-account slds-align-middle">
+                                                        <lightning-icon icon-name={iconName} class="slds-icon slds-icon slds-icon_small slds-icon-text-default" size="small"></lightning-icon>
+                                                    </span>
+                                                </span>
+                                                <span class="slds-media__body">
+                                                    <span class="slds-listbox__option-text slds-listbox__option-text_entity">{record.recName}</span>
+                                                    <span class="slds-listbox__option-meta slds-listbox__option-meta_entity">{objectName} • {record.recName}</span>
+                                                </span>
+                                            </div>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+                            <div if:true={messageFlag}>
+                                No result found.
+                            </div>
+                            <div if:true={loadingText}>
+                                Loading...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </lightning-card>
+    <lightning-button class="slds-float--right slds-p-left--small" variant="brand" label="Confirm" disabled={disableConfirmReinsurerBtn} slot="actions" onclick={handleConfirmReinsurerLeader}></lightning-button>
+    <lightning-button class="slds-float--right" label="Cancel" slot="actions" onclick={handleCloseNewReinsurerLeaderModal}></lightning-button>
+</template>

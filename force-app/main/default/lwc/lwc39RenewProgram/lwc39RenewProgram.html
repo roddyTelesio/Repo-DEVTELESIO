@@ -1,0 +1,68 @@
+<template>
+    <template if:true={spinnerSave}>
+        <div class="">
+            <lightning-spinner variant="brand" size="medium" class="slds-align_absolute-center"></lightning-spinner>
+        </div>
+    </template>
+
+    <c-lwc-01-working-scope selected-comp={compOpenModal} selected-year={uwYearOpenModal} is-modal-open="true" is-renew="true"></c-lwc-01-working-scope>
+
+    <lightning-layout multiple-rows>
+        <lightning-layout-item padding="around-small" size="12">
+            <lightning-input type="text" data-id="ProgramName" name="Name" label="Name" value={programName} required></lightning-input>
+        </lightning-layout-item>
+    </lightning-layout>
+    <br/>
+
+    <template if:true={displayTreatySectionDatatable}>
+        <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small">
+            <lightning-card title={titleCountTreaties} icon-name="standard:contract"> <br/>
+                <template if:true={spinnerTreaty}>
+                    <div class="">
+                        <lightning-spinner variant="brand" size="medium" class="slds-align_absolute-center"></lightning-spinner>
+                    </div>
+                </template>
+
+                <div style="height:200px;">
+                    <lightning-datatable
+                            key-field="Id"
+                            data={dataTreaties}
+                            columns={columnsTreaty}
+                            onrowselection={handleTreatyRowSelection}
+                            selected-rows={preSelectedTreatiesRows}>
+                    </lightning-datatable>
+                </div>
+            </lightning-card>
+        </div>
+        <br/>
+
+        <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small">
+            <lightning-card title={titleCountSections} icon-name="standard:contract"> <br/>
+                <template if:true={spinnerSection}>
+                    <div class="">
+                        <lightning-spinner variant="brand" size="medium" class="slds-align_absolute-center"></lightning-spinner>
+                    </div>
+                </template>
+
+                <div style="height:200px;">
+                    <lightning-datatable
+                            key-field="Id"
+                            data-id="sectionDatatable"
+                            data={dataSections}
+                            columns={columnsSection}
+                            onrowselection={handleSectionRowSelection}
+                            selected-rows={preSelectedSectionsRows}>
+                    </lightning-datatable>
+                </div>
+            </lightning-card>
+        </div>
+        <br/>
+    </template>
+
+    <div style="float: right;">
+        <lightning-button class="slds-p-around--xxx-small" label="Cancel" slot="actions" onclick={handleCloseRenewProgramModal}></lightning-button>
+        <lightning-button class="slds-p-around--xxx-small" variant="brand" label="Save" slot="actions" onclick={handleSaveRenewProgram}></lightning-button>
+    </div>
+
+    <br/><br/>
+</template>

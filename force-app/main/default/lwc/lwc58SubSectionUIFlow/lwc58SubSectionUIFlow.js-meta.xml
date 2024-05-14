@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>55.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>lwc58SubSectionUIFlow</masterLabel>
+    <description>lwc58SubSectionUIFlow</description>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__RecordPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <propertyType name="PT" extends="SObject" label="Select a sObject" description="Select a sObject" />
+            <property name="lstSubSection" type="{PT[]}" label="Input Records" description="Record List Variable"  role="inputOnly" />
+            <property name="subSection_RecordId" type="String" label="SubSection Record Id" description="Record Id of SubSection"  role="outputOnly"/>
+            <property name="action" type="String" label="actionEditDelete" description="action Edit / Delete Records"/>
+            <property name="recordId" type="String" label="Id Section" description="record Id of Section"  role="inputOnly" />
+
+            <!-- <property   name="outputList"
+                        label="Output Record List"
+                        role="outputOnly"
+                        type="{PT[]}"
+                        description="Possibly updated Record list."/>
+           <property name="newRecord"
+            label="Output Record"
+            role="outputOnly"
+            type="{PT}"
+            description="Record edited."/>-->
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>58.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <property   name="docId"
+                        label="Content Document Id"
+                        type="String"
+                        description="Generated content document Id by the queuable "
+                        role="outputOnly"
+            />
+
+            <property   name="agreementId"
+                        label="Agreement Id"
+                        type="String"
+                        description="Agreement Id"
+                        role="inputOnly"
+            />
+
+            <property   name="pollingProcessName"
+                        label="Polling process Name (getRetroDocId or getMergeDocId)"
+                        type="String"
+                        description="Polling process Name (getRetroDocId or getMergeDocId)"
+                        role="inputOnly"
+            />
+
+                <property   name="isSuccess"
+                        label="isSuccess"
+                        type="Boolean"
+                        description="isSuccess"
+                        role="outputOnly"
+            />
+
+            <property   name="errMsg"
+                        label="errMsg"
+                        type="String"
+                        description="errMsg"
+                        role="outputOnly"
+            />
+
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

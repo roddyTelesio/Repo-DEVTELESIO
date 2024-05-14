@@ -1,0 +1,41 @@
+<template>
+    <template if:true={spinner}>
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </template>
+
+    <template if:true={conditions}>
+        <div style="background-color: #ffffff;">
+
+<!--            <template if:true={allReadOnlyProg}>-->
+<!--                <div style="display: table;  margin-right: auto;  margin-left: auto;"> <b> Inactive Principal or Covered Ceding Company </b> </div>-->
+<!--            </template>-->
+
+            <c-lwc-01-new-prog-cond-pg uw-year-open-modal={valueUWYear} comp-open-modal={valuePrincipalCedComp} is-program-edit={isEdit} selected-program={objProgram} condition-page="true" all-read-only={allReadOnlyProg}></c-lwc-01-new-prog-cond-pg>
+            <c-lwc-01-treaties my-selected-programs={recId} condition-page="true" all-read-only={allReadOnly}></c-lwc-01-treaties>
+            <br/>
+            <c-lwc-01-sections condition-page="true" all-read-only={allReadOnly}></c-lwc-01-sections>
+            <br/>
+            <div style="float:right;">
+                <lightning-button class="slds-p-around--xxx-small" variant="brand" label="Save Program" slot="actions" onclick={handleSaveProgram} disabled={allReadOnly}></lightning-button>
+            </div>
+        </div>
+    </template>
+
+    <template if:true={quote}>
+        <div style="background-color: #ffffff;">
+            <c-lwc-15-quote-requests all-read-only={allReadOnly}></c-lwc-15-quote-requests>
+        </div>
+    </template>
+
+    <template if:true={lead}>
+        <c-lwc-20-lead-requests selected-program={programId} all-read-only={allReadOnly}></c-lwc-20-lead-requests>
+    </template>
+
+    <template if:true={placement}>
+        <c-lwc-23-placement-requests selected-program={programId} all-read-only={allReadOnly}></c-lwc-23-placement-requests>
+    </template>
+
+    <template if:true={signing}>
+        <c-lwc-30-signing-requests selected-program={programId} principal-ced-year={valuePrincipalCedComp} uw-year={valueUWYear} all-read-only={allReadOnly}></c-lwc-30-signing-requests>
+    </template>
+</template>

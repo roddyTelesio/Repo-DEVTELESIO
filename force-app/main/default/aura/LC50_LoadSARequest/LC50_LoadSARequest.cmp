@@ -1,0 +1,12 @@
+<aura:component description="LC50_LoadSARequest" implements="force:appHostable,flexipage:availableForAllPageTypes,lightning:actionOverride,force:hasRecordId,force:hasSObjectName,lightning:isUrlAddressable">
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+    <aura:handler name="change" value="{!v.pageReference}" action="{!c.reInit}" />
+    <lightning:navigation aura:id="closeLoadSARequestModal"/>
+
+    <div class="slds-grid slds-wrap" style="background-color: #ffffff; padding:1rem;">
+        <div class="slds-size--1-of-1">
+            <c:lwc48CopySpecialAcceptance />
+            <br/>
+        </div>
+    </div>
+</aura:component>

@@ -1,0 +1,15 @@
+<aura:component description="LC33_MarketSubmission" implements="force:appHostable,lightning:actionOverride,force:hasRecordId,force:hasSObjectName,lightning:isUrlAddressable">
+    <div class="slds-page-header" style="width:100%; padding:1.5%; background-color:#ffffff;">
+         <div class="slds-grid">
+          <div class="slds-col slds-has-flexi-truncate">
+            <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate slds-align_absolute-center"><b>Market Submission</b></h2>
+           </div>
+        </div>
+    </div>
+    <div class="slds-grid slds-wrap" style="background-color: #ffffff; padding:1rem;">
+        <div class="slds-size--1-of-1">
+            <c:lwc33MarketSubmission/>
+            <br/>
+        </div>
+    </div>
+</aura:component>

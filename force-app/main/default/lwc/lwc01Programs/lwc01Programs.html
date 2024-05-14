@@ -1,0 +1,236 @@
+<template>
+    <div class="slds-theme_default">
+        <div style="background-color: #ffffff;">
+            <lightning-tile type="media">
+                <lightning-accordion active-section-name={label.Programs} allow-multiple-sections-open="true">
+                    <lightning-accordion-section name={label.Programs} label={label.Programs}>
+                        <lightning-card title={titleCountProgram} icon-name="standard:contact_list"> <br/>
+                            <lightning-button-group slot="actions">
+                                <lightning-button label={label.NewProgram} disabled={hideButtons} onclick={handleOpenModal}></lightning-button>
+                                <lightning-button label={label.Reactivate} disabled={hideButtons} onclick={reactivateBtn}></lightning-button>
+                                <lightning-button label={label.Deactivate} disabled={hideButtons} onclick={deactivateBtn}></lightning-button>
+                                <lightning-button label={label.Delete} disabled={hideButtons} onclick={deleteBtn}></lightning-button>
+                            </lightning-button-group>
+
+                            <template if:true={spinner}>
+                                <div class="">
+                                    <lightning-spinner variant="brand" size="medium" class="slds-align_absolute-center"></lightning-spinner>
+                                </div>
+                            </template>
+
+                            <div style="height:200px;">
+                                <lightning-datatable
+                                        key-field="id"
+                                        data={data}
+                                        columns={columns}
+                                        onrowaction={handleRowAction}
+                                        onrowselection={handleRowSelection}>
+                                </lightning-datatable>
+                            </div>
+                        </lightning-card>
+                    </lightning-accordion-section>
+                </lightning-accordion>
+            </lightning-tile>
+        </div>
+
+        <template if:true={isOpenConfirmation}>
+            <div>
+                <section role="dialog" tabindex="-1" aria-labelledby="modal-01" aria-modal="true" aria-describedby="modal-id-1" class="slds-modal slds-fade-in-open">
+                    <div class="slds-modal__container" style="width: 50%; max-width: 65rem; min-width: 40rem;">
+                        <header class="slds-modal__header">
+                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseModal}>
+                                <lightning-icon icon-name="utility:close" size="medium">
+                                </lightning-icon>
+                                <span class="slds-assistive-text">{label.Close}</span>
+                            </button>
+
+                            <h2 id="modal-01" class="slds-text-heading_medium slds-hyphenate">{statusModalTitle}</h2>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-id-1">
+                           {status}
+                        </div>
+                        <footer class="slds-modal__footer">
+                            <lightning-button-group>
+                                <lightning-button label={label.Accept} onclick={acceptStatusChange}></lightning-button>
+                                <lightning-button label={label.Cancel} onclick={handleCloseModal}></lightning-button>
+                            </lightning-button-group>
+                        </footer>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open"></div>
+            </div>
+        </template>
+
+        <template if:true={isOpenModal}>
+            <div class="demo-only">
+                <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                    <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                        <header class="slds-modal__header">
+                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseModal}>
+                                <lightning-icon icon-name="utility:close" size="medium">
+                                </lightning-icon>
+                                <span class="slds-assistive-text">{label.Close}</span>
+                            </button>
+
+                            <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">{label.NewProgram}</h2>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                            <c-lwc-01-new-program uw-year-open-modal={valueUWYear} comp-open-modal={valuePrincipalCedComp} is-program-copy={isCopy} selected-program={selectedRowProgram} cov-data= {dataCoveredCedingCompany}></c-lwc-01-new-program>
+                        </div>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open"></div>
+            </div>
+        </template>
+
+        <template if:true={isDeleteOpen}>
+            <div>
+                <section role="dialog" tabindex="-1" aria-labelledby="modal-del01" aria-modal="true" aria-describedby="modal-id-del1" class="slds-modal slds-fade-in-open">
+                    <div class="slds-modal__container" style="width: 50%; max-width: 65rem; min-width: 40rem;">
+                        <header class="slds-modal__header">
+                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseModal}>
+                                <lightning-icon icon-name="utility:close" size="medium">
+                                </lightning-icon>
+                                <span class="slds-assistive-text">{label.Close}</span>
+                            </button>
+
+                            <h2 id="modal-del01" class="slds-text-heading_medium slds-hyphenate">{delMsgTitle}</h2>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-id-del1">
+                            {delMessage}
+                        </div>
+                        <footer class="slds-modal__footer">
+                            <lightning-button-group>
+                                <lightning-button label={label.Accept} onclick={acceptDelete}></lightning-button>
+                                <lightning-button label={label.Cancel} onclick={handleCloseModal}></lightning-button>
+                            </lightning-button-group>
+                        </footer>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open"></div>
+            </div>
+        </template>
+
+        <template if:true={isRenewOpenModal}>
+            <div class="demo-only">
+                <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-02" aria-modal="true" aria-describedby="modal-content-id-2" class="slds-modal slds-fade-in-open">
+                    <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                        <header class="slds-modal__header">
+                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseRenewModal}>
+                                <lightning-icon icon-name="utility:close" size="medium">
+                                </lightning-icon>
+                                <span class="slds-assistive-text">{label.Close}</span>
+                            </button>
+
+                            <h2 id="modal-heading-02" class="slds-text-heading_medium slds-hyphenate">{titleTypeOfRenew}</h2>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-2">
+                            <template if:true={displayErrorMsg}>
+                                <div class="slds-text-align--center">
+                                    {errorMessage}
+                                </div>
+                            </template>
+                            <template if:false={displayErrorMsg}>
+                                <!-- AMI 10/06/22 W:0771
+                                Adding new event to notify this component of successfull program renewal -->
+                                <c-lwc-39-renew-program uw-year-open-modal={valueUWYear} comp-open-modal={valuePrincipalCedComp} selected-program={selectedRowProgram} display-treaty-section-datatable={displayTreatySection} selected-type-of-renew={typeOfRenewValue} onprogrenewed={toggleRenewConfirmationModel}></c-lwc-39-renew-program>
+                            </template>
+                        </div>
+
+                        <template if:true={displayErrorMsg}>
+                            <footer class="slds-modal__footer">
+                                <lightning-button-group>
+                                    <lightning-button label={label.Close} onclick={handleCloseRenewModal}></lightning-button>
+                                </lightning-button-group>
+                            </footer>
+                        </template>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open">
+                </div>
+            </div>
+        </template>
+
+        <template if:true={displayPopOptionBC}>
+            <div class="demo-only">
+                <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-03" aria-modal="true" aria-describedby="modal-content-id-3" class="slds-modal slds-fade-in-open">
+                    <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                        <header class="slds-modal__header">
+                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleClosePopOptionBCModal}>
+                                <lightning-icon icon-name="utility:close" size="medium">
+                                </lightning-icon>
+                                <span class="slds-assistive-text">{label.Close}</span>
+                            </button>
+
+                            <h2 id="modal-heading-03" class="slds-text-heading_medium slds-hyphenate">Renew Program</h2>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-3">
+                            <lightning-layout multiple-rows class="slds-align-content-center slds-text-align--center">
+                                <lightning-layout-item padding="around-small" size="12">
+                                    <lightning-formatted-text class="slds-text-title_bold" value="Choose the Renew Type: "></lightning-formatted-text>
+                                </lightning-layout-item>
+                                <lightning-layout-item padding="around-small" size="12">
+                                    <lightning-input name="IdenticalRenew" checked={IdenticalRenewValue} data-id="IdenticalRenew" type="checkbox" label="Identical Renew" onchange={deselectRenegotiationRenewCheckbox}></lightning-input>
+                                </lightning-layout-item>
+                                <div style="margin-left: -14px;">
+                                    <lightning-layout-item padding="around-small" size="12">
+                                        <lightning-input name="RenegotiationRenew" checked={RenegotiationRenewValue} data-id="RenegotiationRenew" type="checkbox" label="Renegotiation" onchange={deselectIdenticalRenewCheckbox}></lightning-input>
+                                    </lightning-layout-item>
+                                </div>
+
+                            </lightning-layout>
+                        </div>
+
+                        <footer class="slds-modal__footer">
+                            <div style="float: right;">
+                                <lightning-button class="slds-p-around--xxx-small" label="Cancel" slot="actions" onclick={handleClosePopOptionBCModal}></lightning-button>
+                                <lightning-button class="slds-p-around--xxx-small" variant="brand" label="Next" slot="actions" onclick={handleOpenRenewModelFromOption}></lightning-button>
+                            </div>
+                        </footer>
+
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open">
+                </div>
+            </div>
+        </template>
+
+        <template if:true={informForRenewProgram}>
+            <div class="demo-only">
+                <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-04" aria-modal="true" aria-describedby="modal-content-id-4" class="slds-modal slds-fade-in-open">
+                    <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                        <header class="slds-modal__header">
+                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseInformRenewProgramModal}>
+                                <lightning-icon icon-name="utility:close" size="medium">
+                                </lightning-icon>
+                                <span class="slds-assistive-text">{label.Close}</span>
+                            </button>
+
+                            <h2 id="modal-heading-04" class="slds-text-heading_medium slds-hyphenate">Renew Program</h2>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-4">
+                            <div class="slds-text-align&#45;&#45;center">
+                                {informRenewProgramMsg}
+                            </div>
+                        </div>
+                        <footer class="slds-modal__footer">
+                            <lightning-button-group>
+                                <lightning-button label='Cancel' onclick={handleCloseInformRenewProgramModal}></lightning-button>
+                                <lightning-button label='Next' onclick={handleOnclickNextInformRenew} variant='brand'></lightning-button>
+                            </lightning-button-group>
+                        </footer>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open">
+                </div>
+            </div>
+        </template>
+
+        <!-- AMI 10/06/22 W:0771
+        Modal Confirmation for Redirection Option After Sucessfull Renewal -->
+        <template if:true={showRenewConfirmationModel}>
+            <c-modal-Confirmation-Form onprogrenew={closeRenewConfirmationModelAndRedirect} onrefreshcomp={closeRenewConfirmationModelAndRefresh}>
+            </c-modal-Confirmation-Form>
+        </template>
+    </div>
+</template>

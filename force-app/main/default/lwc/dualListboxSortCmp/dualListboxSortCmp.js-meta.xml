@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>56.0</apiVersion>
+    <isExposed>true</isExposed>
+
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+        
+            <property   name="isDebug"
+                        label="Show Debug?"
+                        type="Boolean"
+                        role="inputOnly"/>
+
+            <propertyType name="T"
+                        extends="SObject"
+                        label="Object"
+                        description="Select an object API Name." />
+            <property   name="recordList"
+                        label="RecordList"
+                        type="{T[]}"
+                        role="inputOnly" 
+                        required="true" 
+                        description="List of records to sort"/>
+
+            <property   name="selectionList"
+                        label="Selected sorted Records"
+                        role="outputOnly"
+                        type="{T[]}"
+                        description="Selected Record in the list."/>
+
+            <property   name="orderedList"
+                        label="Selected sorted Records"
+                        role="outputOnly"
+                        type="{T[]}"
+                        description="Selected Record in the list."/>
+           
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

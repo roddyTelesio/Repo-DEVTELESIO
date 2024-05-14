@@ -1,0 +1,21 @@
+.THIS .cssBlue{
+    background-color: aliceblue;
+}
+
+.THIS .cssGray{
+    background-color: lightgray;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+table,th,tr,td,thead,tbody {
+    border: 1px solid black;
+}
+
+.hide {
+    display: none;
+}
+
+.applyLeftPadding {
+    padding-left: 10px;
+}

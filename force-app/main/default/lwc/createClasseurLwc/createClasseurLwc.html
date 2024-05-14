@@ -1,0 +1,207 @@
+<template>
+   <lightning-card  title="Parameters Setup ⚙" >
+      <div class="slds-box slds-p-around_none slds-m-top_x-small slds-m-bottom_medium slds-m-horizontal_none">
+         <lightning-layout>
+             <lightning-layout-item flexibility="auto" padding="around-small" size="6">
+                 <div class="custom-box slds-box slds-p-around_medium slds-text-align_left">
+                     <div class="app">
+                           <lightning-card title="Basic Details" icon-name="utility:company">
+                              <lightning-input class="validate" value={quotationtablename} onchange={handleChangeQuoteTableName} type="text" label="Name of the quotation Table" required></lightning-input>
+                              <lightning-combobox name="company"
+                                 class="validate"
+                                 label={label.PrincipalCedingCompany}
+                                 value={selectedcomp}
+                                 options={cedingAccOpt}
+                                 onchange={handleChangeCedingComp} required 
+                                 disabled={readOnlyMode}
+                                 ></lightning-combobox>
+                              <lightning-combobox name="uwYear"
+                                 class="validate" 
+                                 label="Underwriting Year"
+                                 value={selecteduwyear}
+                                 placeholder="Select Underwriting Year"
+                                 options={uwYearOpt}
+                                 onchange={handleChangeUWYr}
+                                 required></lightning-combobox>
+                              <lightning-combobox
+                                 name="program"
+                                 class="validate" 
+                                 label="Program"
+                                 value={programselected}
+                                 placeholder="Select Program"
+                                 options={programs}
+                                 onchange={handleChangeProgram} required disabled={readOnlyMode}>
+                              </lightning-combobox>
+                           </lightning-card>
+                     </div>
+                 </div>
+             </lightning-layout-item>
+             <lightning-layout-item flexibility="auto" padding="around-small" size="6">
+               <div class="custom-box slds-box slds-p-around_medium slds-text-align_left mh-tabs">
+                  <lightning-card>
+
+                     <div slot="title">
+                        <lightning-icon icon-name="utility:collection_alt" size="small"></lightning-icon>
+                        Tabs Setup
+                     </div>
+
+                     <div class="slds-clearfix" slot="actions">
+                        <div class="slds-float_right slds-m-bottom_medium">
+                           <lightning-button variant="brand"
+                              label="New Tab ➕"
+                              title="New Tab ➕"
+                              onclick={openModal}
+                              class="slds-m-left_x-small slds-m-bottom_medium"
+                              >
+                           </lightning-button>
+                        </div>
+                     </div>
+                     
+                     <table class="slds-table slds-table_cell-buffer slds-no-row-hover slds-table_bordered" aria-label="Example table of Opportunities with no row hovers">
+                        <thead>
+                           <tr class="slds-line-height_reset">
+                              <th class="" scope="col">
+                                 <div class="slds-truncate" title="Checkbox"></div>
+                              </th>
+                              <th class="" scope="col">
+                                 <div class="slds-truncate" title="Date de prochaine MAJ">Name</div>
+                              </th>
+                              <th class="" scope="col">
+                                 <div class="slds-truncate" title="Dernière MAJ Demandé par">Type</div>
+                              </th>
+                              <th class="" scope="col">
+                                 <div class="slds-truncate" title="Actions">Actions</div>
+                              </th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           <template for:each={tabs} for:item="item">
+                              <tr class="slds-hint-parent" key={item.name}>
+                                 <td>
+                                    <lightning-input type="checkbox" onchange={handleCheckboxClicked}  data-id={item.name}  name={item.name}></lightning-input>
+                                 </td>
+                                 <th data-label="Name" scope="row">
+                                    <div class="slds-truncate" title="Name">
+                                       <a href="#" tabindex="-1">{item.name}</a>
+                                    </div>
+                                 </th>
+                                 <td data-label="Type">
+                                    <div class="slds-truncate" title="Type">{item.type}</div>
+                                 </td>
+                                 <td data-label="Actions">
+                                    <div class="slds-truncate" title="Delete Action">
+                                       <lightning-button-icon icon-name="utility:delete"    onclick={handleDeleteTab} data-id={item.name}  alternative-text="Delete"   class="slds-m-left_xx-small" title="Delete"></lightning-button-icon>
+                                    </div>
+                                 </td>
+                              </tr>
+                           </template>
+                        </tbody>
+                     </table>
+                  </lightning-card>
+               </div>
+             </lightning-layout-item>
+         </lightning-layout>
+
+         <lightning-layout>
+            <lightning-layout-item flexibility="auto" padding="around-small" size="6">
+                  <div class="custom-box slds-box slds-p-around_medium slds-text-align_left mh-treaty">
+
+                     <div class="app">
+                        <lightning-card title="Treaty Filter" icon-name="utility:info_alt">
+                           
+                            <lightning-radio-group 
+                              name="Treaty"
+                              label="Treaty"
+                              options={treatyDisplayed}
+                              value={treaty}
+                              onchange={handleChangetreaty}
+                              type="radio" disabled={optionsDisabled}></lightning-radio-group>
+                        </lightning-card>
+                    </div>
+
+                     
+                  </div>
+            </lightning-layout-item>
+            <lightning-layout-item flexibility="auto" padding="around-small" size="6">
+                  <div class="custom-box slds-box slds-p-around_medium slds-text-align_left">
+                     
+                     <lightning-card title="Section/Option Selection" icon-name="utility:matrix">
+                        <div class="slds-p-around_medium">
+                           <h2>Section/Options</h2>
+                           <lightning-dual-listbox name="sections"
+                              label="Select Sections"
+                              source-label="Available"
+                              selected-label="Selected"
+                              field-level-help="Select the sections that are desired in the current sheet"
+                              options={sectionsUnselectedDisplayed}
+                              value={sectionsSelectedDisplayed}
+                              onchange={handleChangeSection} disabled={optionsDisabled}></lightning-dual-listbox>
+                        </div>
+                     </lightning-card>
+                  </div>
+            </lightning-layout-item>
+        </lightning-layout>
+      </div>
+      <div class="slds-grid slds-gutters">
+         <div class="slds-col slds-size_5-of-12">
+            
+         </div>
+         <div class="slds-col slds-size_2-of-12 slds-p-around_medium">
+            <lightning-button variant="brand"
+                     label="Save"
+                     title="Save"
+                     onclick={createClasseur}
+                     class="slds-m-left_x-small">
+                  </lightning-button>
+         </div>
+         <div class="slds-col slds-size_5-of-12">
+         </div>
+      </div>
+      <template if:true={loading}>
+         <div class="slds-p-around_x-large">
+            <lightning-spinner alternative-text="Loading" size="large" variant="brand"></lightning-spinner>
+         </div>
+      </template>
+   </lightning-card>
+   <!--Use template if:true to display/hide popup based on isModalOpen value--> 
+   <template if:true={isModalOpen}>
+      <!-- Modal/Popup Box LWC starts here -->
+      <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+         <div class="slds-modal__container">
+            <!-- Modal/Popup Box LWC header here -->
+            <header class="slds-modal__header">
+               <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closeModal}>
+                  <lightning-icon icon-name="utility:close"
+                     alternative-text="close"
+                     variant="inverse"
+                     size="small" ></lightning-icon>
+                  <span class="slds-assistive-text">Close</span>
+               </button>
+               <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">New Tab</h2>
+            </header>
+            <!-- Modal/Popup Box LWC body starts here -->
+            <div class="slds-modal__content slds-p-around_medium modal-resized" id="modal-content-id-1">
+               <lightning-combobox
+                  class="validate-new-tab"
+                  name="Type"
+                  label={label.QuoteTableTemplateSheetType}
+                  value={selectedTabType}
+                  placeholder="Select tab type"
+                  options={tabTypes}
+                  onchange={handleChangeTabType} 
+                  variant="label-inline"
+                  required
+                  >
+               </lightning-combobox>
+               <lightning-input type="text" label={label.QuoteTableNewSheet} variant="label-inline" required value={inputTabName} onchange={tabNameChanged} class="validate-new-tab"></lightning-input>
+            </div>
+            <!-- Modal/Popup Box LWC footer starts here -->
+            <footer class="slds-modal__footer">
+               <button class="slds-button slds-button_neutral" onclick={closeModal} title="Cancel">Cancel</button>
+               <button class="slds-button slds-button_brand" onclick={handleAddTab} title="OK">OK</button>
+            </footer>
+         </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open"></div>
+   </template>
+</template>

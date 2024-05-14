@@ -1,0 +1,7 @@
+.THIS lightning-button[data-node]:hover::after {
+    content: attr(data-node);
+    left: -4ch;
+    border-bottom: 0 none transparent;
+    background: black;
+    color: gold;
+}

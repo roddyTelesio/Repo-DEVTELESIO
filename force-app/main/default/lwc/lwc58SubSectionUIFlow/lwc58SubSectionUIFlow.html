@@ -1,0 +1,50 @@
+<template>
+    <!--<div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+    </div>-->
+    <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom">
+        <lightning-card title={titleSubSection} icon-name="standard:action_list_component" ><br/>
+            <div style="height: 600px;width: auto;">
+                <template if:true={lstSubSection}>
+                     <!--RRA - ticket 1532 - 14062023 / selected-rows={preSelectedSubSection} => this part is not working actualy-->
+                     <lightning-datatable data={lstSubSection}
+                            columns={columns}
+                            key-field="id"
+                            onrowaction={handleRowActions}
+                            onrowselection={handleRowSelection}
+                            max-row-selection="1"
+                            column-widths-mode="fixed">
+                      </lightning-datatable>
+                </template>
+
+            </div>
+
+            <!-- Spinner -->
+            <div if:true={showLoadingSpinner}>
+                <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+            </div>
+        </lightning-card> 
+    </div>
+
+    <span style="display: inline-block">
+        <lightning-input type="toggle" 
+        label="Show/Hide HazardBassin" 
+        style="font-weight:bold;"
+        checked={visibleHB}
+        message-toggle-active="Show"
+        message-toggle-inactive="Hide"
+        onchange={handleCheckboxChangeHB}
+        disabled={disableHB}>
+    </lightning-input>
+    </span> &nbsp;&nbsp;&nbsp;
+    <span style="display: inline-block">
+        <lightning-input type="toggle" 
+            label="Show/Hide PortFolioSegment" 
+            style="font-weight:bold;"
+            checked={visiblePS}
+            message-toggle-active="Show"
+            message-toggle-inactive="Hide"
+            onchange={handleCheckboxChangePS}
+            disabled={disablePS}>
+        </lightning-input>
+    </span>
+</template>

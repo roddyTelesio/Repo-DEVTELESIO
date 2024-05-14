@@ -1,0 +1,16 @@
+<template>
+    
+    <lightning-card class="slds-box slds-p-around_none">
+        <lightning-tabset active-tab-value={activetab}>
+            <lightning-tab label="Parameters Setup" value="paramsetup"> 
+                <c-create-classeur-lwc></c-create-classeur-lwc>
+            </lightning-tab>
+            
+            <lightning-tab label="List Excels" value="list">
+                <c-quote-table-list></c-quote-table-list>    
+            </lightning-tab>
+    
+        </lightning-tabset>
+    </lightning-card>
+    
+</template>

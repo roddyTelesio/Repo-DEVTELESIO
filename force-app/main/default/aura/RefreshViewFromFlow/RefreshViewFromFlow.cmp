@@ -1,0 +1,11 @@
+<!--
+  @description       : 
+  @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+  @group             : 
+  @last modified on  : 09-01-2023
+  @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+-->
+<aura:component implements="lightning:availableForFlowActions,force:hasRecordId">
+    <!-- no markup needed -->
+    <div class="slds-align_absolute-center" style="height:5rem"> <h3>Just a second.. 🪄 </h3></div>
+</aura:component>

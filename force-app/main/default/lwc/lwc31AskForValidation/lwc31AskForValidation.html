@@ -1,0 +1,59 @@
+<template>
+    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+    <c-lwc-01-working-scope selected-comp={principleCedComp} selected-year={uwYear} is-modal-open="true"></c-lwc-01-working-scope>
+    <div style="background-color: #f3f2f2;padding-top: 0.5rem;padding-bottom: 0.5rem;margin-top: 0.5rem;">
+        <lightning-tile type="media"> 
+            <div class="slds-text-heading_small">Program</div>
+        </lightning-tile>
+    </div>
+    <lightning-layout>
+        <lightning-layout-item padding="around-small" size="6">
+            <lightning-combobox name="year"
+                                label="Program"
+                                value={value}
+                                options={programOpt}
+                                disabled>
+            </lightning-combobox>
+        </lightning-layout-item>
+        <lightning-layout-item padding="around-small" size="6">
+        </lightning-layout-item>
+    </lightning-layout>
+    <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small">
+        <lightning-card title="Apply To" icon-name="standard:calibration"> <br/>
+            <div style="height:200px;">
+                <lightning-datatable
+                        key-field="id"
+                        data={selectedDataRequest}
+                        columns={columnsDataRequest}
+                        hide-checkbox-column="true">
+                </lightning-datatable>
+            </div>
+        </lightning-card>
+    </div>
+    <br>
+    <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small">
+        <lightning-card title="Ask To" icon-name="standard:announcement"> <br/>
+            <div style="height:200px;">
+                <lightning-datatable
+                        class="askFor"
+                        key-field="id"
+                        data={lstSelectedAskTo}
+                        columns={columnsAskTo} >
+                </lightning-datatable>
+            </div>
+        </lightning-card>
+    </div>
+    <br>
+    <div>
+        <lightning-textarea label="Comment" value={emailContent} name="Comment" onchange={handleOnChangeComment}></lightning-textarea>
+    </div>
+    
+    <br/>
+    <div style="float: right;">
+        <lightning-button-group>
+            <lightning-button label="Cancel" onclick={handleCloseConfirmationModal}></lightning-button>
+            <lightning-button label="Send" style="padding-left: 10px;" variant="brand" onclick={handleValidateRequests}></lightning-button>
+        </lightning-button-group>
+    </div>
+    </div>
+</template>

@@ -1,0 +1,720 @@
+<template>
+    <template if:true={showClosePreviousPhaseBtn}>
+        <div class="slds-text-align--center">
+            <div class="slds-text-heading_medium slds-text-title_bold slds-p-around_small">Read this before you display the Signing Table</div>
+            <div class="slds-text-body_small slds-p-bottom--medium">Click the button below to close the previous phases and display the Signing table</div>
+            <template if:false={allReadOnly}>
+                <lightning-button label="Close Previous Phases" class="slds-p-around--xxx-small" disabled={disabledCloseButton} variant="brand" slot="actions" onclick={handleClosePreviousPhases}></lightning-button>
+            </template>
+            <template if:true={allReadOnly}>
+                <lightning-button label="Close Previous Phases" class="slds-p-around--xxx-small" disabled variant="brand" slot="actions" onclick={handleClosePreviousPhases}></lightning-button>
+            </template>
+        </div>
+
+        <template if:true={spinnerSigningRequest}>
+            <lightning-spinner variant="brand" size="medium"></lightning-spinner>
+        </template>
+    </template>
+
+    <template if:false={showClosePreviousPhaseBtn}>
+        <template if:true={displayTwoFieldForPremium}>
+            <lightning-layout multiple-rows>
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-input label={strPremiumOtherCurrencyLabel} type="number" value={totalCededPremiumOther} disabled></lightning-input><br/>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-input label="Premium (EUR)" type="number" value={totalCededPremiumEUR} disabled></lightning-input><br/>
+                </lightning-layout-item>
+            </lightning-layout>
+        </template>
+        <template if:false={displayTwoFieldForPremium}>
+            <lightning-input label="Premium (EUR)" type="number" value={totalCededPremiumEUR} disabled></lightning-input><br/>
+        </template>
+
+        <lightning-card title={titleCountSigningRequest} icon-name="standard:orders">
+            <lightning-button-group slot="actions">
+                <template if:true={spinnerSigningRequest}>
+                    <lightning-spinner variant="brand" size="medium"></lightning-spinner>
+                </template>
+
+                <template if:false={allReadOnly}>
+                    <lightning-button label="Save" name="save" onclick={handleSaveSigningRequest}  disabled={disableBtnSigning}></lightning-button> <!--RRA - ticket 0585 - 07122022 -->
+                    <lightning-button label="Written To Signed share" name="write" onclick={handleOnClickWrittenSignedBtn} disabled={hideWrittenToSignBtn}></lightning-button>
+                    <lightning-button label="Send" name="Send" onclick={handleOpenSendUpdateRemindModal} disabled={disableBtnSend}></lightning-button>
+                    <lightning-button label="Ask for Validation" name="validate" onclick={handleOnClickValidationBtn} disabled={disableBtnSigning}></lightning-button> <!--RRA - ticket 0585 - 07122022 -->
+                    <lightning-button label="Update" name="Update" onclick={handleOpenSendUpdateRemindModal} disabled={disableBtnSigning}></lightning-button> <!--RRA - ticket 0585 - 07122022 -->
+                    <lightning-button label="Remind" name="Remind" onclick={handleOpenSendUpdateRemindModal} disabled={disableBtnSigning}></lightning-button> <!--RRA - ticket 0585 - 07122022 -->
+                    <lightning-button label="Close Signing & Notify WebXL" name="CloseSigningNotifyWebXL" onclick={handleOnClickCloseSigningNotifyWebXLBtn} disabled={disableThisButton}></lightning-button> <!--869 - RRA  grisage du bouton Close Signing & Notify WebXL-->
+                    <template if:true={buttonDeleteVisbility}>
+                        <lightning-button label="Delete Signing Phase" name="delete" onclick={handleOnClickDeleteBtn} disabled={disableBtnSigning}></lightning-button> <!--RRA - ticket 0585 - 07122022 -->
+                    </template>
+                    <template if:true={isProfileSuper}>
+                        <lightning-button label="Reopen a Signing" name="ReopenSigning" onclick={handleOnClickReopenBtn} disabled={disableBtnSigning}></lightning-button> <!--RRA - ticket 0585 - 07122022 -->
+                    </template>
+                    <!-- RRA - ticket 1521 - 10052023
+                    <template if:true={buttonSignPoolVisibility}>
+                        <lightning-button label="Sign for Pool" name="sign" onclick={handleOnClickSignForPoolBtn} disabled={disableBtnSigning}></lightning-button> RRA - ticket 0585 - 07122022 
+                    </template>-->
+                </template>
+
+                <template if:true={allReadOnly}>
+                    <lightning-button label="Save" name="save" onclick={handleSaveSigningRequest} disabled></lightning-button>
+                    <lightning-button label="Written To Signed share" name="write" onclick={handleOnClickWrittenSignedBtn} disabled></lightning-button>
+                    <lightning-button label="Send" name="Send" onclick={handleOpenSendUpdateRemindModal} disabled></lightning-button>
+                    <lightning-button label="Ask for Validation" name="validate" onclick={handleOnClickValidationBtn} disabled></lightning-button>
+                    <lightning-button label="Update" name="Update" onclick={handleOpenSendUpdateRemindModal} disabled></lightning-button>
+                    <lightning-button label="Remind" name="Remind" onclick={handleOpenSendUpdateRemindModal} disabled></lightning-button>
+                    <lightning-button label="Close Signing & Notify WebXL" name="CloseSigningNotifyWebXL" onclick={handleOnClickCloseSigningNotifyWebXLBtn} disabled></lightning-button>
+                    <template if:true={buttonDeleteVisbility}>
+                        <lightning-button label="Delete Signing Phase" name="delete" onclick={handleOnClickDeleteBtn} disabled></lightning-button>
+                    </template>
+                    <template if:true={isProfileSuper}>
+                        <lightning-button label="Reopen a Signing" name="ReopenSigning" onclick={handleOnClickReopenBtn} disabled></lightning-button>
+                    </template>
+                    <!-- RRA - ticket 1521 - 10052023
+                    <template if:true={buttonSignPoolVisibility}>
+                        <lightning-button label="Sign for Pool" name="sign" onclick={handleOnClickSignForPoolBtn} disabled></lightning-button>
+                    </template>-->
+                </template>
+
+
+            </lightning-button-group>
+            <lightning-layout>
+                <br/>
+
+                <table style="width:100%" data-table-id="1">
+                    <tr class="slds-border--bottom">
+                        <!-- AMI 01/07/22 W:0947
+                        Enable select/deselect all 
+                        MRA W-0947 25/08/2022 hide checkbox before priimary send -->
+                        <template if:false={hideCheckbox}>
+                            <td class="slds-m-around--small"><lightning-input label="" type="checkbox" onchange={handleAllRequestSelections} data-id="gToggle"></lightning-input></td>
+                        </template>
+                        <template if:true={hideCheckbox}>
+                            <th></th>
+                        </template>
+                        <th>Layer</th>
+                        <th>Treaty ref</th>
+                        <th>Treaty</th>
+                        <th>Broker</th>
+                        <th>Broker status</th>
+                        <th>Reinsurer / Pool</th>
+                        <th>Risk Carrier</th>
+                        <th>Financial Entity</th>
+                        <th>Written Share</th>
+                        <th>Signed Share</th>
+                        <th>Reinsurer Status</th>
+                        <th>Total deductions</th>
+                        <th>Retrocession Brokerage</th>
+                        <th>Loss deposit mode</th>
+                        <th>Premium Deposit</th>
+                        <th>Last sent date</th>
+                        <th>Expected answer date</th>
+                        <th>Response date</th>
+                    </tr>
+
+                    <template for:each={dataSigningRequest} for:item="req" for:index="rowIdx">
+                        <template if:true={req.displayInTable}>
+                            <tr class="slds-border--bottom slds-align-middle" key={req.Id} id={req.Id} style={req.boldStyle} data-id="trId">
+                                <!--MRA W-0947 25/08/2022 hide checkbox before priimary send--> 
+                                <template if:false={hideCheckbox}>
+                                    <td class="slds-m-around--small" width="2%"><lightning-input label="" name="Checkbox" id={req.Id} type="checkbox" onchange={handleChangeRequestCheckbox} data-name="toggle"></lightning-input></td>
+                                </template>
+                                <template if:true={hideCheckbox}>
+                                    <td></td>
+                                </template>
+                                <td class="slds-m-around--small" width="3%">{req.TECH_Layer__c}</td>
+                                <td class="slds-m-around--small" width="3%">{req.TreatyReference__c}</td>
+                                <td class="slds-m-around--small" width="6%">{req.TECH_TreatyName__c}</td>
+                                <td class="slds-m-around--small" width="6%">{req.TECH_BrokerName__c}</td>
+
+                                <template if:false={allReadOnly}>
+                                    <template if:true={req.TECH_IsBrokerPresent__c}>
+                                        <td class="slds-m-around--small" width="6%" data-id="tdId">
+                                            <div class="slds-p-bottom--medium" data-id="divId">
+                                                <template if:true={req.isLead}>
+                                                    <lightning-combobox class="strongText" label="" placeholder="--None--" value={req.BrokerStatus__c} 
+                                                    options={brokerStatusOpt} name="BrokerStatus__c" id={req.Id} onchange={handleChangeValue}></lightning-combobox>
+                                                </template>
+                                                <template if:false={req.isLead}>
+                                                    <lightning-combobox label="" placeholder="--None--" value={req.BrokerStatus__c} 
+                                                    options={brokerStatusOpt} name="BrokerStatus__c" id={req.Id} onchange={handleChangeValue}></lightning-combobox>
+                                                </template>
+                                                    
+                                            </div>
+                                        </td>
+                                    </template>
+                                    <template if:false={req.TECH_IsBrokerPresent__c}>
+                                        <td class="slds-m-around--small" width="6%" data-id="tdId">
+                                            <div class="slds-p-bottom--medium" data-id="divId">
+                                                <template if:true={req.isLead}>
+                                                    <lightning-combobox label="" class="strongText" placeholder="--None--" value={req.BrokerStatus__c} name="BrokerStatus__c" id={req.Id} disabled></lightning-combobox>
+                                                </template>
+                                            </div>
+                                            <template if:false={req.isLead}>
+                                                <lightning-combobox label="" placeholder="--None--" value={req.BrokerStatus__c} name="BrokerStatus__c" id={req.Id} disabled></lightning-combobox>
+                                            </template>
+                                        </td>
+                                    </template>
+                                </template>
+
+                                <template if:true={allReadOnly}>
+                                    <template if:true={req.TECH_IsBrokerPresent__c}>
+                                        <td class="slds-m-around--small" width="6%" data-id="tdId">
+                                            <div class="slds-p-bottom--medium" data-id="divId">
+                                                <template if:true={req.isLead}>
+                                                    <lightning-combobox label="" class="strongText" placeholder="--None--" value={req.BrokerStatus__c} options={brokerStatusOpt} disabled name="BrokerStatus__c" id={req.Id} onchange={handleChangeValue}></lightning-combobox>
+                                                </template>
+                                                <template if:false={req.isLead}>
+                                                    <lightning-combobox label="" placeholder="--None--" value={req.BrokerStatus__c} options={brokerStatusOpt} disabled name="BrokerStatus__c" id={req.Id} onchange={handleChangeValue}></lightning-combobox>
+                                                </template>
+                                            </div>
+                                        </td>
+                                    </template>
+                                    <template if:false={req.TECH_IsBrokerPresent__c}>
+                                        <td class="slds-m-around--small" width="6%" data-id="tdId">
+                                            <div class="slds-p-bottom--medium" data-id="divId">
+                                                <template if:true={req.isLead}>
+                                                    <lightning-combobox label="" class="strongText" placeholder="--None--" value={req.BrokerStatus__c} name="BrokerStatus__c" id={req.Id} disabled></lightning-combobox>
+                                                </template>
+                                                <template if:false={req.isLead}>
+                                                    <lightning-combobox label="" placeholder="--None--" value={req.BrokerStatus__c} name="BrokerStatus__c" id={req.Id} disabled></lightning-combobox>
+                                                </template>
+                                            </div>
+                                        </td>
+                                    </template>
+                                </template>
+    
+                                <template if:true={req.isRequestPool}>
+                                    <td class="slds-m-around--small" width="6%">
+                                        {req.ReinsurerPoolName}
+                                    </td>
+                                </template>
+                                <template if:false={req.isRequestPool}>
+                                    <td class="slds-m-around--small" width="6%">
+                                        <a data-id={req.Id} onclick={handleReinsurerNameSelected}>{req.ReinsurerName}</a>
+                                    </td>
+                                </template>
+
+                                <template if:false={allReadOnly}>
+                                    <template if:true={req.isRequestPool}>
+                                        <td>  </td>
+                                        <td>  </td>
+                                    </template>
+                                    <template if:false={req.isRequestPool}>
+                                        <td class="slds-m-around--small slds-p-top--medium" width="10%">
+                                            <div class="slds-form-element">
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-combobox_container">
+                                                        <div class={txtRiskCarrierLookupClassName} data-id="resultBox" aria-expanded="false" aria-haspopup="listbox" role="combobox">
+                                                            <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon slds-input-has-icon--right" role="none" style="padding-bottom: 8.5px;">
+                                                                <lightning-input data-id="userinput" value={req.RiskCarrierName} name="selectedBrokerText" id={req.Id} onchange={searchRiskCarrierLookUpField}></lightning-input>
+                                                                <span class="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_right iconheight">
+                                                                    <lightning-icon class="slds-icon slds-icon slds-icon_small slds-icon-text-default slds-align-middle slds-m-top_xx-small" icon-name="utility:search" size="x-small" alternative-text="icon" ></lightning-icon>
+                                                                </span>
+                                                            </div>
+
+                                                            <template if:true={req.displayRiskCarrierInfo}>
+                                                                <div id={req.divId} class="slds-dropdown slds-dropdown_length-with-icon-7 slds-dropdown_fluid" role="listbox">
+                                                                    <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                                        <template for:each={req.searchLookupRecordsRisk} for:item="record">
+                                                                            <li role="presentation" class="slds-listbox__item" key={record.recId}>
+                                                                                <div data-id={record.recId} title={req.Id} data-name={record.recName} onclick={setSelectedRiskCarrierLookupRecord} class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                                                                                <span class="slds-media__figure">
+                                                                                    <span class="slds-icon_container slds-icon-standard-account slds-align-middle">
+                                                                                        <lightning-icon icon-name="standard:account" class="slds-icon slds-icon slds-icon_small slds-icon-text-default" size="small"></lightning-icon>
+                                                                                    </span>
+                                                                                </span>
+                                                                                    <span class="slds-media__body">
+                                                                                    <span class="slds-listbox__option-text slds-listbox__option-text_entity">{record.recName}</span>
+                                                                                    <span class="slds-listbox__option-meta slds-listbox__option-meta_entity">{objectName} • {record.recName}</span>
+                                                                                </span>
+                                                                                </div>
+                                                                            </li>
+                                                                        </template>
+                                                                    </ul>
+                                                                </div>
+                                                            </template>
+                                                            <div if:true={req.messageFlagRisk}>
+                                                                No result found.
+                                                            </div>
+                                                            <div if:true={req.loadingTextRisk}>
+                                                                Loading...
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <td class="slds-m-around--small slds-p-top--medium" width="10%">
+                                            <div class="slds-form-element">
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-combobox_container">
+                                                        <div class={txtFinancialEntityLookupClassName} data-id="resultBox" aria-expanded="false" aria-haspopup="listbox" role="combobox">
+                                                            <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon slds-input-has-icon--right" role="none" style="padding-bottom: 8.5px;">
+                                                                <!-- RRA - ticket 1417 - 01022023-->
+                                                                <lightning-input data-id={req.Id} value={req.FinancialName} data-name = 'financialEntity' name="selectedBrokerText" id={req.Id} onchange={searchFinancialEntityLookUpField} ></lightning-input>
+                                                                <span class="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_right iconheight">
+                                                                    <lightning-icon class="slds-icon slds-icon slds-icon_small slds-icon-text-default slds-align-middle slds-m-top_xx-small" icon-name="utility:search" size="x-small" alternative-text="icon" ></lightning-icon>
+                                                                </span>
+                                                            </div>
+
+                                                            <!-- Second part display result -->
+                                                            <template if:true={req.displayFinancialInfo}>
+                                                                <div id={req.divId2} class="slds-dropdown slds-dropdown_length-with-icon-7 slds-dropdown_fluid" role="listbox">
+                                                                    <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                                        <template for:each={req.searchLookupRecordsFinancial} for:item="record">
+                                                                            <li role="presentation" class="slds-listbox__item" key={record.recId}>
+                                                                                <div data-id={record.recId} title={req.Id} data-name={record.recName} onclick={setSelectedFinancialEntityLookupRecord} class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                                                                                <span class="slds-media__figure">
+                                                                                    <span class="slds-icon_container slds-icon-standard-account slds-align-middle">
+                                                                                        <lightning-icon icon-name="standard:account" class="slds-icon slds-icon slds-icon_small slds-icon-text-default" size="small"></lightning-icon>
+                                                                                    </span>
+                                                                                </span>
+                                                                                    <span class="slds-media__body">
+                                                                                    <span class="slds-listbox__option-text slds-listbox__option-text_entity">{record.recName}</span>
+                                                                                    <span class="slds-listbox__option-meta slds-listbox__option-meta_entity">{objectName} • {record.recName}</span>
+                                                                                </span>
+                                                                                </div>
+                                                                            </li>
+                                                                        </template>
+                                                                    </ul>
+                                                                </div>
+                                                            </template>
+                                                            <div if:true={req.messageFlagFinancial}>
+                                                                No result found.
+                                                            </div>
+                                                            <div if:true={req.loadingTextFinancial}>
+                                                                Loading...
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </td>
+                                    </template>
+                                </template>
+
+                                <template if:true={allReadOnly}>
+                                    <template if:true={req.isRequestPool}>
+                                        <td>  </td>
+                                        <td>  </td>
+                                    </template>
+                                    <template if:false={req.isRequestPool}>
+                                        <td class="slds-m-around--small slds-p-top--medium" width="10%">
+                                            <div class="slds-form-element">
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-combobox_container">
+                                                        <div class={txtRiskCarrierLookupClassName} data-id="resultBox" aria-expanded="false" aria-haspopup="listbox" role="combobox">
+                                                            <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon slds-input-has-icon--right" role="none" style="padding-bottom: 8.5px;">
+                                                                <lightning-input data-id="userinput" value={req.RiskCarrierName} name="selectedBrokerText" id={req.Id} onchange={searchRiskCarrierLookUpField} disabled></lightning-input>
+                                                                <span class="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_right iconheight">
+                                                                    <lightning-icon class="slds-icon slds-icon slds-icon_small slds-icon-text-default slds-align-middle slds-m-top_xx-small" icon-name="utility:search" size="x-small" alternative-text="icon" ></lightning-icon>
+                                                                </span>
+                                                            </div>
+
+                                                            <template if:true={req.displayRiskCarrierInfo}>
+                                                                <div id={req.divId3} class="slds-dropdown slds-dropdown_length-with-icon-7 slds-dropdown_fluid" role="listbox">
+                                                                    <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                                        <template for:each={req.searchLookupRecordsRisk} for:item="record">
+                                                                            <li role="presentation" class="slds-listbox__item" key={record.recId}>
+                                                                                <div data-id={record.recId} title={req.Id} data-name={record.recName} onclick={setSelectedRiskCarrierLookupRecord} class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                                                                                <span class="slds-media__figure">
+                                                                                    <span class="slds-icon_container slds-icon-standard-account slds-align-middle">
+                                                                                        <lightning-icon icon-name="standard:account" class="slds-icon slds-icon slds-icon_small slds-icon-text-default" size="small"></lightning-icon>
+                                                                                    </span>
+                                                                                </span>
+                                                                                    <span class="slds-media__body">
+                                                                                    <span class="slds-listbox__option-text slds-listbox__option-text_entity">{record.recName}</span>
+                                                                                    <span class="slds-listbox__option-meta slds-listbox__option-meta_entity">{objectName} • {record.recName}</span>
+                                                                                </span>
+                                                                                </div>
+                                                                            </li>
+                                                                        </template>
+                                                                    </ul>
+                                                                </div>
+                                                            </template>
+                                                            <div if:true={req.messageFlagRisk}>
+                                                                No result found.
+                                                            </div>
+                                                            <div if:true={req.loadingTextRisk}>
+                                                                Loading...
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <td class="slds-m-around--small slds-p-top--medium" width="10%">
+                                            <div class="slds-form-element">
+                                                <div class="slds-form-element__control">
+                                                    <div class="slds-combobox_container">
+                                                        <div class={txtFinancialEntityLookupClassName} data-id="resultBox" aria-expanded="false" aria-haspopup="listbox" role="combobox">
+                                                            <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon slds-input-has-icon--right" role="none" style="padding-bottom: 8.5px;">
+                                                                <lightning-input data-id="userinput" value={req.FinancialName} name="selectedBrokerText" id={req.Id} onchange={searchFinancialEntityLookUpField} disabled></lightning-input>
+                                                                <span class="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_right iconheight">
+                                                                    <lightning-icon class="slds-icon slds-icon slds-icon_small slds-icon-text-default slds-align-middle slds-m-top_xx-small" icon-name="utility:search" size="x-small" alternative-text="icon" ></lightning-icon>
+                                                                </span>
+                                                            </div>
+
+                                                            <!-- Second part display result -->
+                                                            <template if:true={req.displayFinancialInfo}>
+                                                                <div id={req.divId4} class="slds-dropdown slds-dropdown_length-with-icon-7 slds-dropdown_fluid" role="listbox">
+                                                                    <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                                        <template for:each={req.searchLookupRecordsFinancial} for:item="record">
+                                                                            <li role="presentation" class="slds-listbox__item" key={record.recId}>
+                                                                                <div data-id={record.recId} title={req.Id} data-name={record.recName} onclick={setSelectedFinancialEntityLookupRecord} class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                                                                                <span class="slds-media__figure">
+                                                                                    <span class="slds-icon_container slds-icon-standard-account slds-align-middle">
+                                                                                        <lightning-icon icon-name="standard:account" class="slds-icon slds-icon slds-icon_small slds-icon-text-default" size="small"></lightning-icon>
+                                                                                    </span>
+                                                                                </span>
+                                                                                    <span class="slds-media__body">
+                                                                                    <span class="slds-listbox__option-text slds-listbox__option-text_entity">{record.recName}</span>
+                                                                                    <span class="slds-listbox__option-meta slds-listbox__option-meta_entity">{objectName} • {record.recName}</span>
+                                                                                </span>
+                                                                                </div>
+                                                                            </li>
+                                                                        </template>
+                                                                    </ul>
+                                                                </div>
+                                                            </template>
+                                                            <div if:true={req.messageFlagFinancial}>
+                                                                No result found.
+                                                            </div>
+                                                            <div if:true={req.loadingTextFinancial}>
+                                                                Loading...
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </td>
+                                    </template>
+                                </template>
+    
+                                <td class="slds-m-around--small" width="3%">
+                                    {req.WrittenShareVal}                                
+                                </td>
+
+                                <template if:false={allReadOnly}>
+                                    <template if:true={req.disableSignedShare}>
+                                        <td class="slds-m-around--small" width="5%">
+                                           {req.SignedShareVal}
+                                        </td>
+                                    </template>
+                                    <template if:false={req.disableSignedShare}>
+                                        <td class="slds-m-around--small" width="4%">
+                                            <div class="slds-p-bottom--medium">
+                                                <lightning-input label="" type="number" step="0.000001" onchange={handleChangeValue} value={req.SignedShare__c} name="SignedShare__c" id={req.Id}></lightning-input>
+                                            </div>
+                                        </td>
+                                    </template>
+                                </template>
+                                <template if:true={allReadOnly}>
+                                    <template if:true={req.disableSignedShare}>
+                                        <td class="slds-m-around--small" width="5%">
+                                            {req.SignedShareVal}
+                                        </td>
+                                    </template>
+                                    <template if:false={req.disableSignedShare}>
+                                        <td class="slds-m-around--small" width="4%">
+                                            <div class="slds-p-bottom--medium">
+                                                <lightning-input label="" type="number" step="0.000001" onchange={handleChangeValue} value={req.SignedShare__c} name="SignedShare__c" id={req.Id} disabled></lightning-input>
+                                            </div>
+                                        </td>
+                                    </template>
+                                </template>
+
+                                <td class="slds-m-around--small" width="5%">{req.ReinsurerStatus__c}</td>
+    
+                                <td class="slds-m-around--small" width="4%">
+                                    <template if:false={req.isRequestPool}>
+                                        <div class="slds-p-bottom--medium">
+                                            <lightning-input label="" type="number" step="0.000001" onchange={handleChangeValue} value={req.Deductions__c} name="Deductions__c" id={req.Id} disabled={req.disableDeduction}></lightning-input>
+                                        </div>
+                                    </template>
+                                    <template if:true={req.isRequestPool}>
+                                        <div class="slds-p-bottom--medium">
+                                            <lightning-input label="" type="number" step="0.000001" onchange={handleChangeValue} value={req.Deductions__c} name="Deductions__c" id={req.Id} disabled></lightning-input>
+                                        </div>
+                                    </template>
+                                </td>
+    
+                                <td class="slds-m-around--small" width="4%">
+                                    <template if:false={allReadOnly}>
+                                        <template if:true={req.isRequestPool}>
+                                            <div class="slds-p-bottom--medium">
+                                                <lightning-input label="" type="number" step="0.000001" onchange={handleChangeValue} value={req.RetrocessionBrokerage__c} name="RetrocessionBrokerage__c" id={req.Id} disabled></lightning-input>
+                                            </div>
+                                        </template>
+                                        <template if:false={req.isRequestPool}>
+                                            <div class="slds-p-bottom--medium">
+                                                <lightning-input label="" type="number" step="0.000001" onchange={handleChangeValue} value={req.RetrocessionBrokerage__c} name="RetrocessionBrokerage__c" id={req.Id} disabled={req.disableRetro}></lightning-input>
+                                            </div>
+                                        </template>
+                                    </template>
+
+                                    <template if:true={allReadOnly}>
+                                        <template if:true={req.isRequestPool}>
+                                            <div class="slds-p-bottom--medium">
+                                                <lightning-input label="" type="number" step="0.000001" onchange={handleChangeValue} value={req.RetrocessionBrokerage__c} name="RetrocessionBrokerage__c" id={req.Id} disabled></lightning-input>
+                                            </div>
+                                        </template>
+                                        <template if:false={req.isRequestPool}>
+                                            <div class="slds-p-bottom--medium">
+                                                <lightning-input label="" type="number" step="0.000001" onchange={handleChangeValue} value={req.RetrocessionBrokerage__c} name="RetrocessionBrokerage__c" id={req.Id} disabled></lightning-input>
+                                            </div>
+                                        </template>
+                                    </template>
+                                </td>
+    
+                                <td class="slds-m-around--small" width="6%" data-id="tdId">
+                                    <template if:true={req.isRequestPool}>
+                                        <div class="slds-p-bottom--medium" data-id="divId">
+                                            <lightning-combobox label="" placeholder="--None--" value={req.LossDepositMode__c} disabled options={req.LossDepositModeOpt} name="LossDepositMode__c" id={req.Id} onchange={handleChangeValue}></lightning-combobox>
+                                        </div>
+                                    </template>
+                                    <template if:false={req.isRequestPool}>
+                                        <div class="slds-p-bottom--medium" data-id="divId">
+                                            <template if:true={req.isLead}>
+                                                <lightning-combobox label="" class="strongText" placeholder="--None--" value={req.LossDepositMode__c} disabled={req.disableLossDepositMode} options={req.LossDepositModeOpt} name="LossDepositMode__c" id={req.Id} onchange={handleChangeValue}></lightning-combobox>
+                                            </template>
+                                            <template if:false={req.isLead}>
+                                                <lightning-combobox label="" placeholder="--None--" value={req.LossDepositMode__c} disabled={req.disableLossDepositMode} options={req.LossDepositModeOpt} name="LossDepositMode__c" id={req.Id} onchange={handleChangeValue}></lightning-combobox>
+                                            </template>  
+                                        </div>
+                                    </template>
+                                </td>
+    
+                                <td class="slds-m-around--small" width="5%" data-id="tdId">
+                                    <template if:true={req.isRequestPool}>
+                                        <div class="slds-p-bottom--medium" >
+                                            <lightning-combobox label="" placeholder="--None--" value={req.PremiumDeposit__c} options={premiumDepositOpt} name="PremiumDeposit__c" id={req.Id} disabled></lightning-combobox>
+                                        </div>
+                                    </template>
+                                    <template if:false={req.isRequestPool}>
+                                        <div class="slds-p-bottom--medium" data-id="divId">
+                                            <template if:true={req.isLead}>
+                                                <lightning-combobox label="" class="strongText" disabled={req.isPremiumDisable} placeholder="--None--" value={req.PremiumDeposit__c} options={premiumDepositOpt} name="PremiumDeposit__c" id={req.Id} onchange={handleChangeValue}></lightning-combobox>
+                                            </template>
+                                            <template if:false={req.isLead}>
+                                                <lightning-combobox label="" disabled={req.isPremiumDisable} placeholder="--None--" value={req.PremiumDeposit__c} options={premiumDepositOpt} name="PremiumDeposit__c" id={req.Id} onchange={handleChangeValue}></lightning-combobox>
+                                            </template>
+                                        </div>                                        
+                                    </template>
+                                </td>
+    
+                                <td class="slds-m-around--small" width="6%">{req.LastSentDate__c}</td>
+                                <td class="slds-m-around--small" width="6%">{req.ExpectedResponseDate__c}</td>
+                                <td class="slds-m-around--small" width="6%">{req.ResponseDate__c}</td>
+                            </tr>
+                        </template>
+                        
+                        <template if:true={req.displayTotalSumRow}>
+                            <tr class="slds-border--bottom slds-align-middle" key={req.Id}>
+                                <td class="slds-m-around--small" width="2%"></td>
+                                <td class="slds-m-around--small" width="3%">{req.TECH_Layer__c}</td>
+                                <td class="slds-m-around--small" width="3%"></td>
+                                <td class="slds-m-around--small" width="6%">{req.TECH_TreatyName__c} ({req.TreatyPlacementShare})</td>
+                                <td class="slds-m-around--small" width="6%"></td>
+                                <td class="slds-m-around--small" width="6%"></td>
+                                <td class="slds-m-around--small" width="6%"></td>
+                                <td class="slds-m-around--small slds-p-top--medium" width="10%"></td>
+                                <td class="slds-m-around--small slds-p-top--medium" width="10%"></td>
+                                <td class="slds-m-around--small" width="3%">{req.TotalWrittenShare}</td>
+                                <template if:true={req.PlacementShareEqualSignedShare}>
+                                    <td class="slds-m-around--small slds-text-color_success slds-text-align--center" width="3%">{req.TotalSignedShare}</td>
+                                </template>
+                                <template if:false={req.PlacementShareEqualSignedShare}>
+                                    <td class="slds-m-around--small slds-text-title_bold slds-text-color_error slds-text-align--center" width="3%">{req.TotalSignedShare}</td>
+                                </template>
+                                <td class="slds-m-around--small" width="5%"></td>
+                                <td class="slds-m-around--small" width="4%"></td>
+                                <td class="slds-m-around--small" width="4%"></td>
+                                <td class="slds-m-around--small" width="6%"></td>
+                                <td class="slds-m-around--small" width="5%"></td>
+                                <td class="slds-m-around--small" width="6%"></td>
+                                <td class="slds-m-around--small" width="6%"></td>
+                                <td class="slds-m-around--small" width="6%"></td>
+                            </tr>
+                        </template>
+                    </template>
+                </table>
+            </lightning-layout>
+            <br/>
+
+            <div class="slds-text-align--center">
+                <template if:false={allReadOnly}>
+                    <lightning-button name="ReopenPreviousPhases" label="Reopen Previous Phases" class="slds-p-around--xxx-small" variant="brand" slot="actions" onclick={handleReopenPreviousPhases} disabled={disableReopenPreviousPhase}></lightning-button>
+                </template>
+                <template if:true={allReadOnly}>
+                    <lightning-button name="ReopenPreviousPhases" disabled label="Reopen Previous Phases" class="slds-p-around--xxx-small" variant="brand" slot="actions" onclick={handleReopenPreviousPhases}></lightning-button>
+                </template>
+            </div>
+
+        </lightning-card>
+    </template>
+
+    <template if:true={isOpenConfirmation}>
+        <div>
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-01" aria-modal="true" aria-describedby="modal-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 50%; max-width: 65rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseConfirmationModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-01" class="slds-text-heading_medium slds-hyphenate">
+                            <template if:true={isClose}>
+                                Save Signing Request
+                            </template>
+                            <template if:true={isDelete}>
+                                Delete Signing requests
+                            </template>
+                            <template if:true={isAskToSave}>
+                                Save Signing Request
+                            </template>
+                        </h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-id-1">
+                        <template if:true={isClose}>
+                            You are going to lose the changes of the requests you made. Do you want to save the Signing Requests before continue?
+                        </template>              
+                        <template if:true={isDelete}>
+                            You are going to delete the Signing Phase. Do you want to continue?
+                        </template>
+                        <template if:true={isAskToSave}>
+                            You are going to lose the changes of the requests you made. Do you want to save the Signing Requests before continue?
+                        </template>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button-group>
+                            <template if:true={isSave}>
+                                <lightning-button label="Yes" name="yes" onclick={handleSaveSigningRequest}></lightning-button>
+                                <lightning-button label="No" onclick={handleCloseConfirmationModal}></lightning-button>
+                            </template>
+                            <template if:true={isDelete}>
+                                <lightning-button label="Accept" variant="brand" onclick={handleDeleteRequests}></lightning-button>
+                                <lightning-button label="Cancel" class="cancelButton" onclick={handleCloseConfirmationModal}></lightning-button> 
+                            </template>
+                            <template if:true={isAskToSave}>
+                                <lightning-button label="Yes" name="yes" onclick={handleSaveSigningRequest}></lightning-button>
+                                <lightning-button label="No" onclick={handleCloseConfirmationModal}></lightning-button>
+                            </template>
+                        </lightning-button-group>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+
+    <template if:true={isSendUpdateRemindSigningReqOpenModal}>
+        <div class="demo-only">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-04" aria-modal="true" aria-describedby="modal-content-id-4" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseSendUpdateRemindModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-heading-04" class="slds-text-heading_medium slds-hyphenate">{titlePopUp}</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-4">
+                        <c-lwc-18-send-update-remind  uw-year={valueUWYear} principle-ced-comp={valuePrincipalCedComp} program={selectedProgram} stage="Signing" selected-data-request={lstSelectedSigningRequest} selected-data-requestss={lstSelectedSigningRequest1} btn-name-click={btnNameSendUpdateRemind} onsigningsent={updateComponent}></c-lwc-18-send-update-remind>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+
+    <template if:true={isOpenSignForPoolModal}>
+        <div class="demo-only">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseSignForPoolModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Sign for Pool</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <c-lwc-32-sign-for-pool selected-signing-request={dataSigningPool}></c-lwc-32-sign-for-pool>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+
+    <template if:true={isValidate}>
+        <div class="demo-only">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-05" aria-modal="true" aria-describedby="modal-content-id-5" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseConfirmationModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-heading-05" class="slds-text-heading_medium slds-hyphenate">
+                            Ask for validation
+                        </h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-5">
+                        <c-lwc-31-ask-for-validation uw-year={uwYear} 
+                                                     principle-ced-comp ={principalCedYear}
+                                                     program ={selectedProgram}
+                                                     selected-data-request ={requestsSetup}
+                                                     total-premium ={totalCededPremiumEUR}>
+                        </c-lwc-31-ask-for-validation>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+
+    <!--SAU-->
+    <template if:true={marketSubVisible}>
+        <div class="demo-only">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-05" aria-modal="true" aria-describedby="modal-content-id-5" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseMarketSubModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-heading-06" class="slds-text-heading_medium slds-hyphenate">
+                            Market Submission
+                        </h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-6">
+                        <c-lwc-33-market-submission program-id={selectedProgram}
+                                                    selected-request-id={selectedRequest}
+                                                    reinsurer-id=""
+                                                    broker-id="">
+                        </c-lwc-33-market-submission>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+</template>

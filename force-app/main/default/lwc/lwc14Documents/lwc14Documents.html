@@ -1,0 +1,328 @@
+<!--
+  @description       : 
+  @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+  @group             : 
+  @last modified on  : 23-02-2024
+  @last modified by  : Patrick Randrianarisoa
+-->
+<template>
+    <c-lwc-01-working-scope selected-comp={principalCedingCompany} selected-year={uwYear} is-modal-open="true" is-document="true" program-options={programOptions} value-program={valueProgram}></c-lwc-01-working-scope>
+<br/>
+    <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small">
+        <lightning-card title="Broker/Reinsurer Documents" icon-name="standard:account">
+            <lightning-layout>
+                <table align="center" class="slds-table slds-table_bordered">
+                    <tr>
+                        <th>Name</th>
+                        <th>Broker Name</th>
+                        <th>Reinsurer Name</th>
+                        <th>Phase</th>
+                        <th>Date</th>
+                        <!--<th>Reinsurer / Broker Name</th>-->
+                    </tr>
+                    <template for:each={lstExternalDocuments} for:item="doc">
+                        <tr key={doc.Id} id={doc.Id} class="slds-p-around--xxx-small">
+                            <td style="padding-bottom:5px;">
+<!--                                <a onclick={navigateToFiles} data-id={doc.ContentDocumentId}>{doc.Name}</a>-->
+                                <template if:true={doc.Viewable}>
+                                    <a href={doc.DocumentUrl} target="_blank">{doc.Name}</a>
+                                </template>
+                            </td>
+                            <td style="padding-bottom:5px;">
+                                {doc.NameBroker}
+                            </td>
+                            <td style="padding-bottom:5px;">
+                                {doc.NameReinsurer}
+                            </td>
+                            <td style="padding-bottom:5px;">
+                                {doc.Phase}
+                            </td>
+                            <td style="padding-bottom:5px;">
+                                {doc.CreatedDate}
+                            </td>
+                            <!--<td style="padding-bottom:20px;">
+                                {doc.AccountName}
+                            </td>-->
+                        </tr>
+                    </template>
+                </table>
+            </lightning-layout>
+        </lightning-card>
+    </div>
+    <br/>
+
+    <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small">
+        <lightning-card title="THEMIS Documents" icon-name="standard:account">
+            <lightning-layout>
+                <table class="slds-table slds-table_bordered">
+                    <tr>
+                        <th>Name</th>
+                        <th>Group type</th>
+                        <th>Document type</th>
+                        <th>Phase</th>
+                        <th>Version</th>
+                    </tr>
+                    <template for:each={lstTHEMISDocuments} for:item="ThemisDoc">
+                        <tr key={ThemisDoc.Id} id={ThemisDoc.Id} class="slds-p-around--xxx-small">
+                            <td>
+<!--                                <a onclick={navigateToFiles} data-id={ThemisDoc.ContentDocumentId}>{ThemisDoc.Name}</a>-->
+                                <template if:true={ThemisDoc.Viewable}>
+                                    <a href={ThemisDoc.DocumentUrl} target="_blank">{ThemisDoc.Name}</a>
+                                </template>
+                                <template if:false={ThemisDoc.Viewable}>
+                                    {ThemisDoc.Name}
+                                </template>
+                            </td>
+                            <td> {ThemisDoc.GroupType} </td>
+                            <td> {ThemisDoc.DocType} </td>
+                            <td> {ThemisDoc.Phase} </td>
+                            <td> {ThemisDoc.Version} </td>
+                        </tr>
+                    </template>
+                </table>
+            </lightning-layout>
+        </lightning-card>
+    </div>
+
+    <!-- AGRE-CLM DEV START : AzharNahoor - 10/07/2023 -->    
+    <br/>
+    <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small">
+        <lightning-card title="Contractual Documents" icon-name="standard:record_signature_task">
+
+            <!-- show/hide the spinner -->
+            <div if:true={isLoading} style="position:relative">
+                <lightning-spinner variant="brand" size="medium"></lightning-spinner>
+            </div>
+            
+            <div if:true={hasCongaDocuments}>
+                <lightning-layout>
+                    <table class="slds-table slds-table_bordered">
+                        <tr>
+                            <th>Name</th>
+                            <th>Group type</th>
+                            <th>Document type</th>
+                            <th>Phase</th>
+                            <th>Version</th>
+                        </tr>
+                        <template for:each={lstCongaDocuments} for:item="CongaDoc">
+                            <tr key={CongaDoc.Id} id={CongaDoc.Id} class="slds-p-around--xxx-small">
+                                <td class="wrap-text">
+                                    <template if:true={CongaDoc.Viewable}>
+                                        <a href={CongaDoc.DocumentUrl} target="_blank">{CongaDoc.Name}</a>
+                                    </template>
+                                    <template if:false={CongaDoc.Viewable}>
+                                        {CongaDoc.Name}
+                                    </template>
+                                </td>
+                                <td>Contractual</td>
+                                <td>Acceptance – Special Conditions</td>
+                                <td>{CongaDoc.Phase}</td>
+                                <td>{CongaDoc.Version}</td>
+                            </tr>
+                        </template>
+                    </table>
+                </lightning-layout>
+            </div>
+            <div if:false={hasCongaDocuments}>
+                <div if:false={isLoading} style="position:relative">
+                    <div class="slds-text-align_center slds-text-heading_small">No documents generated yet..</div>
+                </div>
+            </div>
+            <div slot="actions">
+                
+                <template if:true={hasCLMPerm}>
+                    <template if:true={showClmButtons}>
+                            <template if:true={agreementAlreadyGenerated}>
+                                <lightning-button icon-name="utility:signature"
+                                    variant="brand" 
+                                    label="Open agreement" 
+                                    title="Open agreement" 
+                                    onclick={handleViewProgram}
+                                    disabled={disableBtnModal}>
+                                </lightning-button>
+                            </template>
+                            <template if:true={canRenew}>
+                                <lightning-button icon-name="utility:signature"
+                                variant="brand" 
+                                label="Renew agreement" 
+                                title="Renew agreement" 
+                                onclick={handleRenew}>
+                                </lightning-button>
+                            </template>
+                            <template if:true={generateNew}>
+                                <lightning-button icon-name="utility:signature"
+                                    variant="brand" 
+                                    label="Generate Agreement" 
+                                    title="Generate Agreement" 
+                                    onclick={handleViewProgram}
+                                    disabled={disableBtnModal}>
+                                </lightning-button>
+                            </template>
+                    </template>
+                </template>
+
+            
+                <template if:true={isModalRTOpen}>
+                    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-02" aria-modal="true" aria-describedby="modal-content-id-2" class="slds-modal slds-fade-in-open">
+                        <div class="slds-modal__container">
+                            <!-- Modal/Popup Box LWC header here -->
+                            <header class="slds-modal__header">
+                                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closeModaRt}>
+                                    <lightning-icon icon-name="utility:close"
+                                        alternative-text="close"
+                                        variant="inverse"
+                                        size="small" ></lightning-icon>
+                                    <span class="slds-assistive-text">Close</span>
+                                </button>
+                                <h2 id="modal-heading-02" class="slds-text-heading_medium slds-hyphenate">Choose Agreement Record Type</h2>
+                            </header>
+                            <!-- Modal/Popup Box LWC body starts here -->
+                            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-2">
+
+                                <!-- <div if:true={isWaiting} class="exampleHolder">
+                                    <lightning-spinner alternative-text="Loading" size="xx-small"></lightning-spinner>
+                                </div> -->
+
+                                <div class="slds-p-around_medium">
+                                    <c-record-type-selector object-api-name={objectApiName} selected-record-type-names="Acceptation,Global Broker,Group Cover" onrecordtypechange={handleRtSelect}></c-record-type-selector>
+                                </div>
+                            </div>
+                            <!-- Modal/Popup Box LWC footer starts here -->
+                            <footer class="slds-modal__footer">
+                                <button class="slds-button slds-button_neutral" onclick={closeModaRt} title="Cancel">Cancel</button>
+                                <button class="slds-button slds-button_brand" onclick={submitDetailsRT} title="OK">OK</button>
+                            </footer>
+                        </div>
+                    </section>
+                    <div class="slds-backdrop slds-backdrop_open"></div>
+
+
+
+                    <!-- <lightning-modal
+                        header="Select Record Type"
+                        size="small"
+                        is-open={isModalRTOpen}
+                        footer="footer"
+                        onclose={closeModaRt}
+                    >
+                        <div class="slds-p-around_medium">
+                            <c-record-type-selector object-api-name={objectApiName}></c-record-type-selector>
+                        </div>
+                    </lightning-modal> -->
+                </template>
+            </div>
+        </lightning-card>
+
+        
+
+
+    </div>
+    <!-- AGRE-CLM DEV END : AzharNahoor - 10/07/2023 -->
+    
+    <br/>
+    <div class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-top--small">
+        <lightning-card title="AXA Documents" icon-name="standard:account">
+            <lightning-button-group slot="actions">
+                <lightning-button label="New" onclick={handleOpenNewDocumentModal}></lightning-button>
+                <lightning-button label="Delete" onclick={handleDeleteDocument}></lightning-button>
+            </lightning-button-group>
+            <lightning-layout>
+                <!-- Add Table -->
+                <table class="slds-table slds-table_bordered">
+                    <tr>
+                        <th></th>
+                        <th>Name</th>
+                        <th>Group type</th>
+                        <th>Document type</th>
+                        <th>Phase</th>
+                        <!-- NBI - 07 OCT 2020 -->
+                        <!-- W-0751 : Faire disparaitre le bouton Replace -->
+                    </tr>
+                    <template for:each={lstDocuments} for:item="doc">
+                        <tr key={doc.Id} id={doc.Id} class="slds-p-around--xxx-small">
+                            <td><lightning-input label="" name={doc.Id} type="checkbox" onchange={handleChangeDocCheckbox}></lightning-input></td>
+                            <td>
+                                <template if:true={doc.Viewable}>
+                                    <a href={doc.DocumentUrl} target="_blank">{doc.Name}</a>
+                                </template>
+                                <template if:false={doc.Viewable}>
+                                    {doc.Name}
+                                </template>                                    
+                            </td><!--added by DMO 17022020 to view document-->
+
+                            <td style="padding-bottom: 1rem;padding-top: 1rem;">
+                                <div class="slds-required slds-float_right">*</div>
+                               <lightning-combobox class="requiredField" label="" placeholder="--None--" value={doc.GroupType} options={groupTypeOpt} name={doc.Id} onchange={handleChangeGroupType} required variant="label-hidden"></lightning-combobox>
+                            </td>
+
+                            <td style="padding-bottom: 1rem;padding-top: 1rem;">
+                                <div class="slds-required slds-float_right">*</div>
+                                <lightning-combobox placeholder="--None--" value={doc.DocumentType} options={doc.DocumentTypeOpt} name={doc.Id} onchange={handleChangeDocumentType} disabled={doc.isGroupEmpty} required variant="label-hidden"></lightning-combobox>
+                            </td>
+<!--                            <td><c-lwc-multi-picklist options={doc.PhaseOptions} showclearbutton='true' showfilterinput='true' showrefreshbutton='true' onitemselected={handleOnItemSelected} docname={doc.Id}></c-lwc-multi-picklist></td>-->
+                            <td style="padding-bottom: 1rem;padding-top: 1rem;">
+                                <div class="slds-required slds-float_right">*</div>
+                                <lightning-combobox label="" placeholder="--None--" value={doc.Phase} options={phaseOpt} name={doc.Id} onchange={handleChangePhase} required variant="label-hidden"></lightning-combobox>
+                            </td>
+
+                            <!-- NBI - 07 OCT 2020 -->
+                            <!-- W-0751 : Faire disparaitre le bouton Replace -->
+                            <!--<td><lightning-button label="Replace" name={doc.Id} onclick={handleOnclickReplace}></lightning-button></td>-->
+                        </tr>
+                    </template>
+                </table>
+            </lightning-layout>
+        </lightning-card>
+    </div>
+
+    <div style="float: right;" class="slds-p-top--large">
+        <lightning-button class="slds-p-around--xxx-small" label="Cancel" slot="actions" onclick={handleCloseDocumentModal}></lightning-button>
+        <lightning-button class="slds-p-around--xxx-small" variant="brand" label="Save" slot="actions" onclick={handleSaveDocument}></lightning-button>
+        <br/>
+        <br/>
+    </div>
+
+    <template if:true={isOpenDocModal}>
+        <div class="demo-only">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseUploadModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">New Documents</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <div style="margin-top: 0.5rem;" class="slds-border--top slds-border--left slds-border--right slds-border--bottom slds-p-around--medium">
+                            <template if:true={isReplaceButton}>
+                                <lightning-file-upload name="documentUploadReplace"
+                                                       label="Drag & Drop or select your new files in the file selector below"
+                                                       onuploadfinished={handleUploadReplaceFinished}
+                                                       record-id={valueProgram}>
+                                </lightning-file-upload>
+                            </template>
+                            <template if:false={isReplaceButton}>
+                                <lightning-file-upload name="documentUpload"
+                                                       label="Drag & Drop or select your new files in the file selector below"
+                                                       onuploadfinished={handleUploadFinished}
+                                                       record-id={valueProgram}
+                                                       multiple>
+                                </lightning-file-upload>
+                            </template>
+                            <lightning-formatted-text value={documentNames}></lightning-formatted-text>
+                        </div>
+
+                        <div style="float: right;" class="slds-p-top--small">
+                            <lightning-button class="slds-p-around--xxx-small" label="Cancel" slot="actions" onclick={handleCloseUploadModal}></lightning-button>
+                            <lightning-button class="slds-p-around--xxx-small" variant="brand" label="Save" slot="actions" onclick={handleSaveUploadDoc}></lightning-button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+</template>

@@ -1,0 +1,36 @@
+<template>
+    <!-- Quota Share Section -->
+    <template if:true={sectionRequest.isTreatyTypeQS}>
+        <c-psd-Quota-Share-Section section-request={sectionRequest} currency-opt={currencyOpt} nature-opt={natureOpt}
+            read-only>
+        </c-psd-Quota-Share-Section>
+    </template>
+    
+    <!-- Quota Share Section RRA - ticket 1966 - 19032024-->
+    <template if:true={sectionRequest.isTreatyTypeAXAXLQS}>
+        <c-psd-Quota-Share-Section-A-X-A-X-L-Q-S section-request={sectionRequest} currency-opt={currencyOpt} nature-opt={natureOpt}
+            read-only>
+        </c-psd-Quota-Share-Section-A-X-A-X-L-Q-S>
+    </template>
+
+    <!-- Surplus Section -->
+    <template if:true={sectionRequest.isTreatyTypeSurplus}>
+        <c-psd-Surplus-Section section-request={sectionRequest} currency-opt={currencyOpt} nature-opt={natureOpt}
+            read-only>
+        </c-psd-Surplus-Section>
+    </template>
+
+    <!-- Excess of Loss Section -->
+    <template if:true={sectionRequest.isTreatyTypeXL}>
+        <c-psd-Xs-Loss-Section section-request={sectionRequest} currency-opt={currencyOpt} nature-opt={natureOpt}
+            read-only>
+        </c-psd-Xs-Loss-Section>
+    </template>
+
+    <!-- Stop Loss Section -->
+    <template if:true={sectionRequest.isTreatyTypeSL}>
+        <c-psd-Stop-Loss-Section section-request={sectionRequest} currency-opt={currencyOpt} nature-opt={natureOpt}
+            read-only>
+        </c-psd-Stop-Loss-Section>
+    </template>
+</template>

@@ -1,0 +1,71 @@
+<template>
+    <lightning-card title="Working Scope">
+        <lightning-layout>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-combobox name="year"
+                                    label="Underwriting Year"
+                                    value={valueUwYear}
+                                    options={uwYearOpt}
+                                    onchange={handleChangeUWYr}>
+                </lightning-combobox>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small" size="6">
+                <lightning-combobox name="company"
+                                    label="Principal Ceding Company"
+                                    value={valuePrincipalCedComp}
+                                    options={cedingAccOpt}
+                                    onchange={handleChangePCC}>
+                </lightning-combobox>
+            </lightning-layout-item>
+        </lightning-layout>
+    </lightning-card>
+    <br/>
+
+    <template if:true={spinner}>
+        <div class="slds-spinner_container">
+            <div role="status" class="slds-spinner slds-spinner_medium slds-spinner_delayed">
+                <span class="slds-assistive-text">Loading...</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </template>
+
+    <template if:true={valIsBroker}>
+        <lightning-card title="Filters">
+            <lightning-layout>
+                <lightning-layout-item padding="around-small" size="6">
+                    <lightning-combobox name="reinsurer"
+                                        label="Reinsurer"
+                                        value={valueReinsurer}
+                                        options={reinsurerOptionsAll}
+                                        onchange={handleChangeReinsurer}>
+                    </lightning-combobox>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small" size="6">
+                </lightning-layout-item>
+            </lightning-layout>
+        </lightning-card>
+        <br/>
+    </template>
+
+    <template for:each={lstRequests} for:item="request">
+        <div key={request.reinsurerName} class="slds-theme_default" style="margin-left:-12px;">
+            <div style="background-color: #ffffff;">
+                <lightning-tile type="media">
+                    <lightning-card title={request.reinsurerName} icon-name="standard:contact_list" > <br/>
+                        <div style="height:200px;">
+                            <lightning-datatable
+                                    key-field="id"
+                                    data={request.lstSaRequests}
+                                    columns={columns}
+                                    hide-checkbox-column>
+                            </lightning-datatable>
+                        </div>
+                    </lightning-card>
+                </lightning-tile>
+            </div>
+        </div>
+        <br key={request.reinsurerName} />
+    </template>
+</template>

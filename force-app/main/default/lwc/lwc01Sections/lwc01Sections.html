@@ -1,0 +1,233 @@
+<template>
+    <div style="background-color: #ffffff;">
+        <template if:false={conditionPage}>
+            <lightning-tile type="media">
+                <lightning-accordion active-section-name={label.Sections} allow-multiple-sections-open="true">
+                    <lightning-accordion-section name={label.Sections} label={label.Sections}>
+                        <lightning-card title={titleCountSections} icon-name="standard:lead_list"> <br/>
+                            <lightning-button-group slot="actions">
+
+                                <template if:false={allReadOnly}>
+                                    <lightning-button label={label.NewSection} onclick={handleOpenModal} disabled={disableNewSectionBtn}></lightning-button>
+                                    <lightning-button label="Retain to Lead" onclick={handleOpenRetainedToLeadModal} disabled={disableRetainToLeadBtn}></lightning-button>
+                                    <lightning-button label={label.Reactivate} onclick={reactivateBtn} disabled={disableSectionBtns}></lightning-button>
+                                    <lightning-button label={label.Deactivate} onclick={deactivateBtn} disabled={disableSectionBtns}></lightning-button>
+                                    <lightning-button label={label.Delete} onclick={deleteBtn} disabled={disableSectionBtns}></lightning-button>
+                                </template>
+
+                                <template if:true={allReadOnly}>
+                                    <lightning-button label={label.NewSection} onclick={handleOpenModal} disabled></lightning-button>
+                                    <lightning-button label="Retain to Lead" onclick={handleOpenRetainedToLeadModal} disabled></lightning-button>
+                                    <lightning-button label={label.Reactivate} onclick={reactivateBtn} disabled></lightning-button>
+                                    <lightning-button label={label.Deactivate} onclick={deactivateBtn} disabled></lightning-button>
+                                    <lightning-button label={label.Delete} onclick={deleteBtn} disabled></lightning-button>
+                                </template>
+
+                            </lightning-button-group>
+
+                            <template if:true={spinnerSection}>
+                                <div class="">
+                                    <lightning-spinner variant="brand" size="medium" class="slds-align_absolute-center"></lightning-spinner>
+                                </div>
+                            </template>
+    
+                            <!--RRA - ticket 585 - 16032023  onrowselection={handleRowSelection}-->
+                            <div style="height:200px;">
+                                <lightning-datatable
+                                        key-field="id"
+                                        data={data}
+                                        columns={columns}
+                                        onrowaction={handleRowAction}>
+                                </lightning-datatable>
+                            </div>
+                        </lightning-card>
+                    </lightning-accordion-section>
+                </lightning-accordion>
+            </lightning-tile>
+        </template>
+        <template if:true={conditionPage}>
+            <lightning-card title={titleCountSections} icon-name="standard:lead_list"> <br/>
+                <lightning-button-group slot="actions">
+
+                    <template if:false={allReadOnly}>
+                        <lightning-button label={label.NewSection} onclick={handleOpenModal} disabled={disableNewSectionBtn}></lightning-button>
+                        <lightning-button label="Retain to Lead" onclick={handleOpenRetainedToLeadModal} disabled={disableRetainToLeadBtn}></lightning-button>
+                        <lightning-button label={label.Reactivate} onclick={reactivateBtn}></lightning-button>
+                        <lightning-button label={label.Deactivate} onclick={deactivateBtn}></lightning-button>
+                        <lightning-button label={label.Delete} onclick={deleteBtn}></lightning-button>
+                    </template>
+
+                    <template if:true={allReadOnly}>
+                        <lightning-button label={label.NewSection} onclick={handleOpenModal} disabled></lightning-button>
+                        <lightning-button label="Retain to Lead" onclick={handleOpenRetainedToLeadModal} disabled></lightning-button>
+                        <lightning-button label={label.Reactivate} onclick={reactivateBtn} disabled></lightning-button>
+                        <lightning-button label={label.Deactivate} onclick={deactivateBtn} disabled></lightning-button>
+                        <lightning-button label={label.Delete} onclick={deleteBtn} disabled></lightning-button>
+                    </template>
+
+
+                </lightning-button-group>
+
+                <template if:true={spinnerSection}>
+                    <div class="">
+                        <lightning-spinner variant="brand" size="medium" class="slds-align_absolute-center"></lightning-spinner>
+                    </div>
+                </template>
+
+                <!--RRA - ticket 585 - 16032023  onrowselection={handleRowSelection} -->
+                <div style="height:200px;">
+                    <lightning-datatable
+                            key-field="id"
+                            data={data}
+                            columns={columns}
+                            onrowaction={handleRowAction}>
+                    </lightning-datatable>
+                </div>
+            </lightning-card>
+        </template>
+    </div>
+    <template if:true={isOpenConfirmation}>
+        <div>
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-01" aria-modal="true" aria-describedby="modal-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 50%; max-width: 65rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-01" class="slds-text-heading_medium slds-hyphenate">{statusModalTitle}</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-id-1">
+                        {status}
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button-group>
+                            <lightning-button label="Accept" onclick={acceptStatusChange}></lightning-button>
+                            <lightning-button label="Cancel" onclick={handleCloseModal}></lightning-button>
+                        </lightning-button-group>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+    <template if:true={isOpenModal}>
+        <div class="demo-only">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">New Section</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+
+                        <template if:false={allReadOnly}>
+                            <template if:true={displayErrorMsg}>
+                                <div class="slds-text-align--center">
+                                    Cannot create new Section for Renewed Program.
+                                </div>
+                            </template>
+                            <template if:false={displayErrorMsg}>
+                                <c-lwc-01-new-section uw-year-open-modal={uwYear} comp-open-modal={comp} record-id={recordId} selected-treaties={mySelectedTreaties} selected-program={selectedProgram} is-section-copy={isCopy} selected-row-section-copy={selectedSectionCopy} is-section-new-option={isNewOption}></c-lwc-01-new-section>
+                            </template>
+                        </template>
+
+                        <template if:true={allReadOnly}>
+                            <c-lwc-01-section-read-only uw-year-open-modal={uwYear} comp-open-modal={comp} record-id={recordId} selected-treaties={mySelectedTreaties} selected-program={selectedProgram} is-section-copy={isCopy} selected-row-section-copy={selectedSectionCopy} is-section-new-option={isNewOption}></c-lwc-01-section-read-only>
+                        </template>
+                    </div>
+                    <template if:true={displayErrorMsg}>
+                        <footer class="slds-modal__footer">
+                            <lightning-button-group>
+                                <lightning-button label="Close" onclick={handleCloseModal}></lightning-button>
+                            </lightning-button-group>
+                        </footer>
+                    </template>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+    <template if:true={isDeleteOpen}>
+        <div>
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-del01" aria-modal="true" aria-describedby="modal-id-del1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 50%; max-width: 65rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-del01" class="slds-text-heading_medium slds-hyphenate">{delMsgTitle}</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-id-del1">
+                        {delMessage}
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button-group>
+                            <lightning-button label="Accept" onclick={acceptDelete}></lightning-button>
+                            <lightning-button label="Cancel" onclick={handleCloseModal}></lightning-button>
+                        </lightning-button-group>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+
+    <template if:true={openRetainedToLeadModal}>
+        <div class="demo-only">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-02" aria-modal="true" aria-describedby="modal-content-id-2" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width: 80%; max-width: 95rem; min-width: 40rem;">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseRetainedToLeadModal}>
+                            <lightning-icon icon-name="utility:close" size="medium">
+                            </lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+
+                        <h2 id="modal-heading-02" class="slds-text-heading_medium slds-hyphenate">Retain To Lead</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-2">
+                        <div style="height:350px;">
+                             <!--RRA ticekt 1399 - 20012023-->
+                            <lightning-datatable
+                                    key-field="Id"
+                                    data-id="tableId" 
+                                    data={dataRetainedtoLead}
+                                    columns={columnsRetainedtoLead}
+                                    onrowselection={handleRetainedToLeadRowSelection}
+                                    selected-rows={preSelectedRetainedToLead}>
+                            </lightning-datatable>
+                        </div>
+                        <br/>
+      
+                        <div style="float: right;">
+                            <lightning-button class="slds-p-around--xxx-small" label="Cancel" slot="actions" onclick={handleCloseRetainedToLeadModal}></lightning-button>
+                            <lightning-button class="slds-p-around--xxx-small" variant="brand" label="Send to Lead Phase" slot="actions" onclick={handleSaveRetainedToLead} disabled={disableSendToLeadBtn}></lightning-button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+    <!--// MRA W-0804 09/09/2022-->
+    <c-lwc18-Confirmation-Modal title='Confirmation Title'
+                           message={confirmMessage}
+                           confirm-label='Yes'
+                           cancel-label='No'
+                           visible={isDialogVisible}
+                           original-message={originalMessage}
+                           name="confirmModal"
+                           onclick={handleConfirmationModal}>
+    </c-lwc18-Confirmation-Modal>
+</template>

@@ -1,0 +1,29 @@
+<aura:component implements="forceCommunity:profileMenuInterface,forceCommunity:availableForAllPageTypes" access="global" controller="LC45_UIPortal">
+    <aura:attribute name="options" type="String[]" default="Home,My Profile,My Account,Logout"/>
+    <aura:attribute name="portalURL" type="String"/>
+    <aura:attribute name="UserInfo" type="User"/>
+    <aura:attribute name="photo" type="Boolean"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <ui:menu >
+        <ui:menuTriggerLink aura:id="trigger" label="{!v.UserInfo.Email}">
+            <div>
+                <aura:if isTrue="{!v.photo}">
+                    <span class="slds-avatar slds-avatar--circle"  style="margin-right: 7px;">
+                        <img src="{!v.UserInfo.SmallPhotoUrl}" alt="person name"/>
+                    </span>
+                    <aura:set attribute="else">
+                        <lightning:icon iconName="action:user" size="x-small" style="background-color:#8199af;margin-right: 7px;"/>
+                    </aura:set>
+                </aura:if>
+                <ui:outputText value="{!v.UserInfo.Email}" class="colorClass"/>
+                <lightning:icon iconName="utility:down" size="xx-small" style="color: #4e4e4e;margin-left: 7px;"/>
+            </div>
+        </ui:menuTriggerLink>
+        <ui:menuList class="actionMenu changeSize" aura:id="actionMenu">
+            <aura:iteration items="{!v.options}" var="itemLabel">
+                <ui:actionMenuItem label="{!itemLabel}" click="{!c.handleClick}"/>
+            </aura:iteration>
+        </ui:menuList>
+    </ui:menu>
+    
+</aura:component>

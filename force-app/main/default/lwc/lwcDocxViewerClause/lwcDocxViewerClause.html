@@ -1,0 +1,17 @@
+<template>
+    <template if:true={showClauseOnly}>
+        <div class="slds-box slds-box_small slds-theme_default">
+            <lightning-card title="Clause File" icon-name="standard:file">
+                    <div class="slds-grid slds-gutters slds-grid_vertical-align-center slds-wrap">
+                        <div class="slds-align_absolute-center slds-col slds-p-vertical_x-small slds-p-horizontal_medium slds-grow-none slds-shrink-none slds-size_1-of-1">
+                            <span class="slds-icon_container slds-icon-doctype-xml" title="Description of icon when needed">
+                                    <lightning-icon icon-name="doctype:attachment" alternative-text="Attachment file" title="Attachment" size="large"></lightning-icon>
+                                <span class="slds-assistive-text">Description of icon when needed</span>
+                            </span>                     
+                            <a href={downloadUrl}>{docName}</a>
+                        </div>
+                    </div>
+            </lightning-card>
+        </div>
+    </template>
+</template>

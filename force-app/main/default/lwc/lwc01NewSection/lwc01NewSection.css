@@ -1,0 +1,8 @@
+.THIS .alignRight > input{
+     text-align: right!important;
+}
+.THIS .alignHelpText{
+     margin-top: -6%;
+     margin-left: 40%;
+     margin-bottom: -13%;
+}

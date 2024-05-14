@@ -1,0 +1,31 @@
+<template>
+    <template if:true={spinner}>
+        <div class="slds-spinner_container">
+            <div role="status" class="slds-spinner slds-spinner_medium slds-spinner_delayed">
+                <span class="slds-assistive-text">Loading...</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </template>
+    
+    <template for:each={requests} for:item="request">
+        <div key={request.reinsurerName} class="slds-theme_default" style="margin-left:-12px;">
+            <div style="background-color: #ffffff;">
+               <!--<lightning-tile type="media">-->
+                    <lightning-card title={request.reinsurerName} icon-name="standard:contact_list" > <br/>
+                        <div style="height:400px;"><!--MRA W-0825 13/09/2022-->
+                            <lightning-datatable
+                                    key-field="id"
+                                    data={request.lstRequests}
+                                    columns={columns}
+                                    hide-checkbox-column>
+                            </lightning-datatable>
+                        </div>
+                    </lightning-card>
+                <!--</lightning-tile>-->
+            </div>
+        </div>
+       
+    </template>
+</template>
