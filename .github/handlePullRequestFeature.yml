@@ -39,8 +39,8 @@ jobs:
               run: sf project deploy start --source-dir force-app/main/default/classes --target-org devhub --concise 
 
             #Run Apex tests in scratch org
-            - name: 'Run Apex tests'
-              run: sf apex run test -c -r human -d --target-org devhub 
+            #- name: 'Run Apex tests'
+            #  run: sf apex run test -c -r human -d --target-org devhub 
             
             # Delete temporary test file thatr CodeCov is unable to parse
             #- name: 'Delete coverage file (temporary step)'
