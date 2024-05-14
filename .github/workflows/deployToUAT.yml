@@ -3,7 +3,7 @@ name: DeployToUAT
 on:
   pull_request:
     types: [closed]
-    branches: uat
+    branches: DEV
 jobs:
     deploy-uat:
         runs-on: ubuntu-latest
