@@ -499,7 +499,7 @@ public with sharing class LWC30_SigningRequests_TEST {
     public static void testSaveSigningRequestProgram(){
         System.runAs(testUserCE) {
             Test.startTest();
-                Map<String, Object> mapResults = LWC30_SigningRequests.saveSigningRequest(new List<Request__c>{lstRequests[4], lstRequests[5], lstRequests[6]}, new List<Id>{lstRequests[4].Id, lstRequests[5].Id, lstRequests[6].Id}, new List<Id>{lstRequests[4].Id, lstRequests[5].Id, lstRequests[6].Id}, 'Programs', new List<Id>{lstRequests[4].Id, lstRequests[5].Id, lstRequests[6].Id});
+                Map<String, Object> mapResults = LWC30_SigningRequests.saveSigningRequest(new List<Request__c>{lstRequests[4], lstRequests[5], lstRequests[6]}, new List<Id>{lstRequests[4].Id, lstRequests[5].Id, lstRequests[6].Id}, new List<Id>{lstRequests[4].Id, lstRequests[5].Id, lstRequests[6].Id}, 'Program', new List<Id>{lstRequests[4].Id, lstRequests[5].Id, lstRequests[6].Id});
                 //System.assertEquals(null, mapResults.get('Error'));
                 //System.assertEquals('Success', mapResults.get('Success'));
             Test.stopTest();
