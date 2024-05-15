@@ -776,7 +776,7 @@ public with sharing class LWC30_SigningRequests_TEST {
         }
     }
 
-    /*@IsTest
+    @IsTest
     public static void testGetSigningDetailslstRequestCededPremiumisNull(){
         System.runAs(testUserCE) {
             Test.startTest();
@@ -823,5 +823,5 @@ public with sharing class LWC30_SigningRequests_TEST {
                 LWC30_SigningRequests.getListAgreementIds(lstProgram[1].Id);
             Test.stopTest();
         }
-    }*/
+    }
 }
