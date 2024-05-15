@@ -10,7 +10,7 @@ jobs:
         steps: 
         # Checkout the source code
             - name: 'Checkout source code'
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
               with:
                 fetch-depth: 0                           
           #Install Salesforce CLI
@@ -49,6 +49,6 @@ jobs:
         # Deploy DEV to UAT Org 
             - name: 'Deploy source dev to UAT org'
              #run: sf project deploy start --source-dir changed-sources/ -l 'RunLocalTests' -o roddy.randrianarison@axa-re.com.uat
-              run:  sf project deploy start --verbose -x changedSources/package/package.xml -o roddy.randrianarison@axa-re.com.uat --test-level RunSpecifiedTests
+              run:  sf project deploy start --verbose -x changedSources/package/package.xml -o roddy.randrianarison@axa-re.com.uat
 
 
