@@ -64,7 +64,7 @@ jobs:
           - name: Create PR in UAT
             run: |
               git remote add UAT https://github.com/roddyTelesio/REPO-UAT.git
-              git fetch REPO-UAT pull-request
+              git fetch UAT 
               git checkout -b pull-request-from-repository-REPO-UAT
               git cherry-pick ${{ github.event.pull_request.head.sha}}
 
