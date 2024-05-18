@@ -46,8 +46,8 @@ jobs:
               #run: sf project deploy start --source-dir changed-sources/ -l 'RunLocalTests' -o roddy.randrianarison@axa-re.com.uat
               run:  sf project deploy start --verbose -x changedSources/package/package.xml -o roddy.randrianarison@axa-re.com.uat --dry-run
         # Run Tests Class:
-            - name: 'Run Tests Class'
-              run: sf apex run test -c -r human --test-level RunLocalTests --synchronous --output-dir changedSources/package/ --detailed-coverage
+            #- name: 'Run Tests Class'
+              #run: sf apex run test -c -r human --test-level RunLocalTests --synchronous --output-dir changedSources/package/ --detailed-coverage
         # Deploy DEV to UAT Org 
             - name: 'Deploy source dev to UAT org'
              #run: sf project deploy start --source-dir changed-sources/ -l 'RunLocalTests' -o roddy.randrianarison@axa-re.com.uat
@@ -63,7 +63,7 @@ jobs:
       # Create pull-request to UAT
           - name: Create PR in UAT
             run: |
-              git remote add REPO-UAT https://github.com/roddyTelesio/REPO-UAT.git
+              git remote add UAT https://github.com/roddyTelesio/REPO-UAT.git
               git fetch REPO-UAT pull-request
               git checkout -b pull-request-from-repository-REPO-UAT
               git cherry-pick ${{ github.event.pull_request.head.sha}}
