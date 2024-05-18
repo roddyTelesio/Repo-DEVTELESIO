@@ -65,7 +65,6 @@ jobs:
             run: |
                 git remote add UAT https://github.com/roddyTelesio/REPO-UAT.git
                 git fetch UAT 
-                git checkout -b pull-request-from-repository-REPO-UAT
                 git config --global roddy.randrianarison@telesio.fr
                 git config --global roddy.randrianarison@axa-re.com.uat
                 git cherry-pick ${{ github.event.pull_request.head.sha}}
