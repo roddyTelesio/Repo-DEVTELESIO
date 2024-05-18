@@ -1,7 +1,7 @@
 @IsTest
 public with sharing class LWC30_SigningRequests_TEST {
 /**************************************************************************************
--- - Author        : Spoon Consulting RRA GITHUB TEST RRAARRAA
+-- - Author        : Spoon Consulting RRA GITHUB TEST RRAA
 -- - Description   : Test class for LWC30_SigningRequests 
 --
 -- Maintenance History:
