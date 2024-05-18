@@ -68,6 +68,6 @@ jobs:
                 git checkout -b UAT
                 git config --global user.email roddy.randrianarison@telesio.fr
                 git config --global user.name roddy.randrianarison@axa-re.com.uat
-                git cherry-pick ${{ github.event.pull_request.head.sha}} --skip  
+                git cherry-pick ${{ github.event.pull_request.head.sha}}
 
 
