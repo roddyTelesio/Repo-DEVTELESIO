@@ -1,6 +1,6 @@
 name: run push 
 on :
-    push:
+  pull_request:
         branches: main
 jobs: 
     action-pull-request:
