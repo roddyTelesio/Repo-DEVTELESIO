@@ -11,7 +11,7 @@ jobs:
           with:
               fetch-depth: 0
         - name: Run the Action
-          if: startsWith(github.ref, 'refs/heads/demo')
+          if: startsWith(github.ref, 'refs/heads/main')
           uses: devops-infra/action-pull-request@v0.4.2
           env: 
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -27,7 +27,7 @@ jobs:
               - name: 'Checkout source code'
                 uses: actions/checkout@v4
                 with:
-                  repository: REPO-UAT
+                  repository: roddyTelesio/REPO-UAT
                   ref: 'UAT'
                   token:  ${{ secrets.GITHUB_TOKEN }}
                   fetch-depth: 0
