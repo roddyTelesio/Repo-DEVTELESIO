@@ -52,22 +52,6 @@ jobs:
             - name: 'Deploy source dev to UAT org'
              #run: sf project deploy start --source-dir changed-sources/ -l 'RunLocalTests' -o roddy.randrianarison@axa-re.com.uat
               run:  sf project deploy start --verbose -x changedSources/package/package.xml -o roddy.randrianarison@axa-re.com.uat
-    creation-pr-uat:
-      runs-on: ubuntu-latest
-      steps: 
-      # Checkout the source code
-          - name: 'Checkout source code'
-            uses: actions/checkout@v4
-            with:
-              fetch-depth: 0
-      # Create pull-request to UAT
-          - name: Create PR in UAT
-            run: |
-                git remote add UAT https://github.com/roddyTelesio/REPO-UAT.git
-                git fetch UAT 
-                git checkout -b UAT
-                git config --global user.email roddy.randrianarison@telesio.fr
-                git config --global user.name roddy.randrianarison@axa-re.com.uat
-                git cherry-pick ${{ github.event.pull_request.head.sha}} --commit
+   
 
 
