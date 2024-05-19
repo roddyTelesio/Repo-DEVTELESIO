@@ -1,0 +1,43 @@
+name: run push 
+on :
+    push:
+        branches: main
+jobs: 
+    action-pull-request:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Checkout repository
+          uses: actions/checkout@v2
+          with:
+              fetch-depth: 0
+        - name: Run the Action
+          if: startsWith(github.ref, 'refs/heads/demo')
+          uses: devops-infra/action-pull-request@v0.4.2
+          env: 
+            GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          with: 
+             github_token: ${{ secrets.TOKEN_GITHUB }}
+             title: Automatic Pull Request
+             get_diff: true
+             
+    creation-pr-uat:
+          runs-on: ubuntu-latest
+          steps: 
+          # Checkout the source codes
+              - name: 'Checkout source code'
+                uses: actions/checkout@v4
+                with:
+                  repository: REPO-UAT
+                  ref: 'UAT'
+                  token:  ${{ secrets.TOKEN_GITHUB }}
+                  fetch-depth: 0
+          # Create pull-request to UAT
+              - name: Create PR in UAT
+                run: |
+                    git remote add UAT https://github.com/roddyTelesio/REPO-UAT.git
+                    git fetch UAT 
+                    git checkout -b UAT
+                    git config --global user.email roddy.randrianarison@telesio.fr
+                    git config --global user.name roddy.randrianarison@axa-re.com.uat
+                    git cherry-pick ${{ github.event.pull_request.head.sha}} --commit
+
