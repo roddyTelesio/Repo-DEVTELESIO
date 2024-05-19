@@ -1,6 +1,6 @@
 name: run push 
 on :
-  pull_request:
+  push:
         branches: main
 jobs: 
     action-pull-request:
@@ -23,7 +23,7 @@ jobs:
     creation-pr-uat:
           runs-on: ubuntu-latest
           steps: 
-          # Checkout the source codes
+          # Checkout the source code
               - name: 'Checkout source code'
                 uses: actions/checkout@v4
                 with:
