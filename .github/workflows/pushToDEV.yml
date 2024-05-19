@@ -23,7 +23,7 @@ jobs:
     creation-pr-uat:
           runs-on: ubuntu-latest
           steps: 
-          # Checkout the source code
+          # Checkout the source codes
               - name: 'Checkout source code'
                 uses: actions/checkout@v4
                 with:
