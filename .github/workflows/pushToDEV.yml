@@ -1,43 +1,63 @@
-name: run push 
-on :
-  push:
-        branches: DEV
-jobs: 
-    action-pull-request:
-        runs-on: ubuntu-latest
-        steps:
-        - name: Checkout repository
-          uses: actions/checkout@v2
-          with:
-              fetch-depth: 0
-        - name: Run the Action
-          if: startsWith(github.ref, 'refs/heads/DEV')
-          uses: devops-infra/action-pull-request@v0.4.2
-          env: 
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          with: 
-             github_token: ${{ secrets.GITHUB_TOKEN }}
-             title: Automatic Pull Request
-             get_diff: true
-             
-    creation-pr-uat:
-          runs-on: ubuntu-latest
-          steps: 
-          # Checkout the source code
-              - name: 'Checkout source code'
-                uses: actions/checkout@v4
-                with:
-                  repository: roddyTelesio/REPO-UAT
-                  ref: 'UAT'
-                  token:  ${{ secrets.GITHUB_TOKEN }}
-                  fetch-depth: 0
-          # Create pull-request to UATT
-              - name: Create PR in UAT
-                run: |
-                    git remote add UAT1 https://github.com/roddyTelesio/REPO-UAT.git
-                    git fetch UAT1 
-                    git checkout -b UAT1
-                    git config --global user.email roddy.randrianarison@telesio.fr
-                    git config --global user.name roddy.randrianarison@axa-re.com.uat
-                    git cherry-pick ${{ github.event.pull_request.head.sha}} --commit
+on:
+  pull_request:
+    branches:
+      - main
 
+name: on-commit-to-main
+
+jobs:
+  send-pull-requests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+        with:
+          fetch-depth: 0 # Checkout everything to get access to the tags
+          ref: ${{github.event.pull_request.head.ref}}
+          repository: ${{github.event.pull_request.head.repo.full_name}}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Send pull-request
+        run: |
+          LATEST_TAG=$(git describe --tags --always --abbrev=0)
+          REPOSITORY="some-user/some-repository"
+          FOLDER="bin/$REPOSITORY"
+          BRANCH_NAME="chore-update-scripts-to-$LATEST_TAG"
+
+          # Clone the remote repository and change working directory to the
+          # folder it was cloned to.
+          git clone \
+            --depth=1 \
+            --branch=main \
+            https://some-user:${{ secrets.TOKEN_GITHUB }}@github.com/$REPOSITORY \
+            $FOLDER
+
+          cd $FOLDER
+
+          # Setup the committers identity.
+          git config user.email "some-user@some-domain.com"
+          git config user.name "Some User"
+
+          # Create a new feature branch for the changes.
+          git checkout -b $BRANCH_NAME
+
+          # Update the script files to the latest version.
+          cp -R ../../../scripts scripts
+
+          # Commit the changes and push the feature branch to origin
+          git add .
+          git commit -m "chore: update scripts to $LATEST_TAG"
+          git push origin $BRANCH_NAME
+
+          # Store the PAT in a file that can be accessed by the
+          # GitHub CLI.
+          echo "${{ secrets.TOKEN_GITHUB }}" > token.txt
+
+          # Authorize GitHub CLI for the current repository and
+          # create a pull-requests containing the updates.
+          gh auth login --with-token < token.txt
+          gh pr create \
+            --body "" \
+            --title "chore: update scripts to $LATEST_TAG" \
+            --head "$BRANCH_NAME" \
+            --base "main"
