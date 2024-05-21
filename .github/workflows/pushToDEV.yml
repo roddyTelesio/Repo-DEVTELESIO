@@ -31,7 +31,7 @@ jobs:
                   ref: 'UAT'
                   token:  ${{ secrets.GITHUB_TOKEN }}
                   fetch-depth: 0
-          # Create pull-request to UAT
+          # Create pull-request to UATT
               - name: Create PR in UAT
                 run: |
                     git remote add UAT1 https://github.com/roddyTelesio/REPO-UAT.git
