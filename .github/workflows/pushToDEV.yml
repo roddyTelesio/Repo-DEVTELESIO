@@ -20,7 +20,7 @@ jobs:
       - name: Send pull-request
         run: |
           LATEST_TAG=$(git describe --tags --always --abbrev=0)
-          REPOSITORY="some-user/some-repository"
+          REPOSITORY="roddyTelesio/REPO-UAT"
           FOLDER="bin/$REPOSITORY"
           BRANCH_NAME="chore-update-scripts-to-$LATEST_TAG"
 
@@ -29,14 +29,14 @@ jobs:
           git clone \
             --depth=1 \
             --branch=main \
-            https://some-user:${{ secrets.TOKEN_GITHUB }}@github.com/$REPOSITORY \
+            https://roddyTelesio:${{ secrets.TOKEN_GITHUB }}@github.com/$REPOSITORY \
             $FOLDER
 
           cd $FOLDER
 
           # Setup the committers identity.
-          git config user.email "some-user@some-domain.com"
-          git config user.name "Some User"
+          git config user.email "roddy.randrianarison@telesio.fr"
+          git config user.name "roddy.randrianarison@axa-re.com.uat"
 
           # Create a new feature branch for the changes.
           git checkout -b $BRANCH_NAME
